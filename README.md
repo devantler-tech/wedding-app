@@ -95,7 +95,10 @@ TEST01
 
 Manifests are in `deploy/`. The app expects a `wedding-db-app` secret (created automatically by the CloudNativePG operator) with a `uri` key containing the PostgreSQL connection string.
 
+The `deploy/secret.enc.yaml` file is SOPS-encrypted with an Age key. In the cluster, Flux handles decryption automatically. For manual deployment, decrypt first:
+
 ```bash
+sops -d deploy/secret.enc.yaml | kubectl apply -f -
 kubectl apply -k deploy/
 ```
 
