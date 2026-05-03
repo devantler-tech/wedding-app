@@ -5,7 +5,9 @@
 
 		<div class="space-y-8">
 			<div class="flex gap-4 items-start">
-				<span class="text-2xl flex-shrink-0 mt-1">🧥</span>
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-shirt text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Påklædning</h3>
 					<p class="text-warm-brown">
@@ -16,7 +18,9 @@
 			</div>
 
 			<div class="flex gap-4 items-start">
-				<span class="text-2xl flex-shrink-0 mt-1">❤️</span>
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-heart text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">En aften for voksne</h3>
 					<p class="text-warm-brown">
@@ -27,7 +31,9 @@
 			</div>
 
 			<div class="flex gap-4 items-start">
-				<span class="text-2xl flex-shrink-0 mt-1">🏡</span>
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-house text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Overnatning</h3>
 					<p class="text-warm-brown">
@@ -39,7 +45,9 @@
 			</div>
 
 			<div class="flex gap-4 items-start">
-				<span class="text-2xl flex-shrink-0 mt-1">📍</span>
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-location-dot text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Adresse</h3>
 					<p class="text-warm-brown mb-2">
@@ -52,7 +60,7 @@
 						rel="noopener noreferrer"
 						class="inline-flex items-center gap-1 text-soft-gold hover:text-warm-brown transition-colors text-sm"
 					>
-						Åbn i Google Maps →
+						Åbn i Google Maps <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1" aria-hidden="true"></i>
 					</a>
 				</div>
 			</div>

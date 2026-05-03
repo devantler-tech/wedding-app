@@ -1,15 +1,15 @@
 <script lang="ts">
 	const schedule = [
-		{ time: '14:30', event: 'Vielse', icon: '💍' },
-		{ time: '15:00', event: 'Reception', icon: '🥂' },
-		{ time: '16:00', event: 'Fotografering', icon: '📸' },
-		{ time: '17:30', event: 'Velkomstdrinks', icon: '🍸' },
-		{ time: '18:00', event: 'Middag', icon: '🍽️' },
-		{ time: '23:30', event: 'Brudevals', icon: '💃' },
-		{ time: '00:00', event: 'Fest', icon: '🎉' },
-		{ time: '01:00', event: 'Natmad', icon: '🌙' },
-		{ time: '01:30', event: 'Godnat', icon: '😴' },
-		{ time: '09:00', event: 'Morgenmad', icon: '☀️' }
+		{ time: '14:30', event: 'Vielse', icon: 'fa-solid fa-ring' },
+		{ time: '15:00', event: 'Reception', icon: 'fa-solid fa-champagne-glasses' },
+		{ time: '16:00', event: 'Fotografering', icon: 'fa-solid fa-camera' },
+		{ time: '17:30', event: 'Velkomstdrinks', icon: 'fa-solid fa-martini-glass' },
+		{ time: '18:00', event: 'Middag', icon: 'fa-solid fa-utensils' },
+		{ time: '23:30', event: 'Brudevals', icon: 'fa-solid fa-person-dancing' },
+		{ time: '00:00', event: 'Fest', icon: 'fa-solid fa-music' },
+		{ time: '01:00', event: 'Natmad', icon: 'fa-solid fa-moon' },
+		{ time: '01:30', event: 'Godnat', icon: 'fa-solid fa-bed' },
+		{ time: '09:00', event: 'Morgenmad', icon: 'fa-solid fa-sun' }
 	];
 </script>
 
@@ -30,7 +30,7 @@
 					<div class="relative z-10 w-3 h-3 mt-1.5 rounded-full bg-soft-gold flex-shrink-0 ring-4 ring-warm-white group-hover:scale-125 transition-transform"></div>
 
 					<div class="flex items-center gap-3 pb-2">
-						<span class="text-xl sm:text-2xl">{item.icon}</span>
+						<i class="{item.icon} text-soft-gold w-5 text-center text-base sm:text-lg" aria-hidden="true"></i>
 						<span class="text-base sm:text-lg text-dark-brown font-serif">{item.event}</span>
 					</div>
 				</div>

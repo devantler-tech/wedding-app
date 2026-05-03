@@ -65,7 +65,7 @@
 				onclick={() => (selectedImage = null)}
 				aria-label="Luk"
 			>
-				✕
+				<i class="fa-solid fa-xmark" aria-hidden="true"></i>
 			</button>
 		</div>
 	</div>

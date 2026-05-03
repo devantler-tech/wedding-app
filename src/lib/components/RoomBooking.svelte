@@ -90,7 +90,7 @@
 					Gem booking
 				</button>
 				{#if saved}
-					<p class="text-soft-gold mt-3 text-sm">✓ Din booking er gemt</p>
+					<p class="text-soft-gold mt-3 text-sm"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Din booking er gemt</p>
 				{/if}
 			</div>
 		</form>

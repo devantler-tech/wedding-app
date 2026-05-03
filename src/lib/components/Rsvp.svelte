@@ -91,7 +91,7 @@
 					Gem svar
 				</button>
 				{#if saved}
-					<p class="text-soft-gold mt-3 text-sm animate-fade-in">✓ Dit svar er gemt</p>
+					<p class="text-soft-gold mt-3 text-sm animate-fade-in"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Dit svar er gemt</p>
 				{/if}
 			</div>
 		</form>
