@@ -3,4 +3,4 @@ dist
 *.md
 .git
 .github
-k8s
+deploy

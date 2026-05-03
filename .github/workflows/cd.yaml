@@ -50,7 +50,7 @@ jobs:
       - run: |
           flux push artifact \
             oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/deploy:latest \
-            --path=./k8s \
+            --path=./deploy \
             --source="$(git config --get remote.origin.url)" \
             --revision="$(git branch --show-current)/$(git rev-parse HEAD)" \
             --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
