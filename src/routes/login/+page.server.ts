@@ -22,6 +22,21 @@ export const actions: Actions = {
 			return fail(400, { error: 'Indtast venligst en kode', code });
 		}
 
+		// Dev mode: accept TEST01 without hitting the database
+		if (process.env.DEV_SKIP_AUTH === 'true') {
+			if (code.toUpperCase() !== 'TEST01') {
+				return fail(400, { error: 'Dev mode: brug koden TEST01', code });
+			}
+			cookies.set('session', 'dev-session', {
+				path: '/',
+				httpOnly: true,
+				secure: false,
+				sameSite: 'lax',
+				maxAge: 60 * 60 * 24 * 30
+			});
+			redirect(303, '/');
+		}
+
 		const pair = await validateCode(code);
 		if (!pair) {
 			return fail(400, { error: 'Ugyldig kode. Prøv igen.', code });
