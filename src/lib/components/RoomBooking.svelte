@@ -9,7 +9,9 @@
 
 	let { booking }: { booking: Booking | null } = $props();
 
-	let requested = $state(booking?.requested ?? false);
+	let requested = $derived(booking?.requested ?? false);
+	let requestedLocal = $state<boolean | undefined>(undefined);
+	let isRequested = $derived(requestedLocal ?? requested);
 	let saved = $state(false);
 
 	function showSaved() {
@@ -41,13 +43,14 @@
 				<input
 					type="checkbox"
 					name="requested"
-					bind:checked={requested}
+					checked={isRequested}
+					onchange={(e) => { requestedLocal = (e.currentTarget as HTMLInputElement).checked; }}
 					class="w-5 h-5 accent-soft-gold rounded"
 				/>
 				<span class="text-dark-brown font-serif text-lg">Vi ønsker at booke et værelse</span>
 			</label>
 
-			{#if requested}
+			{#if isRequested}
 				<div class="space-y-4 pl-8 border-l-2 border-soft-gold/30">
 					<div>
 						<label for="nights" class="block text-sm text-warm-brown mb-1">

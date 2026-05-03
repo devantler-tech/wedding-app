@@ -48,7 +48,7 @@
 	</div>
 
 	<div class="absolute bottom-10 animate-bounce">
-		<a href="#program" class="text-sand hover:text-warm-brown transition-colors">
+		<a href="#program" aria-label="Scroll til program" class="text-sand hover:text-warm-brown transition-colors">
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 			</svg>
