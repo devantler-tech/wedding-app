@@ -32,7 +32,7 @@ jobs:
             type=sha
             type=raw,value=latest
 
-      - uses: docker/build-push-action@263435318d21b8e681c14492fe198e19c3bc4c4f # v6.18.0
+      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           push: true
