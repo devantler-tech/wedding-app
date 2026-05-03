@@ -49,7 +49,7 @@ jobs:
 
       - run: |
           flux push artifact \
-            oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-manifests:latest \
+            oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/manifests:latest \
             --path=./deploy \
             --source="$(git config --get remote.origin.url)" \
             --revision="$(git branch --show-current)/$(git rev-parse HEAD)" \
