@@ -5,6 +5,10 @@ import type { Actions, PageServerLoad } from './$types.js';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const sessionId = cookies.get('session');
 	if (sessionId) {
+		// Dev mode: skip DB lookup, just redirect if cookie exists
+		if (process.env.DEV_SKIP_AUTH === 'true') {
+			redirect(302, '/');
+		}
 		const { getSession } = await import('$lib/server/auth.js');
 		const session = await getSession(sessionId);
 		if (session) {
