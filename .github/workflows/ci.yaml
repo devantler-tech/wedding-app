@@ -42,3 +42,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
+  ci-required-checks:
+    name: CI - Required Checks
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    permissions: {}
+    if: ${{ always() }}
+    steps:
+      - name: 📊 Require all CI checks to pass
+        uses: devantler-tech/actions/aggregate-job-checks@59d3ffbe1a9437fcc39e2794fa2f221abe878310 # v3.3.0
+        with:
+          job-results: >-
+            ${{ needs.lint.result }}
+            ${{ needs.test.result }}
+            ${{ needs.build.result }}
