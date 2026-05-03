@@ -1,11 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 	import type { ActionData } from './$types.js';
 
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-cream">
+<div class="min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
+	<CornerOrnament corner="tl" size={150} />
+	<CornerOrnament corner="tr" size={150} />
+	<CornerOrnament corner="bl" size={150} />
+	<CornerOrnament corner="br" size={150} />
 	<div class="max-w-md w-full px-6">
 		<div class="text-center mb-12">
 			<p class="text-dark-brown mb-2" style="font-family: var(--font-script); font-size: 4.5rem; line-height: 1; letter-spacing: 0.02em;">
