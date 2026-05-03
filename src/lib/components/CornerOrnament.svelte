@@ -1,134 +1,135 @@
 <script lang="ts">
-	type Corner = 'tl' | 'tr' | 'bl' | 'br';
-	let { corner = 'tl', size = 160 }: { corner?: Corner; size?: number } = $props();
+	type Corner = 'tl' | 'tr';
+	let { corner = 'tl', size = 180 }: { corner?: Corner; size?: number } = $props();
 
 	const positionClass: Record<Corner, string> = {
 		tl: 'top-0 left-0',
-		tr: 'top-0 right-0',
-		bl: 'bottom-0 left-0',
-		br: 'bottom-0 right-0'
+		tr: 'top-0 right-0'
 	};
 
-	// Mirror the top-left botanical design into each other corner via SVG coordinate transforms.
-	// Using SVG-space transforms avoids CSS transform-origin issues.
 	const gTransform: Record<Corner, string> = {
 		tl: '',
-		tr: 'translate(140,0) scale(-1,1)',
-		bl: 'translate(0,140) scale(1,-1)',
-		br: 'translate(140,140) scale(-1,-1)'
+		tr: 'translate(200,0) scale(-1,1)'
 	};
 </script>
 
 <!--
-  Botanical branch corner ornament inspired by the lush trees and nature at Gl. Brydegaard.
-  Designed as top-left, then mirrored into the other three corners via SVG transforms.
+  Soft eucalyptus-style corner ornament with rounded oval leaves
+  on a gently curving stem. Designed as top-left and mirrored for top-right.
 -->
 <div
-	class="absolute pointer-events-none text-warm-brown/40 {positionClass[corner]}"
+	class="absolute pointer-events-none text-warm-brown/30 {positionClass[corner]}"
 	aria-hidden="true"
 >
 	<svg
 		width={size}
 		height={size}
-		viewBox="0 0 140 140"
+		viewBox="0 0 200 200"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
-		overflow="visible"
 	>
 		<g transform={gTransform[corner]}>
-			<!-- Main sweeping branch from lower-left to upper-right -->
+			<!-- Main flowing stem curving gently from top-left corner downward -->
 			<path
-				d="M 10 130 C 35 98 72 65 110 35 C 120 27 130 16 130 10"
+				d="M 0 8 C 20 12, 50 30, 70 55 C 85 74, 95 100, 100 130 C 103 148, 104 168, 102 190"
 				stroke="currentColor"
-				stroke-width="1.5"
+				stroke-width="1.2"
 				stroke-linecap="round"
 			/>
 
-			<!-- === Cluster 1 — lower section ~(35, 100) === -->
+			<!-- Secondary branch splitting off near the top -->
 			<path
-				d="M 35 100 C 24 92 16 80 14 66"
+				d="M 30 22 C 55 18, 85 10, 115 5 C 135 2, 160 2, 185 6"
 				stroke="currentColor"
-				stroke-width="1.1"
+				stroke-width="1"
 				stroke-linecap="round"
 			/>
-			<!-- Leaf 1a: pointing upper-left -->
-			<path
-				d="M 14 66 C 8 56 6 44 12 34 C 18 44 18 56 14 66 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
+
+			<!-- ===== Leaves on the main stem ===== -->
+
+			<!-- Leaf pair 1 — near start of curve -->
+			<ellipse cx="28" cy="18" rx="10" ry="5"
+				transform="rotate(-25, 28, 18)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
 			/>
-			<!-- Leaf 1b: pointing left -->
-			<path
-				d="M 14 66 C 4 62 0 52 4 42 C 10 50 14 60 14 66 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
+			<ellipse cx="20" cy="30" rx="9" ry="4.5"
+				transform="rotate(20, 20, 30)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
 			/>
 
-			<!-- === Cluster 2 — middle section ~(72, 65) === -->
-			<path
-				d="M 72 65 C 60 55 54 42 52 28"
-				stroke="currentColor"
-				stroke-width="1.1"
-				stroke-linecap="round"
+			<!-- Leaf pair 2 — mid-curve -->
+			<ellipse cx="56" cy="38" rx="11" ry="5"
+				transform="rotate(-40, 56, 38)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.07"
 			/>
-			<!-- Leaf 2a: pointing upward -->
-			<path
-				d="M 52 28 C 46 18 46 6 52 -4 C 58 6 56 18 52 28 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
-			/>
-			<!-- Leaf 2b: pointing upper-left -->
-			<path
-				d="M 52 28 C 40 24 34 14 38 4 C 44 12 50 22 52 28 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
-			/>
-			<!-- Leaf 2c: pointing downward from main branch at (72,65) -->
-			<path
-				d="M 72 65 C 80 75 84 88 78 100 C 72 88 70 76 72 65 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
+			<ellipse cx="46" cy="52" rx="10" ry="4.5"
+				transform="rotate(15, 46, 52)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
 			/>
 
-			<!-- === Cluster 3 — upper section ~(110, 35) === -->
-			<path
-				d="M 110 35 C 100 25 98 14 100 2"
-				stroke="currentColor"
-				stroke-width="1.1"
-				stroke-linecap="round"
+			<!-- Leaf pair 3 — where the curve deepens -->
+			<ellipse cx="78" cy="68" rx="11" ry="5"
+				transform="rotate(-55, 78, 68)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.07"
 			/>
-			<!-- Leaf 3a: pointing upward (extends above viewbox, clipped by container edge) -->
-			<path
-				d="M 100 2 C 94 -8 96 -20 102 -26 C 108 -18 106 -6 100 2 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
-			/>
-			<!-- Leaf 3b: pointing upper-left -->
-			<path
-				d="M 100 2 C 88 -2 82 -10 86 -20 C 92 -12 98 -4 100 2 Z"
-				stroke="currentColor"
-				stroke-width="0.9"
-				fill="currentColor"
-				fill-opacity="0.09"
+			<ellipse cx="66" cy="78" rx="10" ry="5"
+				transform="rotate(5, 66, 78)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
 			/>
 
-			<!-- Small berries along the branch -->
-			<circle cx="20" cy="118" r="2.4" fill="currentColor" fill-opacity="0.45" />
-			<circle cx="50" cy="84" r="2.1" fill="currentColor" fill-opacity="0.4" />
-			<circle cx="88" cy="50" r="2.1" fill="currentColor" fill-opacity="0.4" />
-			<circle cx="120" cy="18" r="2.4" fill="currentColor" fill-opacity="0.45" />
+			<!-- Leaf pair 4 — lower section -->
+			<ellipse cx="92" cy="100" rx="11" ry="5"
+				transform="rotate(-65, 92, 100)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.07"
+			/>
+			<ellipse cx="84" cy="112" rx="10" ry="4.5"
+				transform="rotate(-10, 84, 112)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
+			/>
+
+			<!-- Single leaf 5 — near the trailing end -->
+			<ellipse cx="98" cy="142" rx="10" ry="4.5"
+				transform="rotate(-75, 98, 142)"
+				stroke="currentColor" stroke-width="0.8"
+				fill="currentColor" fill-opacity="0.06"
+			/>
+
+			<!-- ===== Leaves on the secondary branch ===== -->
+
+			<ellipse cx="72" cy="12" rx="9" ry="4"
+				transform="rotate(-8, 72, 12)"
+				stroke="currentColor" stroke-width="0.7"
+				fill="currentColor" fill-opacity="0.05"
+			/>
+			<ellipse cx="100" cy="6" rx="9" ry="4"
+				transform="rotate(5, 100, 6)"
+				stroke="currentColor" stroke-width="0.7"
+				fill="currentColor" fill-opacity="0.05"
+			/>
+			<ellipse cx="130" cy="3" rx="9" ry="4"
+				transform="rotate(2, 130, 3)"
+				stroke="currentColor" stroke-width="0.7"
+				fill="currentColor" fill-opacity="0.05"
+			/>
+			<ellipse cx="158" cy="4" rx="8" ry="3.5"
+				transform="rotate(8, 158, 4)"
+				stroke="currentColor" stroke-width="0.7"
+				fill="currentColor" fill-opacity="0.05"
+			/>
+
+			<!-- Small buds — soft dots along the stems -->
+			<circle cx="12" cy="12" r="1.8" fill="currentColor" fill-opacity="0.2" />
+			<circle cx="62" cy="55" r="1.5" fill="currentColor" fill-opacity="0.18" />
+			<circle cx="88" cy="90" r="1.5" fill="currentColor" fill-opacity="0.18" />
+			<circle cx="145" cy="3" r="1.5" fill="currentColor" fill-opacity="0.15" />
 		</g>
 	</svg>
 </div>

@@ -26,8 +26,6 @@
 <section id="top" class="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
-	<CornerOrnament corner="bl" size={170} />
-	<CornerOrnament corner="br" size={170} />
 	<p class="text-warm-brown tracking-[0.3em] uppercase text-sm mb-6 font-sans">Vi skal giftes</p>
 	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-6 leading-tight">
 		Aimée<br class="sm:hidden" />
