@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: wedding-app
-          image: ghcr.io/devantler-tech/wedding-app:latest
+          image: ghcr.io/devantler-tech/wedding-app:v1.0.0 # {"$imagepolicy": "wedding-app:wedding-app"}
           ports:
             - containerPort: 3000
               protocol: TCP

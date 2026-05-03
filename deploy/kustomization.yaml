@@ -4,4 +4,4 @@ resources:
   - deployment.yaml
   - service.yaml
   - cluster.yaml
-  - secret.yaml
+  - secret.enc.yaml
