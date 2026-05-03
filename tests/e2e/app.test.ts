@@ -23,8 +23,8 @@ test.describe('Main page (dev mode)', () => {
 
 	test('shows countdown timer', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('Dage')).toBeVisible();
-		await expect(page.getByText('Timer')).toBeVisible();
+		await expect(page.getByText('Dage', { exact: true })).toBeVisible();
+		await expect(page.getByText('Timer', { exact: true })).toBeVisible();
 	});
 
 	test('shows program section with events', async ({ page }) => {

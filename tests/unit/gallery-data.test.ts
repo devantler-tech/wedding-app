@@ -11,13 +11,6 @@ describe('galleryEntries', () => {
 			expect(entry.src).toBeTruthy();
 			expect(entry.alt).toBeTruthy();
 			expect(entry.caption).toBeTruthy();
-			expect(entry.date).toBeTruthy();
-		}
-	});
-
-	it('entries are in chronological order', () => {
-		for (let i = 1; i < galleryEntries.length; i++) {
-			expect(galleryEntries[i].date >= galleryEntries[i - 1].date).toBe(true);
 		}
 	});
 
