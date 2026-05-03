@@ -58,7 +58,7 @@ async function seed() {
 			await db.insert(guests).values({ guestPairId: pair.id, name });
 		}
 
-		console.log(`  ✅ ${pairName} → ${code}`);
+		console.log(`  ✅ ${pairName} → [code hidden]`);
 	}
 
 	console.log('✨ Seeding complete!');

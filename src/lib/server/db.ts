@@ -21,6 +21,6 @@ export function getDb(): NodePgDatabase<typeof schema> {
 // Re-export for backward compat — lazy initialized on first access
 export const db = new Proxy({} as NodePgDatabase<typeof schema>, {
 	get(_target, prop) {
-		return (getDb() as Record<string | symbol, unknown>)[prop];
+		return (getDb() as unknown as Record<string | symbol, unknown>)[prop];
 	}
 });

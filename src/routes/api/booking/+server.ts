@@ -22,11 +22,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
 	const formData = await request.formData();
 	const requested = formData.get('requested') === 'on';
-	const nights = parseInt(formData.get('nights')?.toString() ?? '1');
 	const notes = formData.get('notes')?.toString() ?? null;
 
-	if (isNaN(nights) || nights < 1 || nights > 2) {
-		return json({ error: 'Invalid nights value' }, { status: 400 });
+	let nights: number | null = null;
+	if (requested) {
+		const parsed = parseInt(formData.get('nights')?.toString() ?? '');
+		if (isNaN(parsed) || parsed < 1 || parsed > 2) {
+			return json({ error: 'Invalid nights value' }, { status: 400 });
+		}
+		nights = parsed;
 	}
 
 	const existing = await db
