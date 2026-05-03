@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@sveltejs/adapter-node": "^5.0.0",
-    "drizzle-orm": "^0.44.0",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.16.0"
   },
   "devDependencies": {
