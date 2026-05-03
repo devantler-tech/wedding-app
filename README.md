@@ -1,2 +1,3 @@
 # wedding-app
-A simple wedding API service deployed to the devantler-tech/platform Kubernetes cluster.
+
+Flux-managed tenant. Resources in `k8s/` are automatically reconciled.
