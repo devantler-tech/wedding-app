@@ -21,7 +21,7 @@
 		<div class="relative">
 			<div class="absolute left-6 sm:left-8 top-0 bottom-0 w-px bg-sand/50"></div>
 
-			{#each schedule as item, i}
+			{#each schedule as item (item.time)}
 				<div class="relative flex items-start gap-4 sm:gap-6 mb-8 last:mb-0 group">
 					<div class="relative z-10 w-12 sm:w-16 flex-shrink-0 text-right">
 						<span class="text-sm sm:text-base font-sans text-warm-brown font-medium">{item.time}</span>

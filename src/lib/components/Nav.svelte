@@ -29,7 +29,7 @@
 			A & N
 		</a>
 		<div class="hidden sm:flex gap-6">
-			{#each sections as section}
+			{#each sections as section (section.id)}
 				<a
 					href="#{section.id}"
 					class="text-sm text-warm-brown hover:text-dark-brown transition-colors tracking-wide"
@@ -53,7 +53,7 @@
 	</div>
 
 	<div id="mobile-menu" class="hidden sm:hidden bg-cream/95 backdrop-blur-sm border-t border-sand/30 px-4 pb-4">
-		{#each sections as section}
+		{#each sections as section (section.id)}
 			<a
 				href="#{section.id}"
 				class="block py-2 text-sm text-warm-brown hover:text-dark-brown transition-colors tracking-wide"

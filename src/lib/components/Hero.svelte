@@ -43,7 +43,7 @@
 			{ value: diff().hours, label: 'Timer' },
 			{ value: diff().minutes, label: 'Min' },
 			{ value: diff().seconds, label: 'Sek' }
-		] as item}
+		] as item (item.label)}
 			<div>
 				<span class="text-3xl sm:text-4xl font-serif text-dark-brown">{item.value}</span>
 				<p class="text-xs text-warm-brown uppercase tracking-widest mt-1">{item.label}</p>

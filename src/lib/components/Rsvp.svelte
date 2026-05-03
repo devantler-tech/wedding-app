@@ -37,7 +37,7 @@
 			}}
 			class="space-y-8"
 		>
-			{#each guests as guest, i}
+			{#each guests as guest, i (guest.id)}
 				<div class="bg-cream/50 rounded-xl p-6 border border-sand/30">
 					<h3 class="text-xl font-serif text-dark-brown mb-4">{guest.name}</h3>
 					<input type="hidden" name="guestId_{i}" value={guest.id} />
