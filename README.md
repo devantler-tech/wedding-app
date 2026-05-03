@@ -38,7 +38,7 @@ npm install
 
 ### Development (no database required)
 
-Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. The app loads mock data for the guest pair **Test1 og Test2**.
+Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. The app loads mock data for the guest pair **Test1 og Test2**. RSVP and booking form submissions return mock success responses and do not persist changes.
 
 ```bash
 DEV_SKIP_AUTH=true npm run dev

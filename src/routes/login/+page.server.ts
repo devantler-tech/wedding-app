@@ -7,12 +7,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (sessionId) {
 		// Dev mode: skip DB lookup, just redirect if cookie exists
 		if (process.env.DEV_SKIP_AUTH === 'true') {
-			redirect(302, '/');
+			throw redirect(302, '/');
 		}
 		const { getSession } = await import('$lib/server/auth.js');
 		const session = await getSession(sessionId);
 		if (session) {
-			redirect(302, '/');
+			throw redirect(302, '/');
 		}
 	}
 };
@@ -38,7 +38,7 @@ export const actions: Actions = {
 				sameSite: 'lax',
 				maxAge: 60 * 60 * 24 * 30
 			});
-			redirect(303, '/');
+			throw redirect(303, '/');
 		}
 
 		const pair = await validateCode(code);
@@ -56,6 +56,6 @@ export const actions: Actions = {
 			maxAge: 60 * 60 * 24 * 30
 		});
 
-		redirect(303, '/');
+		throw redirect(303, '/');
 	}
 };

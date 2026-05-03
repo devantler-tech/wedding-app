@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-
 	interface Guest {
 		id: number;
 		name: string;
@@ -11,10 +9,30 @@
 	let { guests, pairName }: { guests: Guest[]; pairName: string } = $props();
 
 	let saved = $state(false);
+	let error = $state(false);
 
-	function showSaved() {
-		saved = true;
-		setTimeout(() => (saved = false), 3000);
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		const form = e.currentTarget as HTMLFormElement;
+		try {
+			const res = await fetch(form.action, {
+				method: 'POST',
+				body: new FormData(form)
+			});
+			if (res.ok) {
+				saved = true;
+				error = false;
+				setTimeout(() => (saved = false), 3000);
+			} else {
+				error = true;
+				saved = false;
+				setTimeout(() => (error = false), 5000);
+			}
+		} catch {
+			error = true;
+			saved = false;
+			setTimeout(() => (error = false), 5000);
+		}
 	}
 </script>
 
@@ -29,24 +47,19 @@
 		<form
 			method="POST"
 			action="/api/rsvp"
-			use:enhance={() => {
-				return async ({ update }) => {
-					await update();
-					showSaved();
-				};
-			}}
+			onsubmit={handleSubmit}
 			class="space-y-8"
 		>
 			{#each guests as guest, i (guest.id)}
 				<div class="bg-cream/50 rounded-xl p-6 border border-sand/30">
 					<h3 class="text-xl font-serif text-dark-brown mb-4">{guest.name}</h3>
-					<input type="hidden" name="guestId_{i}" value={guest.id} />
+					<input type="hidden" name={`guestId_${i}`} value={guest.id} />
 
 					<div class="flex gap-4 mb-4">
 						<label class="flex items-center gap-2 cursor-pointer">
 							<input
 								type="radio"
-								name="attending_{i}"
+								name={`attending_${i}`}
 								value="true"
 								checked={guest.attending === true}
 								class="w-4 h-4 accent-soft-gold"
@@ -56,7 +69,7 @@
 						<label class="flex items-center gap-2 cursor-pointer">
 							<input
 								type="radio"
-								name="attending_{i}"
+								name={`attending_${i}`}
 								value="false"
 								checked={guest.attending === false}
 								class="w-4 h-4 accent-soft-gold"
@@ -66,12 +79,12 @@
 					</div>
 
 					<div>
-						<label for="dietary_{i}" class="block text-sm text-warm-brown mb-1">
+						<label for={`dietary_${i}`} class="block text-sm text-warm-brown mb-1">
 							Allergier eller kostbehov
 						</label>
 						<input
-							id="dietary_{i}"
-							name="dietary_{i}"
+							id={`dietary_${i}`}
+							name={`dietary_${i}`}
 							type="text"
 							value={guest.dietaryNotes ?? ''}
 							placeholder="Fx vegetar, glutenfri..."
@@ -92,6 +105,9 @@
 				</button>
 				{#if saved}
 					<p class="text-soft-gold mt-3 text-sm animate-fade-in"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Dit svar er gemt</p>
+				{/if}
+				{#if error}
+					<p class="text-red-600 mt-3 text-sm">Der opstod en fejl — prøv igen</p>
 				{/if}
 			</div>
 		</form>

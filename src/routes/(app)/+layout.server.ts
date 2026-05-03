@@ -24,13 +24,13 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 
 	const sessionId = cookies.get('session');
 	if (!sessionId) {
-		redirect(302, '/login');
+		throw redirect(302, '/login');
 	}
 
 	const session = await getSession(sessionId);
 	if (!session) {
 		cookies.delete('session', { path: '/' });
-		redirect(302, '/login');
+		throw redirect(302, '/login');
 	}
 
 	const guestList = await db

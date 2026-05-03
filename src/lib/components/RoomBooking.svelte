@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-
 	interface Booking {
 		requested: boolean;
 		nights: number | null;
@@ -13,10 +11,30 @@
 	let requestedLocal = $state<boolean | undefined>(undefined);
 	let isRequested = $derived(requestedLocal ?? requested);
 	let saved = $state(false);
+	let error = $state(false);
 
-	function showSaved() {
-		saved = true;
-		setTimeout(() => (saved = false), 3000);
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		const form = e.currentTarget as HTMLFormElement;
+		try {
+			const res = await fetch(form.action, {
+				method: 'POST',
+				body: new FormData(form)
+			});
+			if (res.ok) {
+				saved = true;
+				error = false;
+				setTimeout(() => (saved = false), 3000);
+			} else {
+				error = true;
+				saved = false;
+				setTimeout(() => (error = false), 5000);
+			}
+		} catch {
+			error = true;
+			saved = false;
+			setTimeout(() => (error = false), 5000);
+		}
 	}
 </script>
 
@@ -31,12 +49,7 @@
 		<form
 			method="POST"
 			action="/api/booking"
-			use:enhance={() => {
-				return async ({ update }) => {
-					await update();
-					showSaved();
-				};
-			}}
+			onsubmit={handleSubmit}
 			class="max-w-md mx-auto space-y-6"
 		>
 			<label class="flex items-center gap-3 cursor-pointer">
@@ -91,6 +104,9 @@
 				</button>
 				{#if saved}
 					<p class="text-soft-gold mt-3 text-sm"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Din booking er gemt</p>
+				{/if}
+				{#if error}
+					<p class="text-red-600 mt-3 text-sm">Der opstod en fejl — prøv igen</p>
 				{/if}
 			</div>
 		</form>
