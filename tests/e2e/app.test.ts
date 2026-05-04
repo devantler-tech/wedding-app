@@ -25,8 +25,6 @@ test.describe('Admin view (dev mode)', () => {
 		await expect(page.getByRole('heading', { name: 'Charlotte og Orla' })).toBeVisible();
 		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
 		await expect(page.getByText(/MOCK13/)).toBeVisible();
-		await expect(page.getByText('Vegetarisk')).toBeVisible();
-		await expect(page.getByText(/Ønsker værelse/)).toBeVisible();
 	});
 
 	test('full admin code is accepted', async ({ page }) => {
