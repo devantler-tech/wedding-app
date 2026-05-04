@@ -38,8 +38,21 @@
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Overnatning</h3>
 					<p class="text-warm-brown">
 						Vi vil elske at have jer overnattende. Det gør aftenen endnu hyggeligere
-						og tryggere for alle. Book venligst et værelse under
+						og tryggere for alle. Check ind fra kl. 15. Book venligst et værelse under
 						<a href="#booking" class="text-soft-gold hover:text-warm-brown underline">booking-sektionen</a>.
+					</p>
+				</div>
+			</div>
+
+			<div class="flex gap-4 items-start">
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-ban-smoking text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
+				<div>
+					<h3 class="font-serif text-lg text-dark-brown mb-1">Røgfrit hotel</h3>
+					<p class="text-warm-brown">
+						Hotellet er røgfrit indendørs. Der må ryges på udendørsarealer
+						under hensyntagen til andre gæster.
 					</p>
 				</div>
 			</div>

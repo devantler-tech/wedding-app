@@ -1,15 +1,16 @@
 <script lang="ts">
 	const schedule = [
-		{ time: '14:30', event: 'Vielse', icon: 'fa-solid fa-ring' },
-		{ time: '15:00', event: 'Reception', icon: 'fa-solid fa-champagne-glasses' },
+		{ time: '15:00', event: 'Vielse', icon: 'fa-solid fa-ring' },
+		{ time: '15:30', event: 'Reception', icon: 'fa-solid fa-champagne-glasses' },
 		{ time: '16:00', event: 'Fotografering', icon: 'fa-solid fa-camera' },
 		{ time: '17:30', event: 'Velkomstdrinks', icon: 'fa-solid fa-martini-glass' },
 		{ time: '18:00', event: 'Middag', icon: 'fa-solid fa-utensils' },
-		{ time: '23:30', event: 'Brudevals', icon: 'fa-solid fa-person-dancing' },
+		{ time: '23:30', event: 'Brudevals', icon: 'fa-solid fa-heart' },
 		{ time: '00:00', event: 'Fest', icon: 'fa-solid fa-music' },
 		{ time: '01:00', event: 'Natmad', icon: 'fa-solid fa-moon' },
 		{ time: '01:30', event: 'Godnat', icon: 'fa-solid fa-bed' },
-		{ time: '09:00', event: 'Morgenmad', icon: 'fa-solid fa-sun' }
+		{ time: '07:30', event: 'Morgenmad (til kl. 10)', icon: 'fa-solid fa-sun' },
+		{ time: '11:00', event: 'Tjek ud', icon: 'fa-solid fa-door-open' }
 	];
 </script>
 

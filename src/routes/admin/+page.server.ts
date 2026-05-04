@@ -12,7 +12,6 @@ type AdminGuest = {
 
 type AdminBooking = {
 	requested: boolean;
-	nights: number | null;
 	notes: string | null;
 };
 
@@ -50,14 +49,10 @@ function getMockAdminData(): { pairs: AdminPair[] } {
 			guests: names.map((n, i) => ({
 				id: idx * 10 + i + 1,
 				name: n,
-				attending: idx === pairNames.length - 1 ? true : null,
-				dietaryNotes:
-					idx === pairNames.length - 1 && i === 0 ? 'Vegetarisk' : null
+				attending: null,
+				dietaryNotes: null
 			})),
-			booking:
-				idx === pairNames.length - 1
-					? { requested: true, nights: 1, notes: 'Værelse tæt på elevatoren tak' }
-					: null
+			booking: null
 		};
 	});
 
@@ -89,7 +84,6 @@ export const load: PageServerLoad = async () => {
 	for (const b of allBookings) {
 		bookingByPair.set(b.guestPairId, {
 			requested: b.requested,
-			nights: b.nights,
 			notes: b.notes
 		});
 	}

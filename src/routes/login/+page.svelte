@@ -6,7 +6,7 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
+<div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={150} />
 	<CornerOrnament corner="tr" size={150} />
 	<div class="max-w-md w-full px-6">
@@ -51,3 +51,33 @@
 		</form>
 	</div>
 </div>
+
+<style>
+	.login-bg {
+		position: relative;
+		isolation: isolate;
+	}
+	.login-bg::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: url('/gl-brydegaard.jpg');
+		background-size: cover;
+		background-position: center;
+		opacity: 0.4;
+		filter: saturate(0.65) sepia(0.25);
+		z-index: -2;
+	}
+	.login-bg::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(240, 223, 204, 0.55) 0%,
+			rgba(240, 223, 204, 0.85) 70%,
+			rgba(240, 223, 204, 0.95) 100%
+		);
+		z-index: -1;
+	}
+</style>

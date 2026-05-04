@@ -59,7 +59,6 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		booking: booking
 			? {
 					requested: booking.requested,
-					nights: booking.nights,
 					notes: booking.notes
 				}
 			: null

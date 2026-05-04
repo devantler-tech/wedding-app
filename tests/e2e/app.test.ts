@@ -25,8 +25,6 @@ test.describe('Admin view (dev mode)', () => {
 		await expect(page.getByRole('heading', { name: 'Charlotte og Orla' })).toBeVisible();
 		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
 		await expect(page.getByText(/MOCK13/)).toBeVisible();
-		await expect(page.getByText('Vegetarisk')).toBeVisible();
-		await expect(page.getByText(/Ønsker værelse/)).toBeVisible();
 	});
 
 	test('full admin code is accepted', async ({ page }) => {
@@ -80,7 +78,8 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByText('Vielse')).toBeVisible();
 		await expect(page.getByText('Middag')).toBeVisible();
 		await expect(page.getByText('Brudevals')).toBeVisible();
-		await expect(page.getByText('Morgenmad')).toBeVisible();
+		await expect(page.getByText('Morgenmad (til kl. 10)')).toBeVisible();
+		await expect(page.getByText('Tjek ud')).toBeVisible();
 	});
 
 	test('shows gallery section', async ({ page }) => {

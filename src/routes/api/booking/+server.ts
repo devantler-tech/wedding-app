@@ -24,15 +24,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const requested = formData.get('requested') === 'on';
 	const notes = formData.get('notes')?.toString() ?? null;
 
-	let nights: number | null = null;
-	if (requested) {
-		const parsed = parseInt(formData.get('nights')?.toString() ?? '');
-		if (isNaN(parsed) || parsed < 1 || parsed > 2) {
-			return json({ error: 'Invalid nights value' }, { status: 400 });
-		}
-		nights = parsed;
-	}
-
 	const existing = await db
 		.select()
 		.from(roomBookings)
@@ -44,7 +35,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			.update(roomBookings)
 			.set({
 				requested,
-				nights: requested ? nights : null,
 				notes: requested ? notes : null,
 				updatedAt: new Date()
 			})
@@ -53,7 +43,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		await db.insert(roomBookings).values({
 			guestPairId: session.guestPairId,
 			requested,
-			nights: requested ? nights : null,
 			notes: requested ? notes : null
 		});
 	}
