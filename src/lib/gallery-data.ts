@@ -6,11 +6,6 @@ caption: string;
 
 export const galleryEntries: GalleryEntry[] = [
 {
-src: '/gallery/01-norge-fly.jpg',
-alt: 'Aimée og Nikolai Emil foran et rødt fly i Norge',
-caption: 'Eventyret begynder — afsted mod Norge'
-},
-{
 src: '/gallery/02-norge-fly-2.jpg',
 alt: 'Det røde fly i Norge',
 caption: 'Den lille flyver, der tog os med'
@@ -19,11 +14,6 @@ caption: 'Den lille flyver, der tog os med'
 src: '/gallery/03-vinterskov-toerklaede.jpg',
 alt: 'Vintervandring med gult tørklæde',
 caption: 'Krisp luft og varme tørklæder'
-},
-{
-src: '/gallery/04-skye-storr.jpg',
-alt: 'Old Man of Storr på Isle of Skye',
-caption: 'Old Man of Storr — Isle of Skye'
 },
 {
 src: '/gallery/05-skye-kys.jpg',
