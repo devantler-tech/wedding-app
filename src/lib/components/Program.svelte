@@ -9,7 +9,8 @@
 		{ time: '00:00', event: 'Fest', icon: 'fa-solid fa-music' },
 		{ time: '01:00', event: 'Natmad', icon: 'fa-solid fa-moon' },
 		{ time: '01:30', event: 'Godnat', icon: 'fa-solid fa-bed' },
-		{ time: '09:00', event: 'Morgenmad', icon: 'fa-solid fa-sun' }
+		{ time: '07:30', event: 'Morgenmad (til kl. 10)', icon: 'fa-solid fa-sun' },
+		{ time: '11:00', event: 'Tjek ud', icon: 'fa-solid fa-door-open' }
 	];
 </script>
 

@@ -80,7 +80,8 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByText('Vielse')).toBeVisible();
 		await expect(page.getByText('Middag')).toBeVisible();
 		await expect(page.getByText('Brudevals')).toBeVisible();
-		await expect(page.getByText('Morgenmad')).toBeVisible();
+		await expect(page.getByText('Morgenmad (til kl. 10)')).toBeVisible();
+		await expect(page.getByText('Tjek ud')).toBeVisible();
 	});
 
 	test('shows gallery section', async ({ page }) => {
