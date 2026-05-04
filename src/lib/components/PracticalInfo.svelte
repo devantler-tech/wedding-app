@@ -46,6 +46,19 @@
 
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
+					<i class="fa-solid fa-ban-smoking text-soft-gold text-xl" aria-hidden="true"></i>
+				</span>
+				<div>
+					<h3 class="font-serif text-lg text-dark-brown mb-1">Røgfrit hotel</h3>
+					<p class="text-warm-brown">
+						Hotellet er røgfrit indendørs. Der må ryges på udenomsarealer
+						under hensynstagen til andre gæster.
+					</p>
+				</div>
+			</div>
+
+			<div class="flex gap-4 items-start">
+				<span class="flex-shrink-0 mt-1 w-7 text-center">
 					<i class="fa-solid fa-location-dot text-soft-gold text-xl" aria-hidden="true"></i>
 				</span>
 				<div>
