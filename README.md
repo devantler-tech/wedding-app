@@ -38,7 +38,7 @@ npm install
 
 ### Development (no database required)
 
-Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. The app loads mock data for the guest pair **Test1 og Test2**. RSVP and booking form submissions return mock success responses and do not persist changes.
+Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. RSVP and booking form submissions return mock success responses and do not persist changes.
 
 ```bash
 DEV_SKIP_AUTH=true npm run dev
@@ -46,9 +46,10 @@ DEV_SKIP_AUTH=true npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) and log in with:
 
-```
-TEST01
-```
+| Code | View |
+|------|------|
+| `MOCK1` | Guest view (mock data for Charlotte og Orla) |
+| `ADMIN` | Admin overview |
 
 ### Development (with database)
 
@@ -68,7 +69,7 @@ TEST01
    The seed script prints each guest pair's generated code, e.g.:
 
    ```
-   ✅ Test1 og Test2 → AB3K7Q
+   ✅ Charlotte og Orla → AB3K7Q
    ```
 
 3. Start the dev server:

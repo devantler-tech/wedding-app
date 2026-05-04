@@ -39,7 +39,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Indtast venligst en kode', code });
 		}
 
-		// Dev mode: accept TEST01 and ADMIN without hitting the database
+		// Dev mode: accept MOCK1 and ADMIN without hitting the database
 		if (process.env.DEV_SKIP_AUTH === 'true') {
 			const upper = code.toUpperCase().trim();
 			if (upper === 'ADMIN' || validateAdminCode(code)) {
@@ -52,17 +52,17 @@ export const actions: Actions = {
 				});
 				throw redirect(303, '/admin');
 			}
-			if (upper !== 'TEST01') {
-				return fail(400, { error: 'Dev mode: brug koden TEST01 eller ADMIN', code });
+			if (upper === 'MOCK1') {
+				cookies.set('session', 'dev-session', {
+					path: '/',
+					httpOnly: true,
+					secure: false,
+					sameSite: 'lax',
+					maxAge: 60 * 60 * 24 * 30
+				});
+				throw redirect(303, '/');
 			}
-			cookies.set('session', 'dev-session', {
-				path: '/',
-				httpOnly: true,
-				secure: false,
-				sameSite: 'lax',
-				maxAge: 60 * 60 * 24 * 30
-			});
-			throw redirect(303, '/');
+			return fail(400, { error: 'Dev mode: brug koden MOCK1 eller ADMIN', code });
 		}
 
 		if (validateAdminCode(code)) {

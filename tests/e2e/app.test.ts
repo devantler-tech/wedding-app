@@ -22,9 +22,9 @@ test.describe('Admin view (dev mode)', () => {
 		await page.waitForURL('**/admin');
 
 		await expect(page.getByRole('heading', { name: /Oversigt over gæster/i })).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Test1 og Test2' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Charlotte og Orla' })).toBeVisible();
 		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
-		await expect(page.getByText(/MOCK14/)).toBeVisible();
+		await expect(page.getByText(/MOCK13/)).toBeVisible();
 		await expect(page.getByText('Vegetarisk')).toBeVisible();
 		await expect(page.getByText(/Ønsker værelse/)).toBeVisible();
 	});
@@ -55,6 +55,13 @@ test.describe('Admin view (dev mode)', () => {
 });
 
 test.describe('Main page (dev mode)', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('MOCK1');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/');
+	});
+
 	test('shows hero section with couple names', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText(/Vi skal giftes/i)).toBeVisible();
@@ -84,7 +91,7 @@ test.describe('Main page (dev mode)', () => {
 	test('shows RSVP section with guest names', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible();
-		await expect(page.getByText('Test1 og Test2')).toBeVisible();
+		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
 		await expect(page.getByText('Ja, jeg deltager').first()).toBeVisible();
 	});
 

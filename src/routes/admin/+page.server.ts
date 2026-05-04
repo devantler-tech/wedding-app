@@ -38,8 +38,7 @@ function getMockAdminData(): { pairs: AdminPair[] } {
 		'Clara og Frederik',
 		'Monica og Phillip',
 		'Linnea og Malthe',
-		'Louise og Maja',
-		'Test1 og Test2'
+		'Louise og Maja'
 	];
 
 	const pairs: AdminPair[] = pairNames.map((name, idx) => {
