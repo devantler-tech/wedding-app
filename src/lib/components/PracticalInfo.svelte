@@ -38,7 +38,7 @@
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Overnatning</h3>
 					<p class="text-warm-brown">
 						Vi vil elske at have jer overnattende. Det gør aftenen endnu hyggeligere
-						og tryggere for alle. Book venligst et værelse under
+						og tryggere for alle. Check ind fra kl. 15. Book venligst et værelse under
 						<a href="#booking" class="text-soft-gold hover:text-warm-brown underline">booking-sektionen</a>.
 					</p>
 				</div>
