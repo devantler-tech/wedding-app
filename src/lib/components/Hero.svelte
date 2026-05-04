@@ -3,7 +3,7 @@
 
 	let now = $state(new Date());
 
-	const weddingDate = new Date('2027-05-16T14:30:00+02:00');
+	const weddingDate = new Date('2027-05-16T15:00:00+02:00');
 
 	$effect(() => {
 		const interval = setInterval(() => {

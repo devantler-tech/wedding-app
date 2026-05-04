@@ -51,8 +51,8 @@
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Røgfrit hotel</h3>
 					<p class="text-warm-brown">
-						Hotellet er røgfrit indendørs. Der må ryges på udenomsarealer
-						under hensynstagen til andre gæster.
+						Hotellet er røgfrit indendørs. Der må ryges på udendørsarealer
+						under hensyntagen til andre gæster.
 					</p>
 				</div>
 			</div>
