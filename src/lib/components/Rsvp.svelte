@@ -44,6 +44,11 @@
 			Kære {pairName}
 		</p>
 
+		<p class="text-center text-warm-brown mb-12 text-sm">
+			<i class="fa-solid fa-calendar-check text-soft-gold mr-1" aria-hidden="true"></i>
+			SU senest d. 1. januar 2027
+		</p>
+
 		<form
 			method="POST"
 			action="/api/rsvp"
