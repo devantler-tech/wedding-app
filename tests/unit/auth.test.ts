@@ -34,7 +34,7 @@ describe('admin auth', () => {
 	test('validateAdminCode rejects wrong codes regardless of length', () => {
 		delete process.env.ADMIN_CODE;
 		expect(validateAdminCode('')).toBe(false);
-		expect(validateAdminCode('TEST01')).toBe(false);
+		expect(validateAdminCode('WRONGCODE')).toBe(false);
 		expect(validateAdminCode('harndrupbryllupadmins0000')).toBe(false);
 		expect(validateAdminCode('HARNDRUPBRYLLUPADMINS1234')).toBe(false);
 	});
