@@ -1,8 +1,21 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { validateCode, createSession } from '$lib/server/auth.js';
+import {
+	validateCode,
+	createSession,
+	validateAdminCode,
+	createAdminSession,
+	getAdminSession
+} from '$lib/server/auth.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async ({ cookies }) => {
+	const adminSessionId = cookies.get('admin_session');
+	if (adminSessionId) {
+		if (process.env.DEV_SKIP_AUTH === 'true' || getAdminSession(adminSessionId)) {
+			throw redirect(302, '/admin');
+		}
+	}
+
 	const sessionId = cookies.get('session');
 	if (sessionId) {
 		// Dev mode: skip DB lookup, just redirect if cookie exists
@@ -26,10 +39,21 @@ export const actions: Actions = {
 			return fail(400, { error: 'Indtast venligst en kode', code });
 		}
 
-		// Dev mode: accept TEST01 without hitting the database
+		// Dev mode: accept TEST01 and ADMIN without hitting the database
 		if (process.env.DEV_SKIP_AUTH === 'true') {
-			if (code.toUpperCase() !== 'TEST01') {
-				return fail(400, { error: 'Dev mode: brug koden TEST01', code });
+			const upper = code.toUpperCase().trim();
+			if (upper === 'ADMIN' || validateAdminCode(code)) {
+				cookies.set('admin_session', 'dev-admin-session', {
+					path: '/',
+					httpOnly: true,
+					secure: false,
+					sameSite: 'lax',
+					maxAge: 60 * 60 * 24 * 30
+				});
+				throw redirect(303, '/admin');
+			}
+			if (upper !== 'TEST01') {
+				return fail(400, { error: 'Dev mode: brug koden TEST01 eller ADMIN', code });
 			}
 			cookies.set('session', 'dev-session', {
 				path: '/',
@@ -39,6 +63,18 @@ export const actions: Actions = {
 				maxAge: 60 * 60 * 24 * 30
 			});
 			throw redirect(303, '/');
+		}
+
+		if (validateAdminCode(code)) {
+			const adminSessionId = createAdminSession();
+			cookies.set('admin_session', adminSessionId, {
+				path: '/',
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'lax',
+				maxAge: 60 * 60 * 24 * 30
+			});
+			throw redirect(303, '/admin');
 		}
 
 		const pair = await validateCode(code);

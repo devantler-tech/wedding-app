@@ -14,6 +14,46 @@ test.describe('Login page', () => {
 	});
 });
 
+test.describe('Admin view (dev mode)', () => {
+	test('admin code logs in and shows attendee overview', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('ADMIN');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/admin');
+
+		await expect(page.getByRole('heading', { name: /Oversigt over gæster/i })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Test1 og Test2' })).toBeVisible();
+		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
+		await expect(page.getByText(/MOCK14/)).toBeVisible();
+		await expect(page.getByText('Vegetarisk')).toBeVisible();
+		await expect(page.getByText(/Ønsker værelse/)).toBeVisible();
+	});
+
+	test('full admin code is accepted', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('harndrupbryllupadmins1234');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/admin');
+		await expect(page.getByRole('heading', { name: /Oversigt over gæster/i })).toBeVisible();
+	});
+
+	test('"Gå tilbage" on admin view returns to login and clears cookies', async ({
+		page,
+		context
+	}) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('ADMIN');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/admin');
+
+		await page.getByRole('button', { name: /Gå tilbage/i }).click();
+		await page.waitForURL('**/login');
+		await expect(page.getByLabel(/invitationskode/i)).toBeVisible();
+		const cookies = await context.cookies();
+		expect(cookies.find((c) => c.name === 'admin_session')).toBeUndefined();
+	});
+});
+
 test.describe('Main page (dev mode)', () => {
 	test('shows hero section with couple names', async ({ page }) => {
 		await page.goto('/');
