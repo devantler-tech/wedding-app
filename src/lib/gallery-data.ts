@@ -41,9 +41,9 @@ export const galleryEntries: GalleryEntry[] = [
     caption: 'Kastrup Lufthavn - klar til et eventyr i Skotland'
   },
   {
-    src: "/gallery/skotland-faengsel.jpg",
-    alt: "Skotland - Bag træmmerne i Dunvegan Castle",
-    caption: "Skotland - Bag træmmerne i Dunvegan Castle"
+    src: '/gallery/skotland-faengsel.jpg',
+    alt: 'Skotland - Bag træmmerne i Dunvegan Castle',
+    caption: 'Skotland - Bag træmmerne i Dunvegan Castle'
   },
   {
     src: '/gallery/skye-storr.jpg',
