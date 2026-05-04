@@ -5,7 +5,7 @@
 		{ time: '16:00', event: 'Fotografering', icon: 'fa-solid fa-camera' },
 		{ time: '17:30', event: 'Velkomstdrinks', icon: 'fa-solid fa-martini-glass' },
 		{ time: '18:00', event: 'Middag', icon: 'fa-solid fa-utensils' },
-		{ time: '23:30', event: 'Brudevals', icon: 'fa-solid fa-person-dancing' },
+		{ time: '23:30', event: 'Brudevals', icon: 'fa-solid fa-heart' },
 		{ time: '00:00', event: 'Fest', icon: 'fa-solid fa-music' },
 		{ time: '01:00', event: 'Natmad', icon: 'fa-solid fa-moon' },
 		{ time: '01:30', event: 'Godnat', icon: 'fa-solid fa-bed' },
