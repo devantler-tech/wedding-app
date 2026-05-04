@@ -1,7 +1,7 @@
 <script lang="ts">
 	const schedule = [
-		{ time: '14:30', event: 'Vielse', icon: 'fa-solid fa-ring' },
-		{ time: '15:00', event: 'Reception', icon: 'fa-solid fa-champagne-glasses' },
+		{ time: '15:00', event: 'Vielse', icon: 'fa-solid fa-ring' },
+		{ time: '15:30', event: 'Reception', icon: 'fa-solid fa-champagne-glasses' },
 		{ time: '16:00', event: 'Fotografering', icon: 'fa-solid fa-camera' },
 		{ time: '17:30', event: 'Velkomstdrinks', icon: 'fa-solid fa-martini-glass' },
 		{ time: '18:00', event: 'Middag', icon: 'fa-solid fa-utensils' },
