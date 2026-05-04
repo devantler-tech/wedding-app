@@ -64,7 +64,7 @@
 		background-image: url('/gl-brydegaard.jpg');
 		background-size: cover;
 		background-position: center;
-		opacity: 0.18;
+		opacity: 0.4;
 		filter: saturate(0.65) sepia(0.25);
 		z-index: -2;
 	}
