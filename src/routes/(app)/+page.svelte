@@ -8,11 +8,13 @@
 	import PracticalInfo from '$lib/components/PracticalInfo.svelte';
 	import Wishlist from '$lib/components/Wishlist.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import BackToLogin from '$lib/components/BackToLogin.svelte';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
+<BackToLogin />
 <Nav />
 
 <main>

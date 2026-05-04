@@ -74,6 +74,18 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByText('Gl. Brydegaard').last()).toBeVisible();
 	});
 
+	test('shows "Gå tilbage" button that returns to login', async ({ page, context }) => {
+		await page.goto('/');
+		const back = page.getByRole('button', { name: /Gå tilbage/i });
+		await expect(back).toBeVisible();
+		await back.click();
+		await page.waitForURL('**/login');
+		await expect(page.getByLabel(/invitationskode/i)).toBeVisible();
+		const cookies = await context.cookies();
+		expect(cookies.find((c) => c.name === 'session')).toBeUndefined();
+		expect(cookies.find((c) => c.name === 'admin_session')).toBeUndefined();
+	});
+
 	test('navigation links work with smooth scroll', async ({ page }) => {
 		await page.goto('/');
 		// Scroll well past the hero to trigger nav visibility
