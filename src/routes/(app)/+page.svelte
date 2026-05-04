@@ -14,7 +14,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<BackToLogin />
+<BackToLogin hideOnScroll />
 <Nav />
 
 <main>
