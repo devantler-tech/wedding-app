@@ -15,8 +15,7 @@ const GUEST_PAIRS = [
 	'Clara og Frederik',
 	'Monica og Phillip',
 	'Linnea og Malthe',
-	'Louise og Maja',
-	'Test1 og Test2'
+	'Louise og Maja'
 ];
 
 function generateCode(): string {

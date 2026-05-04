@@ -7,10 +7,10 @@ import type { LayoutServerLoad } from './$types.js';
 
 function getMockData() {
 	return {
-		guestPair: { id: 1, name: 'Test1 og Test2', code: 'MOCK01' },
+		guestPair: { id: 1, name: 'Charlotte og Orla', code: 'MOCK01' },
 		guests: [
-			{ id: 1, name: 'Test1', attending: null, dietaryNotes: null },
-			{ id: 2, name: 'Test2', attending: null, dietaryNotes: null }
+			{ id: 1, name: 'Charlotte', attending: null, dietaryNotes: null },
+			{ id: 2, name: 'Orla', attending: null, dietaryNotes: null }
 		],
 		booking: null
 	};
