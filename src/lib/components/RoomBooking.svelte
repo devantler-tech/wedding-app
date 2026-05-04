@@ -1,7 +1,6 @@
 <script lang="ts">
 	interface Booking {
 		requested: boolean;
-		nights: number | null;
 		notes: string | null;
 	}
 
@@ -65,20 +64,6 @@
 
 			{#if isRequested}
 				<div class="space-y-4 pl-8 border-l-2 border-soft-gold/30">
-					<div>
-						<label for="nights" class="block text-sm text-warm-brown mb-1">
-							Antal nætter
-						</label>
-						<select
-							id="nights"
-							name="nights"
-							class="w-full px-4 py-2 border border-sand/50 rounded-lg bg-warm-white text-dark-brown focus:outline-none focus:ring-2 focus:ring-soft-gold"
-						>
-							<option value="1" selected={booking?.nights === 1}>1 nat (lørdag)</option>
-							<option value="2" selected={booking?.nights === 2}>2 nætter (lørdag + søndag)</option>
-						</select>
-					</div>
-
 					<div>
 						<label for="notes" class="block text-sm text-warm-brown mb-1">
 							Eventuelle bemærkninger

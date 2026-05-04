@@ -23,7 +23,6 @@
 		let declined = 0;
 		let pending = 0;
 		let bookingsRequested = 0;
-		let nights = 0;
 		for (const p of data.pairs) {
 			pairs++;
 			for (const g of p.guests) {
@@ -34,10 +33,9 @@
 			}
 			if (p.booking?.requested) {
 				bookingsRequested++;
-				nights += p.booking.nights ?? 0;
 			}
 		}
-		return { pairs, people, attending, declined, pending, bookingsRequested, nights };
+		return { pairs, people, attending, declined, pending, bookingsRequested };
 	});
 </script>
 
@@ -81,7 +79,6 @@
 				<p class="text-warm-brown/70 text-xs uppercase tracking-wide">Værelser</p>
 				<p class="text-dark-brown text-xl font-serif">
 					{totals.bookingsRequested}
-					<span class="text-warm-brown/60 text-sm">({totals.nights} nætter)</span>
 				</p>
 			</div>
 		</section>
@@ -123,8 +120,7 @@
 						<h3 class="text-xs uppercase tracking-wide text-warm-brown/70 mb-2">Overnatning</h3>
 						{#if pair.booking?.requested}
 							<p class="text-sm text-dark-brown">
-								Ønsker værelse · {pair.booking.nights ?? 1}
-								{pair.booking.nights === 1 ? 'nat' : 'nætter'}
+								Ønsker værelse
 							</p>
 							{#if pair.booking.notes}
 								<p class="text-sm text-warm-brown/80 italic mt-1">

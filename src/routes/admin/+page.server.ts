@@ -12,7 +12,6 @@ type AdminGuest = {
 
 type AdminBooking = {
 	requested: boolean;
-	nights: number | null;
 	notes: string | null;
 };
 
@@ -85,7 +84,6 @@ export const load: PageServerLoad = async () => {
 	for (const b of allBookings) {
 		bookingByPair.set(b.guestPairId, {
 			requested: b.requested,
-			nights: b.nights,
 			notes: b.notes
 		});
 	}
