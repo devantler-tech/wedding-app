@@ -23,7 +23,7 @@
 	});
 </script>
 
-<section id="top" class="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
+<section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
 	<p class="text-warm-brown tracking-[0.3em] uppercase text-sm mb-6 font-sans">Vi skal giftes</p>
@@ -59,3 +59,32 @@
 		</a>
 	</div>
 </section>
+
+<style>
+	.hero-bg {
+		isolation: isolate;
+	}
+	.hero-bg::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: url('/gl-brydegaard.jpg');
+		background-size: cover;
+		background-position: center;
+		opacity: 0.2;
+		filter: saturate(0.65) sepia(0.25);
+		z-index: -2;
+	}
+	.hero-bg::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to bottom,
+			rgba(240, 223, 204, 0.55) 0%,
+			rgba(240, 223, 204, 0.8) 60%,
+			rgba(240, 223, 204, 1) 100%
+		);
+		z-index: -1;
+	}
+</style>
