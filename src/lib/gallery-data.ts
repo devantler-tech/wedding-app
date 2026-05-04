@@ -6,6 +6,16 @@ caption: string;
 
 export const galleryEntries: GalleryEntry[] = [
 {
+src: '/gallery/05-skye-kys.jpg',
+alt: 'Koldinghus — aftenen hvor vi blev kærester',
+caption: 'Koldinghus — aftenen hvor vi blev kærester'
+},
+{
+src: '/gallery/15-morgenkaabe.jpg',
+alt: 'Kiel — vores første getaway sammen',
+caption: 'Kiel — vores første getaway sammen'
+},
+{
 src: '/gallery/02-norge-fly-2.jpg',
 alt: 'Det røde fly i Norge',
 caption: 'Den lille flyver, der tog os med'
@@ -14,11 +24,6 @@ caption: 'Den lille flyver, der tog os med'
 src: '/gallery/03-vinterskov-toerklaede.jpg',
 alt: 'Vintervandring med gult tørklæde',
 caption: 'Krisp luft og varme tørklæder'
-},
-{
-src: '/gallery/05-skye-kys.jpg',
-alt: 'Et kys på Isle of Skye',
-caption: 'Et kys mellem klipperne'
 },
 {
 src: '/gallery/06-rosenhave-frokost.jpg',
@@ -64,11 +69,6 @@ caption: 'Selfie ved kysten'
 src: '/gallery/14-mole-solnedgang.jpg',
 alt: 'Mole i solnedgang',
 caption: 'Solnedgang fra molen'
-},
-{
-src: '/gallery/15-morgenkaabe.jpg',
-alt: 'Et kram i morgenkåber',
-caption: 'Doven morgen i morgenkåbe'
 },
 {
 src: '/gallery/16-hyggekrog.jpg',
