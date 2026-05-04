@@ -55,6 +55,13 @@ test.describe('Admin view (dev mode)', () => {
 });
 
 test.describe('Main page (dev mode)', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('MOCK1');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/');
+	});
+
 	test('shows hero section with couple names', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText(/Vi skal giftes/i)).toBeVisible();

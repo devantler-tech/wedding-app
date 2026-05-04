@@ -38,13 +38,18 @@ npm install
 
 ### Development (no database required)
 
-Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. The guest view at `/` loads mock data for the guest pair **Charlotte og Orla**. RSVP and booking form submissions return mock success responses and do not persist changes.
+Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. RSVP and booking form submissions return mock success responses and do not persist changes.
 
 ```bash
 DEV_SKIP_AUTH=true npm run dev
 ```
 
-Open [http://localhost:5173/login](http://localhost:5173/login) and log in with `ADMIN` to access the admin view.
+Open [http://localhost:5173](http://localhost:5173) and log in with:
+
+| Code | View |
+|------|------|
+| `MOCK1` | Guest view (mock data for Charlotte og Orla) |
+| `ADMIN` | Admin overview |
 
 ### Development (with database)
 

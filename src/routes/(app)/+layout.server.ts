@@ -17,14 +17,14 @@ function getMockData() {
 }
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	// Dev mode: skip auth when no database is available
-	if (process.env.DEV_SKIP_AUTH === 'true') {
-		return getMockData();
-	}
-
 	const sessionId = cookies.get('session');
 	if (!sessionId) {
 		throw redirect(302, '/login');
+	}
+
+	// Dev mode: require session cookie but skip DB lookup
+	if (process.env.DEV_SKIP_AUTH === 'true') {
+		return getMockData();
 	}
 
 	const session = await getSession(sessionId);
