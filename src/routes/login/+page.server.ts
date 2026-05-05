@@ -85,20 +85,20 @@ export const actions: Actions = {
 		let pair;
 		try {
 			pair = await validateCode(code);
-		} catch {
+		} catch (err) {
+			console.error('Failed to validate guest code:', err);
 			return fail(500, {
 				error: 'Der opstod en serverfejl. Prøv igen senere.',
 				code
 			});
-		}
-		if (!pair) {
 			return fail(400, { error: 'Ugyldig kode. Prøv igen.', code });
 		}
 
 		let sessionId;
 		try {
 			sessionId = await createSession(pair.id);
-		} catch {
+		} catch (err) {
+			console.error('Failed to create session:', err);
 			return fail(500, {
 				error: 'Der opstod en serverfejl. Prøv igen senere.',
 				code
