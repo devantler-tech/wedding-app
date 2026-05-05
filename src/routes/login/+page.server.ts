@@ -22,10 +22,15 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		if (process.env.DEV_SKIP_AUTH === 'true') {
 			throw redirect(302, '/');
 		}
-		const { getSession } = await import('$lib/server/auth.js');
-		const session = await getSession(sessionId);
-		if (session) {
-			throw redirect(302, '/');
+		try {
+			const { getSession } = await import('$lib/server/auth.js');
+			const session = await getSession(sessionId);
+			if (session) {
+				throw redirect(302, '/');
+			}
+		} catch (e) {
+			if (e && typeof e === 'object' && 'status' in e) throw e;
+			// DB unavailable — fall through and show login page
 		}
 	}
 };
@@ -77,12 +82,28 @@ export const actions: Actions = {
 			throw redirect(303, '/admin');
 		}
 
-		const pair = await validateCode(code);
+		let pair;
+		try {
+			pair = await validateCode(code);
+		} catch {
+			return fail(500, {
+				error: 'Der opstod en serverfejl. Prøv igen senere.',
+				code
+			});
+		}
 		if (!pair) {
 			return fail(400, { error: 'Ugyldig kode. Prøv igen.', code });
 		}
 
-		const sessionId = await createSession(pair.id);
+		let sessionId;
+		try {
+			sessionId = await createSession(pair.id);
+		} catch {
+			return fail(500, {
+				error: 'Der opstod en serverfejl. Prøv igen senere.',
+				code
+			});
+		}
 
 		cookies.set('session', sessionId, {
 			path: '/',
