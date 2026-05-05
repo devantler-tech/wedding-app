@@ -1,3 +1,5 @@
-import { runMigrations } from '$lib/server/migrate';
+import { runMigrations } from '$lib/server/migrate.js';
 
-await runMigrations();
+if (process.env.DATABASE_URL) {
+	await runMigrations();
+}
