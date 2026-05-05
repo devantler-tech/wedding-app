@@ -9,7 +9,7 @@ spec:
       namespace: kube-system
       sectionName: https
   hostnames:
-    - wedding.${domain}
+    - wedding.platform.lan
   rules:
     - backendRefs:
         - name: wedding-app
