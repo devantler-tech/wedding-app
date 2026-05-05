@@ -14,8 +14,6 @@ spec:
     initdb:
       database: wedding
       owner: wedding
-      secret:
-        name: wedding-db-credentials
   postgresql:
     parameters:
       max_connections: "50"
