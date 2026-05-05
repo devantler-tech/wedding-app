@@ -12,7 +12,7 @@ import type { Actions, PageServerLoad } from './$types.js';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const adminSessionId = cookies.get('admin_session');
 	if (adminSessionId) {
-		if (process.env.DEV_SKIP_AUTH === 'true' || getAdminSession(adminSessionId)) {
+		if (process.env.DEV_SKIP_AUTH === 'true' || (await getAdminSession(adminSessionId))) {
 			throw redirect(302, '/admin');
 		}
 	}
@@ -65,7 +65,7 @@ export const actions: Actions = {
 		}
 
 		if (validateAdminCode(code)) {
-			const adminSessionId = createAdminSession();
+			const adminSessionId = await createAdminSession();
 			cookies.set('admin_session', adminSessionId, {
 				path: '/',
 				httpOnly: true,
