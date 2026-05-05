@@ -5,8 +5,11 @@ import {
 } from '../../src/lib/server/auth.js';
 
 // Admin session functions are now async and DB-backed.
-// We test them with a mock that simulates the database.
+// We test them with a mock that simulates the database with proper ID filtering.
 const store = new Map<string, { id: string; expiresAt: Date }>();
+
+// Track the last sessionId passed to where() so select/delete can filter correctly.
+let lastQueriedId: string | null = null;
 
 vi.mock('../../src/lib/server/db.js', () => {
 	function createMockDb() {
@@ -21,24 +24,23 @@ vi.mock('../../src/lib/server/db.js', () => {
 				from: () => ({
 					where: () => ({
 						limit: () => {
-							// Return all non-expired sessions from store.
-							// The real WHERE clause filters by id + expiry, but since
-							// tests call with a specific id, we let the test control
-							// what's in the store.
-							const now = new Date();
-							const valid = [...store.values()]
-								.filter((r) => r.expiresAt > now)
-								.map((r) => ({ id: r.id }));
-							return Promise.resolve(valid);
+							// Filter by the tracked session ID and expiry
+							if (!lastQueriedId) return Promise.resolve([]);
+							const session = store.get(lastQueriedId);
+							if (session && session.expiresAt > new Date()) {
+								return Promise.resolve([{ id: session.id }]);
+							}
+							return Promise.resolve([]);
 						}
 					})
 				})
 			}),
 			delete: () => ({
 				where: () => {
-					// In tests, we call deleteAdminSession with a known id.
-					// Since we can't inspect the opaque drizzle condition,
-					// we clear the store entry in the test directly.
+					// Delete the tracked session ID from store
+					if (lastQueriedId) {
+						store.delete(lastQueriedId);
+					}
 					return Promise.resolve();
 				}
 			})
@@ -51,6 +53,21 @@ vi.mock('../../src/lib/server/db.js', () => {
 	};
 });
 
+// Intercept drizzle-orm's eq() to capture the session ID being queried.
+vi.mock('drizzle-orm', async (importOriginal) => {
+	const original = await importOriginal<typeof import('drizzle-orm')>();
+	return {
+		...original,
+		eq: (...args: unknown[]) => {
+			// The second argument to eq() is the session ID value
+			if (typeof args[1] === 'string') {
+				lastQueriedId = args[1];
+			}
+			return original.eq(...(args as Parameters<typeof original.eq>));
+		}
+	};
+});
+
 describe('admin auth', () => {
 	const originalAdminCode = process.env.ADMIN_CODE;
 
@@ -58,6 +75,7 @@ describe('admin auth', () => {
 		if (originalAdminCode === undefined) delete process.env.ADMIN_CODE;
 		else process.env.ADMIN_CODE = originalAdminCode;
 		store.clear();
+		lastQueriedId = null;
 	});
 
 	test('getAdminCode falls back to default when env is unset', () => {
@@ -104,7 +122,6 @@ describe('admin auth', () => {
 
 		test('getAdminSession returns true for valid session', async () => {
 			const { getAdminSession } = await import('../../src/lib/server/auth.js');
-			// Insert a valid session into the store
 			const expires = new Date(Date.now() + 1000 * 60 * 60);
 			store.set('test-session', { id: 'test-session', expiresAt: expires });
 
@@ -114,22 +131,34 @@ describe('admin auth', () => {
 
 		test('getAdminSession returns false for unknown session', async () => {
 			const { getAdminSession } = await import('../../src/lib/server/auth.js');
+			// Add a different session to ensure filtering works
+			const expires = new Date(Date.now() + 1000 * 60 * 60);
+			store.set('other-session', { id: 'other-session', expiresAt: expires });
+
 			const result = await getAdminSession('nonexistent');
 			expect(result).toBe(false);
 		});
 
 		test('getAdminSession returns false for expired session', async () => {
 			const { getAdminSession } = await import('../../src/lib/server/auth.js');
-			// Insert an expired session
 			store.set('expired', { id: 'expired', expiresAt: new Date(Date.now() - 1000) });
 
 			const result = await getAdminSession('expired');
 			expect(result).toBe(false);
 		});
 
-		test('deleteAdminSession resolves without error', async () => {
-			const { deleteAdminSession } = await import('../../src/lib/server/auth.js');
-			await expect(deleteAdminSession('any-id')).resolves.toBeUndefined();
+		test('deleteAdminSession removes the session from the store', async () => {
+			const { deleteAdminSession, getAdminSession } = await import(
+				'../../src/lib/server/auth.js'
+			);
+			const expires = new Date(Date.now() + 1000 * 60 * 60);
+			store.set('to-delete', { id: 'to-delete', expiresAt: expires });
+
+			await deleteAdminSession('to-delete');
+			expect(store.has('to-delete')).toBe(false);
+
+			const result = await getAdminSession('to-delete');
+			expect(result).toBe(false);
 		});
 	});
 });
