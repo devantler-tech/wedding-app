@@ -4,7 +4,8 @@ import {
 	createSession,
 	validateAdminCode,
 	createAdminSession,
-	getAdminSession
+	getAdminSession,
+	getSession
 } from '$lib/server/auth.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
@@ -18,11 +19,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const sessionId = cookies.get('session');
 	if (sessionId) {
-		// Dev mode: skip DB lookup, just redirect if cookie exists
 		if (process.env.DEV_SKIP_AUTH === 'true') {
 			throw redirect(302, '/');
 		}
-		const { getSession } = await import('$lib/server/auth.js');
 		const session = await getSession(sessionId);
 		if (session) {
 			throw redirect(302, '/');
@@ -77,12 +76,30 @@ export const actions: Actions = {
 			throw redirect(303, '/admin');
 		}
 
-		const pair = await validateCode(code);
+		let pair;
+		try {
+			pair = await validateCode(code);
+		} catch (err) {
+			console.error('Failed to validate guest code:', err);
+			return fail(500, {
+				error: 'Der opstod en serverfejl. Prøv igen senere.',
+				code
+			});
+		}
 		if (!pair) {
 			return fail(400, { error: 'Ugyldig kode. Prøv igen.', code });
 		}
 
-		const sessionId = await createSession(pair.id);
+		let sessionId;
+		try {
+			sessionId = await createSession(pair.id);
+		} catch (err) {
+			console.error('Failed to create session:', err);
+			return fail(500, {
+				error: 'Der opstod en serverfejl. Prøv igen senere.',
+				code
+			});
+		}
 
 		cookies.set('session', sessionId, {
 			path: '/',
