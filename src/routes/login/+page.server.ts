@@ -4,7 +4,8 @@ import {
 	createSession,
 	validateAdminCode,
 	createAdminSession,
-	getAdminSession
+	getAdminSession,
+	getSession
 } from '$lib/server/auth.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
@@ -18,19 +19,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const sessionId = cookies.get('session');
 	if (sessionId) {
-		// Dev mode: skip DB lookup, just redirect if cookie exists
 		if (process.env.DEV_SKIP_AUTH === 'true') {
 			throw redirect(302, '/');
 		}
-		try {
-			const { getSession } = await import('$lib/server/auth.js');
-			const session = await getSession(sessionId);
-			if (session) {
-				throw redirect(302, '/');
-			}
-		} catch (e) {
-			if (e && typeof e === 'object' && 'status' in e) throw e;
-			// DB unavailable — fall through and show login page
+		const session = await getSession(sessionId);
+		if (session) {
+			throw redirect(302, '/');
 		}
 	}
 };

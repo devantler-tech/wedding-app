@@ -13,11 +13,22 @@ test.describe('Login page', () => {
 		await expect(page.getByText('16. maj 2027')).toBeVisible();
 	});
 
-	test('shows error message for invalid code', async ({ page }) => {
+	test('shows dev-mode error message for invalid code', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel(/invitationskode/i).fill('WRONGCODE');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
 		await expect(page.getByText(/brug koden MOCK1 eller ADMIN/i)).toBeVisible();
+	});
+});
+
+test.describe('Error page', () => {
+	test('shows localized 404 error page for unknown routes', async ({ page }) => {
+		await page.goto('/this-page-does-not-exist');
+		await expect(page.getByText('Ups')).toBeVisible();
+		await expect(page.getByText('404')).toBeVisible();
+		await expect(page.getByText(/Siden blev ikke fundet/)).toBeVisible();
+		await expect(page.getByText(/Den side, du leder efter, findes ikke/)).toBeVisible();
+		await expect(page.getByRole('button', { name: /Gå til login/i })).toBeVisible();
 	});
 });
 

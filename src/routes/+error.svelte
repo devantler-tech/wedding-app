@@ -22,14 +22,22 @@
 		</h1>
 		<div class="w-16 h-px bg-soft-gold mx-auto mt-6 mb-6"></div>
 		<p class="text-warm-brown text-lg mb-8">
-			{page.error?.message || 'Der opstod en uventet fejl. Prøv igen senere.'}
+			{#if page.status === 404}
+				Den side, du leder efter, findes ikke.
+			{:else if page.status === 500}
+				Der opstod en serverfejl. Prøv igen senere.
+			{:else}
+				Der opstod en uventet fejl. Prøv igen senere.
+			{/if}
 		</p>
-		<button
-			onclick={() => { window.location.href = '/login'; }}
-			class="inline-block py-3 px-8 bg-soft-gold text-warm-white rounded-lg font-medium hover:bg-warm-brown transition-colors duration-200 cursor-pointer"
-		>
-			Gå til login
-		</button>
+		<form method="POST" action="/logout">
+			<button
+				type="submit"
+				class="inline-block py-3 px-8 bg-soft-gold text-warm-white rounded-lg font-medium hover:bg-warm-brown transition-colors duration-200 cursor-pointer"
+			>
+				Gå til login
+			</button>
+		</form>
 	</div>
 </div>
 
