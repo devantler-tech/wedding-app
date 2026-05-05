@@ -12,6 +12,13 @@ test.describe('Login page', () => {
 		await page.goto('/login');
 		await expect(page.getByText('16. maj 2027')).toBeVisible();
 	});
+
+	test('shows error message for invalid code', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('WRONGCODE');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await expect(page.getByText(/brug koden MOCK1 eller ADMIN/i)).toBeVisible();
+	});
 });
 
 test.describe('Admin view (dev mode)', () => {
