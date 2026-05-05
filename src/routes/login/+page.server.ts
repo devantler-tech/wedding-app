@@ -91,6 +91,8 @@ export const actions: Actions = {
 				error: 'Der opstod en serverfejl. Prøv igen senere.',
 				code
 			});
+		}
+		if (!pair) {
 			return fail(400, { error: 'Ugyldig kode. Prøv igen.', code });
 		}
 
