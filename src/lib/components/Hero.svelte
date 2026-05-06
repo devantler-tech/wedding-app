@@ -28,18 +28,27 @@
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
-	<p class="text-warm-brown text-base sm:text-lg mb-6 font-serif italic max-w-md">
-		Kære {pairName}, vi skal giftes. I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
-	</p>
-	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-6 leading-tight">
+
+	<div class="mb-8">
+		<div class="w-10 h-px bg-soft-gold mx-auto mb-4"></div>
+		<p class="text-warm-brown text-sm sm:text-base font-serif italic max-w-sm leading-relaxed">
+			Kære {pairName}, vi skal giftes.<br />
+			I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
+		</p>
+		<div class="w-10 h-px bg-soft-gold mx-auto mt-4"></div>
+	</div>
+
+	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-8 leading-tight">
 		Aimée<br class="sm:hidden" />
 		<span class="text-soft-gold">&</span>
 		Nikolai Emil
 	</h1>
+
 	<div class="w-20 h-px bg-soft-gold mb-6"></div>
+
 	<p class="text-xl sm:text-2xl text-warm-brown font-serif">16. maj 2027</p>
-	<p class="text-base sm:text-lg text-warm-brown mt-2 font-serif italic">Gl. Brydegaard</p>
-	<p class="text-sm text-sand mt-1">Helnæsvej 4, 5683 Haarby</p>
+	<p class="text-base sm:text-lg text-dark-brown mt-3 font-serif italic">Gl. Brydegaard</p>
+	<p class="text-sm sm:text-base text-warm-brown mt-1 tracking-wide">Helnæsvej 4, 5683 Haarby</p>
 
 	<div class="mt-12 flex gap-6 sm:gap-10 text-center">
 		{#each [
