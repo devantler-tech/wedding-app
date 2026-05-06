@@ -41,9 +41,54 @@
 	<div class="max-w-2xl mx-auto">
 		<h2 class="text-4xl sm:text-5xl font-serif font-light text-dark-brown text-center mb-4">Overnatning</h2>
 		<div class="w-16 h-px bg-soft-gold mx-auto mb-4"></div>
-		<p class="text-center text-warm-brown mb-12 max-w-lg mx-auto">
+		<p class="text-center text-warm-brown mb-8 max-w-lg mx-auto">
 			Vi vil elske at have jer overnattende — det gør aftenen endnu hyggeligere og tryggere for alle.
 		</p>
+
+		<div class="bg-warm-white/60 rounded-xl p-6 border border-sand/30 mb-8">
+			<h3 class="text-lg font-serif text-dark-brown mb-1 text-center">Værelsestyper og priser</h3>
+			<p class="text-xs text-warm-brown text-center mb-4">Pris pr. person, natten 16.–17. maj 2027</p>
+			<div class="overflow-x-auto">
+				<table class="w-full text-sm text-left">
+					<thead>
+						<tr class="border-b border-sand/40 text-warm-brown">
+							<th class="py-2 pr-4 font-medium">Værelsestype</th>
+							<th class="py-2 px-4 font-medium text-center">Pers.</th>
+							<th class="py-2 pl-4 font-medium text-right">Pris</th>
+						</tr>
+					</thead>
+					<tbody class="text-dark-brown">
+						<tr class="border-b border-sand/20">
+							<td class="py-2 pr-4">Enkelt m/fælles bad</td>
+							<td class="py-2 px-4 text-center">1</td>
+							<td class="py-2 pl-4 text-right whitespace-nowrap">795 kr.</td>
+						</tr>
+						<tr class="border-b border-sand/20">
+							<td class="py-2 pr-4">Dobbelt m/fælles bad</td>
+							<td class="py-2 px-4 text-center">2</td>
+							<td class="py-2 pl-4 text-right whitespace-nowrap">995 kr.</td>
+						</tr>
+						<tr class="border-b border-sand/20">
+							<td class="py-2 pr-4">Dobbelt m/eget bad</td>
+							<td class="py-2 px-4 text-center">2</td>
+							<td class="py-2 pl-4 text-right whitespace-nowrap">1.295 kr.</td>
+						</tr>
+						<tr>
+							<td class="py-2 pr-4">Lejlighed (3 vær. m/bad)</td>
+							<td class="py-2 px-4 text-center">4</td>
+							<td class="py-2 pl-4 text-right whitespace-nowrap">2.295 kr.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="bg-soft-gold/10 rounded-lg px-5 py-4 border border-soft-gold/30 mb-12 text-center">
+			<p class="text-dark-brown font-serif text-sm sm:text-base">
+				<i class="fa-solid fa-bed text-soft-gold mr-2" aria-hidden="true"></i>
+				Vi fordeler værelserne — angiv blot at I ønsker overnatning, så finder vi det bedste match.
+			</p>
+		</div>
 
 		<form
 			method="POST"
