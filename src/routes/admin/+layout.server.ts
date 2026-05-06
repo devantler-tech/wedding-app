@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 	}
 
 	const adminSessionId = cookies.get('admin_session');
-	if (!adminSessionId || !getAdminSession(adminSessionId)) {
+	if (!adminSessionId || !(await getAdminSession(adminSessionId))) {
 		cookies.delete('admin_session', { path: '/' });
 		throw redirect(302, '/login');
 	}

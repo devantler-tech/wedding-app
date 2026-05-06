@@ -38,3 +38,9 @@ export const sessions = pgTable('sessions', {
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 });
+
+export const adminSessions = pgTable('admin_sessions', {
+	id: varchar('id', { length: 64 }).primaryKey(),
+	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
+});
