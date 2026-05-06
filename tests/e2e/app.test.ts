@@ -78,9 +78,10 @@ test.describe('Main page (dev mode)', () => {
 		await page.waitForURL('**/');
 	});
 
-	test('shows hero section with couple names', async ({ page }) => {
+	test('shows hero section with greeting and couple names', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText(/Vi skal giftes/i)).toBeVisible();
+		await expect(page.getByText(/vi skal giftes/i)).toBeVisible();
+		await expect(page.getByText(/helt specielle for os/i)).toBeVisible();
 		await expect(page.getByRole('heading', { name: /Aimée.*Nikolai Emil/ })).toBeVisible();
 	});
 

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 
+	let { pairName }: { pairName: string } = $props();
+
 	let now = $state(new Date());
 
 	const weddingDate = new Date('2027-05-16T15:00:00+02:00');
@@ -26,7 +28,9 @@
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
-	<p class="text-warm-brown tracking-[0.3em] uppercase text-sm mb-6 font-sans">Vi skal giftes</p>
+	<p class="text-warm-brown text-base sm:text-lg mb-6 font-serif italic max-w-md">
+		Kære {pairName}, vi skal giftes. I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
+	</p>
 	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-6 leading-tight">
 		Aimée<br class="sm:hidden" />
 		<span class="text-soft-gold">&</span>
