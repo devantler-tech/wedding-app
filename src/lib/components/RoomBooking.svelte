@@ -47,7 +47,7 @@
 
 		<div class="bg-warm-white/60 rounded-xl p-6 border border-sand/30 mb-8">
 			<h3 class="text-lg font-serif text-dark-brown mb-1 text-center">Værelsestyper og priser</h3>
-			<p class="text-xs text-warm-brown text-center mb-4">Pris pr. person, natten 16.–17. maj 2027</p>
+			<p class="text-xs text-warm-brown text-center mb-4">Pris pr. værelse, natten 16.–17. maj 2027</p>
 			<div class="overflow-x-auto">
 				<table class="w-full text-sm text-left">
 					<thead>
