@@ -29,13 +29,18 @@
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
 
-	<div class="mb-8">
-		<div class="w-10 h-px bg-soft-gold mx-auto mb-4"></div>
-		<p class="text-warm-brown text-sm sm:text-base font-serif italic max-w-sm leading-relaxed">
-			Kære {pairName}, vi skal giftes.<br />
+	<div class="mb-10">
+		<div class="w-10 h-px bg-soft-gold mx-auto mb-5"></div>
+		<p class="text-warm-brown text-sm sm:text-base font-serif italic">
+			Kære {pairName}
+		</p>
+		<p class="text-dark-brown text-lg sm:text-xl font-serif tracking-wide mt-2 mb-2 uppercase">
+			Vi skal giftes
+		</p>
+		<p class="text-warm-brown text-sm sm:text-base font-serif italic max-w-xs leading-relaxed">
 			I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
 		</p>
-		<div class="w-10 h-px bg-soft-gold mx-auto mt-4"></div>
+		<div class="w-10 h-px bg-soft-gold mx-auto mt-5"></div>
 	</div>
 
 	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-8 leading-tight">
