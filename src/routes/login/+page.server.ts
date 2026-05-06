@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions: Actions = {
 	default: async ({ request, cookies }) => {
 		const data = await request.formData();
-		const code = data.get('code')?.toString() ?? '';
+		const code = data.get('code')?.toString().trim().toUpperCase() ?? '';
 
 		if (!code) {
 			return fail(400, { error: 'Indtast venligst en kode', code });

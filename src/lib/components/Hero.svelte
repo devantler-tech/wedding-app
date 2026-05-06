@@ -1,6 +1,8 @@
 <script lang="ts">
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 
+	let { pairName }: { pairName: string } = $props();
+
 	let now = $state(new Date());
 
 	const weddingDate = new Date('2027-05-16T15:00:00+02:00');
@@ -26,16 +28,37 @@
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
-	<p class="text-warm-brown tracking-[0.3em] uppercase text-sm mb-6 font-sans">Vi skal giftes</p>
-	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-6 leading-tight">
+
+	<div class="mb-10 flex flex-col items-center">
+		<div class="w-10 h-px bg-soft-gold mb-6"></div>
+		<p class="text-warm-brown text-lg sm:text-xl font-serif italic">
+			Kære {pairName}
+		</p>
+		<p class="text-dark-brown tracking-[0.3em] uppercase text-xs sm:text-sm font-sans my-4">
+			Vi skal giftes
+		</p>
+		<p class="text-warm-brown text-base sm:text-lg font-serif italic max-w-md leading-relaxed text-balance">
+			I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
+		</p>
+		<div class="w-10 h-px bg-soft-gold mt-6"></div>
+	</div>
+
+	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-8 leading-tight">
 		Aimée<br class="sm:hidden" />
 		<span class="text-soft-gold">&</span>
 		Nikolai Emil
 	</h1>
+
 	<div class="w-20 h-px bg-soft-gold mb-6"></div>
+
 	<p class="text-xl sm:text-2xl text-warm-brown font-serif">16. maj 2027</p>
-	<p class="text-base sm:text-lg text-warm-brown mt-2 font-serif italic">Gl. Brydegaard</p>
-	<p class="text-sm text-sand mt-1">Helnæsvej 4, 5683 Haarby</p>
+	<p class="text-base sm:text-lg text-dark-brown mt-3 font-serif italic">Gl. Brydegaard</p>
+	<a
+		href="https://maps.google.com/?q=Gl.+Brydegaard+Helnæsvej+4+5683+Brydegård"
+		target="_blank"
+		rel="noopener noreferrer"
+		class="text-sm sm:text-base text-warm-brown mt-1 tracking-wide underline decoration-soft-gold/50 underline-offset-2 hover:text-dark-brown transition-colors"
+	>Helnæsvej 4, 5683 Brydegård</a>
 
 	<div class="mt-12 flex gap-6 sm:gap-10 text-center">
 		{#each [

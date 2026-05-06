@@ -18,10 +18,10 @@
 <Nav />
 
 <main>
-	<Hero />
+	<Hero pairName={data.guestPair.name} />
 	<Program />
 	<Gallery />
-	<Rsvp guests={data.guests} pairName={data.guestPair.name} />
+	<Rsvp guests={data.guests} />
 	<RoomBooking booking={data.booking} />
 	<PracticalInfo />
 	<Wishlist />

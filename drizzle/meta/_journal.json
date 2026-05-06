@@ -8,6 +8,13 @@
       "when": 1778009611541,
       "tag": "0000_fixed_unicorn",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778362292000,
+      "tag": "0001_fix_philip_spelling",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,7 @@
 		dietaryNotes: string | null;
 	}
 
-	let { guests, pairName }: { guests: Guest[]; pairName: string } = $props();
+	let { guests }: { guests: Guest[] } = $props();
 
 	let saved = $state(false);
 	let error = $state(false);
@@ -39,10 +39,7 @@
 <section id="rsvp" class="py-20 px-6 bg-warm-white">
 	<div class="max-w-2xl mx-auto">
 		<h2 class="text-4xl sm:text-5xl font-serif font-light text-dark-brown text-center mb-4">RSVP</h2>
-		<div class="w-16 h-px bg-soft-gold mx-auto mb-4"></div>
-		<p class="text-center text-warm-brown mb-12 font-serif italic">
-			Kære {pairName}
-		</p>
+		<div class="w-16 h-px bg-soft-gold mx-auto mb-12"></div>
 
 		<p class="text-center text-warm-brown mb-12 text-sm">
 			<i class="fa-solid fa-calendar-check text-soft-gold mr-1" aria-hidden="true"></i>
