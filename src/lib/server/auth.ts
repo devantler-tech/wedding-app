@@ -11,8 +11,8 @@ export function getAdminCode(): string {
 }
 
 export function validateAdminCode(code: string): boolean {
-	const expected = getAdminCode();
-	const provided = code.trim();
+	const expected = getAdminCode().toLowerCase();
+	const provided = code.trim().toLowerCase();
 	if (provided.length !== expected.length) return false;
 	return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
 }

@@ -32,6 +32,9 @@
 					type="text"
 					required
 					autocomplete="off"
+					autocapitalize="characters"
+					spellcheck="false"
+					autocorrect="off"
 					value={form?.code ?? ''}
 					placeholder="Kode"
 					class="w-full px-4 py-3 border border-sand rounded-lg bg-warm-white text-dark-brown placeholder-sand focus:outline-none focus:ring-2 focus:ring-soft-gold focus:border-soft-gold text-center text-lg tracking-widest uppercase"
