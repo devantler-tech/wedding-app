@@ -53,7 +53,7 @@
 
 	<p class="text-xl sm:text-2xl text-warm-brown font-serif">16. maj 2027</p>
 	<p class="text-base sm:text-lg text-dark-brown mt-3 font-serif italic">Gl. Brydegaard</p>
-	<p class="text-sm sm:text-base text-warm-brown mt-1 tracking-wide">Helnæsvej 4, 5683 Haarby</p>
+	<p class="text-sm sm:text-base text-warm-brown mt-1 tracking-wide">Helnæsvej 4, 5683 Brydegård</p>
 
 	<div class="mt-12 flex gap-6 sm:gap-10 text-center">
 		{#each [

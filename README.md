@@ -1,6 +1,6 @@
 # Bryllup — Aimée & Nikolai Emil
 
-Wedding website for Aimée & Nikolai Emil, 16. maj 2027 at Gl. Brydegaard, Helnæsvej 4, 5683 Haarby.
+Wedding website for Aimée & Nikolai Emil, 16. maj 2027 at Gl. Brydegaard, Helnæsvej 4, 5683 Brydegård.
 
 Guests log in with a unique invitation code to access the site, confirm attendance, request a room booking, and view practical information.
 

@@ -65,10 +65,10 @@
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Adresse</h3>
 					<p class="text-warm-brown mb-2">
 						Gl. Brydegaard<br />
-						Helnæsvej 4, 5683 Haarby
+						Helnæsvej 4, 5683 Brydegård
 					</p>
 					<a
-						href="https://maps.google.com/?q=Gl.+Brydegaard+Helnæsvej+4+5683+Haarby"
+						href="https://maps.google.com/?q=Gl.+Brydegaard+Helnæsvej+4+5683+Brydegård"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="inline-flex items-center gap-1 text-soft-gold hover:text-warm-brown transition-colors text-sm"
