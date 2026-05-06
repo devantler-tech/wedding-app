@@ -34,7 +34,7 @@
 		<p class="text-warm-brown text-lg sm:text-xl font-serif italic">
 			Kære {pairName}
 		</p>
-		<p class="text-warm-brown tracking-[0.3em] uppercase text-xs sm:text-sm font-sans my-4">
+		<p class="text-dark-brown tracking-[0.3em] uppercase text-xs sm:text-sm font-sans my-4">
 			Vi skal giftes
 		</p>
 		<p class="text-warm-brown text-base sm:text-lg font-serif italic max-w-md leading-relaxed text-balance">
