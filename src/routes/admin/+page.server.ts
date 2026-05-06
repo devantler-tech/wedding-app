@@ -35,7 +35,7 @@ function getMockAdminData(): { pairs: AdminPair[] } {
 		'Monica og Lasse',
 		'Louise og Matias',
 		'Clara og Frederik',
-		'Monica og Phillip',
+		'Monica og Philip',
 		'Linnea og Malthe',
 		'Louise og Maja'
 	];
