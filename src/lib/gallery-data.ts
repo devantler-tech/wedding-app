@@ -42,8 +42,8 @@ export const galleryEntries: GalleryEntry[] = [
   },
   {
     src: '/gallery/skotland-faengsel.jpg',
-    alt: 'Skotland - Bag træmmerne i Dunvegan Castle',
-    caption: 'Skotland - Bag træmmerne i Dunvegan Castle'
+    alt: 'Skotland - Bag tremmerne i Dunvegan Castle',
+    caption: 'Skotland - Bag tremmerne i Dunvegan Castle'
   },
   {
     src: '/gallery/skye-storr.jpg',
