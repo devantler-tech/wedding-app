@@ -1,6 +1,5 @@
 import { db } from './db.js';
 import { guestPairs, guests } from './schema.js';
-import { eq } from 'drizzle-orm';
 
 const GUEST_PAIRS = [
 	'Charlotte og Orla',
@@ -34,21 +33,16 @@ function parseGuestNames(pairName: string): string[] {
 	return [pairName.trim()];
 }
 
-async function seed() {
+export async function runSeed(): Promise<void> {
+	const existing = await db.select().from(guestPairs).limit(1);
+	if (existing.length > 0) {
+		console.log('🌱 Seed data already exists, skipping.');
+		return;
+	}
+
 	console.log('🌱 Seeding database...');
 
 	for (const pairName of GUEST_PAIRS) {
-		const existing = await db
-			.select()
-			.from(guestPairs)
-			.where(eq(guestPairs.name, pairName))
-			.limit(1);
-
-		if (existing.length > 0) {
-			console.log(`  ⏭  ${pairName} (already exists)`);
-			continue;
-		}
-
 		const code = generateCode();
 		const [pair] = await db.insert(guestPairs).values({ code, name: pairName }).returning();
 
@@ -61,10 +55,14 @@ async function seed() {
 	}
 
 	console.log('✨ Seeding complete!');
-	process.exit(0);
 }
 
-seed().catch((err) => {
-	console.error('❌ Seed failed:', err);
-	process.exit(1);
-});
+// CLI entrypoint
+if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
+	runSeed()
+		.then(() => process.exit(0))
+		.catch((err) => {
+			console.error('❌ Seed failed:', err);
+			process.exit(1);
+		});
+}
