@@ -14,7 +14,7 @@
 		return () => clearInterval(interval);
 	});
 
-	const diff = $derived(() => {
+	const diff = $derived.by(() => {
 		const ms = weddingDate.getTime() - now.getTime();
 		if (ms <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
 		const days = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -62,10 +62,10 @@
 
 	<div class="mt-12 flex gap-6 sm:gap-10 text-center">
 		{#each [
-			{ value: diff().days, label: 'Dage' },
-			{ value: diff().hours, label: 'Timer' },
-			{ value: diff().minutes, label: 'Min' },
-			{ value: diff().seconds, label: 'Sek' }
+			{ value: diff.days, label: 'Dage' },
+			{ value: diff.hours, label: 'Timer' },
+			{ value: diff.minutes, label: 'Min' },
+			{ value: diff.seconds, label: 'Sek' }
 		] as item (item.label)}
 			<div>
 				<span class="text-3xl sm:text-4xl font-serif text-dark-brown">{item.value}</span>

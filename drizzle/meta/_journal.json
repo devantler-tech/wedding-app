@@ -15,6 +15,13 @@
       "when": 1778362292000,
       "tag": "0001_fix_philip_spelling",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778315582035,
+      "tag": "0002_drop_unused_nights_column",
+      "breakpoints": true
     }
   ]
 }

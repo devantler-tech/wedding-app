@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { createSubmitHandler } from '$lib/submit-helper.js';
+
 	interface Guest {
 		id: number;
 		name: string;
@@ -11,29 +13,10 @@
 	let saved = $state(false);
 	let error = $state(false);
 
-	async function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		const form = e.currentTarget as HTMLFormElement;
-		try {
-			const res = await fetch(form.action, {
-				method: 'POST',
-				body: new FormData(form)
-			});
-			if (res.ok) {
-				saved = true;
-				error = false;
-				setTimeout(() => (saved = false), 3000);
-			} else {
-				error = true;
-				saved = false;
-				setTimeout(() => (error = false), 5000);
-			}
-		} catch {
-			error = true;
-			saved = false;
-			setTimeout(() => (error = false), 5000);
-		}
-	}
+	const handleSubmit = createSubmitHandler((s) => {
+		saved = s.saved;
+		error = s.error;
+	});
 </script>
 
 <section id="rsvp" class="py-20 px-6 bg-warm-white">

@@ -1,13 +1,19 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { env } from '$env/dynamic/private';
 import { db } from './db.js';
 import { adminSessions, guestPairs, sessions } from './schema.js';
 import { eq, and, gt } from 'drizzle-orm';
 
 const SESSION_DURATION_DAYS = 30;
-const DEFAULT_ADMIN_CODE = 'harndrupbryllupadmins1234';
+const DEV_ADMIN_CODE = 'harndrupbryllupadmins1234';
 
 export function getAdminCode(): string {
-	return process.env.ADMIN_CODE?.trim() || DEFAULT_ADMIN_CODE;
+	const code = env.ADMIN_CODE?.trim();
+	if (code) return code;
+	if (env.NODE_ENV === 'production' && env.DEV_SKIP_AUTH !== 'true') {
+		throw new Error('ADMIN_CODE environment variable is required in production');
+	}
+	return DEV_ADMIN_CODE;
 }
 
 export function validateAdminCode(code: string): boolean {

@@ -4,3 +4,9 @@ dist
 .git
 .github
 deploy
+tests
+.svelte-kit
+*.tsbuildinfo
+playwright.config.ts
+playwright-report
+test-results

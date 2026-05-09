@@ -1,9 +1,10 @@
 import { redirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import { getAdminSession } from '$lib/server/auth.js';
 import type { LayoutServerLoad } from './$types.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	if (process.env.DEV_SKIP_AUTH === 'true') {
+	if (env.DEV_SKIP_AUTH === 'true') {
 		return {};
 	}
 
