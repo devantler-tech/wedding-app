@@ -81,10 +81,13 @@ vi.mock('drizzle-orm', async (importOriginal) => {
 
 describe('admin auth', () => {
 	const originalAdminCode = process.env.ADMIN_CODE;
+	const originalNodeEnv = process.env.NODE_ENV;
 
 	afterEach(() => {
 		if (originalAdminCode === undefined) delete process.env.ADMIN_CODE;
 		else process.env.ADMIN_CODE = originalAdminCode;
+		if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+		else process.env.NODE_ENV = originalNodeEnv;
 		store.clear();
 		lastQueriedId = null;
 	});
@@ -109,6 +112,14 @@ describe('admin auth', () => {
 		delete process.env.ADMIN_CODE;
 		expect(validateAdminCode('HARNDRUPBRYLLUPADMINS1234')).toBe(true);
 		expect(validateAdminCode('HarndrupBryllupAdmins1234')).toBe(true);
+	});
+
+	test('getAdminCode throws when NODE_ENV is production and ADMIN_CODE is unset', () => {
+		process.env.NODE_ENV = 'production';
+		delete process.env.ADMIN_CODE;
+		expect(() => getAdminCode()).toThrow(
+			'ADMIN_CODE environment variable is required in production'
+		);
 	});
 
 	test('validateAdminCode rejects wrong codes regardless of length', () => {

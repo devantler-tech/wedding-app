@@ -4,17 +4,13 @@ import { env } from '$env/dynamic/private';
 import { runMigrations } from '$lib/server/migrate.js';
 import { runSeed } from '$lib/server/seed.js';
 
-if (env.NODE_ENV === 'production' && !env.ADMIN_CODE) {
+if (env.NODE_ENV === 'production' && !env.ADMIN_CODE?.trim() && env.DEV_SKIP_AUTH !== 'true') {
 	throw new Error('ADMIN_CODE environment variable is required in production');
 }
 
 if (env.DATABASE_URL) {
 	await runMigrations();
-	try {
-		await runSeed();
-	} catch (err) {
-		console.warn('⚠️ Seed skipped (likely already seeded by another replica):', (err as Error).message);
-	}
+	await runSeed();
 }
 
 const securityHeaders: Handle = async ({ event, resolve }) => {

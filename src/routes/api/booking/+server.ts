@@ -7,8 +7,8 @@ import type { RequestHandler } from './$types.js';
 const MAX_NOTES_LENGTH = 500;
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const { session, error } = await validateApiSession(cookies);
-	if (error) return error;
+	const { session, earlyResponse } = await validateApiSession(cookies);
+	if (earlyResponse) return earlyResponse;
 
 	const formData = await request.formData();
 	const requested = formData.get('requested') === 'on';

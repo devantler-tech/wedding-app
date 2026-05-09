@@ -9,8 +9,8 @@ const MAX_GUEST_COUNT = 10;
 const MAX_DIETARY_LENGTH = 500;
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const { session, error } = await validateApiSession(cookies);
-	if (error) return error;
+	const { session, earlyResponse } = await validateApiSession(cookies);
+	if (earlyResponse) return earlyResponse;
 
 	const formData = await request.formData();
 	const guestCount = parseInt(formData.get('guestCount')?.toString() ?? '0');

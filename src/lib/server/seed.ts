@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { sql } from 'drizzle-orm';
 import { db } from './db.js';
 import { guestPairs, guests } from './schema.js';
 
@@ -20,10 +21,15 @@ export const GUEST_PAIRS = [
 
 function generateCode(): string {
 	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-	const bytes = randomBytes(6);
+	// Rejection sampling avoids modulo bias from uneven byte→char mapping
+	const maxValid = Math.floor(256 / chars.length) * chars.length;
 	let code = '';
-	for (let i = 0; i < 6; i++) {
-		code += chars[bytes[i] % chars.length];
+	while (code.length < 6) {
+		for (const byte of randomBytes(6)) {
+			if (byte < maxValid && code.length < 6) {
+				code += chars[byte % chars.length];
+			}
+		}
 	}
 	return code;
 }
@@ -36,33 +42,35 @@ export function parseGuestNames(pairName: string): string[] {
 }
 
 export async function runSeed(): Promise<void> {
-	const existing = await db.select().from(guestPairs).limit(1);
-	if (existing.length > 0) {
-		console.log('🌱 Seed data already exists, skipping.');
-		return;
-	}
+	await db.transaction(async (tx) => {
+		// Advisory lock serializes seeding across concurrent replicas
+		await tx.execute(sql`SELECT pg_advisory_xact_lock(42)`);
 
-	console.log('🌱 Seeding database...');
-
-	for (const pairName of GUEST_PAIRS) {
-		const code = generateCode();
-		const [pair] = await db
-			.insert(guestPairs)
-			.values({ code, name: pairName })
-			.onConflictDoNothing()
-			.returning();
-
-		if (!pair) continue;
-
-		const names = parseGuestNames(pairName);
-		for (const name of names) {
-			await db.insert(guests).values({ guestPairId: pair.id, name });
+		const existing = await tx.select().from(guestPairs).limit(1);
+		if (existing.length > 0) {
+			console.log('🌱 Seed data already exists, skipping.');
+			return;
 		}
 
-		console.log(`  ✅ ${pairName} → [code hidden]`);
-	}
+		console.log('🌱 Seeding database...');
 
-	console.log('✨ Seeding complete!');
+		for (const pairName of GUEST_PAIRS) {
+			const code = generateCode();
+			const [pair] = await tx
+				.insert(guestPairs)
+				.values({ code, name: pairName })
+				.returning();
+
+			const names = parseGuestNames(pairName);
+			for (const name of names) {
+				await tx.insert(guests).values({ guestPairId: pair.id, name });
+			}
+
+			console.log(`  ✅ ${pairName} → [code hidden]`);
+		}
+
+		console.log('✨ Seeding complete!');
+	});
 }
 
 // CLI entrypoint
