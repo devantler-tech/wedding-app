@@ -41,10 +41,14 @@ export function parseGuestNames(pairName: string): string[] {
 	return [pairName.trim()];
 }
 
+// Unique key for pg_advisory_xact_lock — chosen arbitrarily, must not
+// collide with other advisory locks used elsewhere in the application.
+const SEED_LOCK_ID = 73917;
+
 export async function runSeed(): Promise<void> {
 	await db.transaction(async (tx) => {
 		// Advisory lock serializes seeding across concurrent replicas
-		await tx.execute(sql`SELECT pg_advisory_xact_lock(42)`);
+		await tx.execute(sql`SELECT pg_advisory_xact_lock(${SEED_LOCK_ID})`);
 
 		const existing = await tx.select().from(guestPairs).limit(1);
 		if (existing.length > 0) {
