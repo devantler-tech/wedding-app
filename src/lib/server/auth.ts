@@ -10,7 +10,7 @@ const DEV_ADMIN_CODE = 'harndrupbryllupadmins1234';
 export function getAdminCode(): string {
 	const code = env.ADMIN_CODE?.trim();
 	if (code) return code;
-	if (env.NODE_ENV === 'production') {
+	if (env.NODE_ENV === 'production' && env.DEV_SKIP_AUTH !== 'true') {
 		throw new Error('ADMIN_CODE environment variable is required in production');
 	}
 	return DEV_ADMIN_CODE;
