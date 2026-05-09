@@ -1,6 +1,8 @@
 import { db } from '$lib/server/db.js';
+import { env } from '$env/dynamic/private';
 import { guestPairs, guests, roomBookings } from '$lib/server/schema.js';
 import { asc } from 'drizzle-orm';
+import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
 import type { PageServerLoad } from './$types.js';
 
 type AdminGuest = {
@@ -24,24 +26,8 @@ type AdminPair = {
 };
 
 function getMockAdminData(): { pairs: AdminPair[] } {
-	const pairNames = [
-		'Charlotte og Orla',
-		'Alette og Sunny',
-		'Mathias og Ane Kirstine',
-		'Kurt og Trine',
-		'Karen Lise',
-		'Birgit og Tage',
-		'Gerda',
-		'Monica og Lasse',
-		'Louise og Matias',
-		'Clara og Frederik',
-		'Monica og Philip',
-		'Linnea og Malthe',
-		'Louise og Maja'
-	];
-
-	const pairs: AdminPair[] = pairNames.map((name, idx) => {
-		const names = name.includes(' og ') ? name.split(' og ').map((n) => n.trim()) : [name.trim()];
+	const pairs: AdminPair[] = GUEST_PAIRS.map((name, idx) => {
+		const names = parseGuestNames(name);
 		return {
 			id: idx + 1,
 			name,
@@ -60,7 +46,7 @@ function getMockAdminData(): { pairs: AdminPair[] } {
 }
 
 export const load: PageServerLoad = async () => {
-	if (process.env.DEV_SKIP_AUTH === 'true') {
+	if (env.DEV_SKIP_AUTH === 'true') {
 		return getMockAdminData();
 	}
 

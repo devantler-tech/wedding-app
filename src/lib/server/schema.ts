@@ -25,7 +25,6 @@ export const roomBookings = pgTable('room_bookings', {
 		.unique()
 		.notNull(),
 	requested: boolean('requested').notNull().default(false),
-	nights: integer('nights').default(1),
 	notes: text('notes'),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 });

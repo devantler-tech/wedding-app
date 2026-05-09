@@ -1,4 +1,15 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
+
+// Mock $env/dynamic/private to delegate to process.env so test setup via
+// process.env.ADMIN_CODE / process.env.NODE_ENV continues to work.
+vi.mock('$env/dynamic/private', () => ({
+	env: new Proxy({} as Record<string, string | undefined>, {
+		get(_target, prop: string) {
+			return process.env[prop];
+		}
+	})
+}));
+
 import {
 	getAdminCode,
 	validateAdminCode

@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import {
 	validateCode,
 	createSession,
@@ -7,19 +8,25 @@ import {
 	getAdminSession,
 	getSession
 } from '$lib/server/auth.js';
+import {
+	setSessionCookie,
+	setAdminSessionCookie,
+	setDevSessionCookie,
+	setDevAdminSessionCookie
+} from '$lib/server/cookies.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const adminSessionId = cookies.get('admin_session');
 	if (adminSessionId) {
-		if (process.env.DEV_SKIP_AUTH === 'true' || (await getAdminSession(adminSessionId))) {
+		if (env.DEV_SKIP_AUTH === 'true' || (await getAdminSession(adminSessionId))) {
 			throw redirect(302, '/admin');
 		}
 	}
 
 	const sessionId = cookies.get('session');
 	if (sessionId) {
-		if (process.env.DEV_SKIP_AUTH === 'true') {
+		if (env.DEV_SKIP_AUTH === 'true') {
 			throw redirect(302, '/');
 		}
 		const session = await getSession(sessionId);
@@ -38,27 +45,14 @@ export const actions: Actions = {
 			return fail(400, { error: 'Indtast venligst en kode', code });
 		}
 
-		// Dev mode: accept MOCK1 and ADMIN without hitting the database
-		if (process.env.DEV_SKIP_AUTH === 'true') {
+		if (env.DEV_SKIP_AUTH === 'true') {
 			const upper = code.toUpperCase().trim();
 			if (upper === 'ADMIN' || validateAdminCode(code)) {
-				cookies.set('admin_session', 'dev-admin-session', {
-					path: '/',
-					httpOnly: true,
-					secure: false,
-					sameSite: 'lax',
-					maxAge: 60 * 60 * 24 * 30
-				});
+				setDevAdminSessionCookie(cookies);
 				throw redirect(303, '/admin');
 			}
 			if (upper === 'MOCK1') {
-				cookies.set('session', 'dev-session', {
-					path: '/',
-					httpOnly: true,
-					secure: false,
-					sameSite: 'lax',
-					maxAge: 60 * 60 * 24 * 30
-				});
+				setDevSessionCookie(cookies);
 				throw redirect(303, '/');
 			}
 			return fail(400, { error: 'Dev mode: brug koden MOCK1 eller ADMIN', code });
@@ -66,13 +60,7 @@ export const actions: Actions = {
 
 		if (validateAdminCode(code)) {
 			const adminSessionId = await createAdminSession();
-			cookies.set('admin_session', adminSessionId, {
-				path: '/',
-				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'lax',
-				maxAge: 60 * 60 * 24 * 30
-			});
+			setAdminSessionCookie(cookies, adminSessionId);
 			throw redirect(303, '/admin');
 		}
 
@@ -101,14 +89,7 @@ export const actions: Actions = {
 			});
 		}
 
-		cookies.set('session', sessionId, {
-			path: '/',
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			maxAge: 60 * 60 * 24 * 30
-		});
-
+		setSessionCookie(cookies, sessionId);
 		throw redirect(303, '/');
 	}
 };

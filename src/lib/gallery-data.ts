@@ -4,7 +4,7 @@ export interface GalleryEntry {
   caption: string;
 }
 
-export const galleryEntries: GalleryEntry[] = [
+export const galleryEntries: readonly GalleryEntry[] = [
   {
     src: '/gallery/koldinghus.jpg',
     alt: 'Koldinghus — aftenen hvor vi blev kærester',

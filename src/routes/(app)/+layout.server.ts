@@ -1,17 +1,23 @@
 import { redirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import { getSession } from '$lib/server/auth.js';
 import { db } from '$lib/server/db.js';
 import { guests, roomBookings } from '$lib/server/schema.js';
 import { eq } from 'drizzle-orm';
+import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
 import type { LayoutServerLoad } from './$types.js';
 
 function getMockData() {
+	const pairName = GUEST_PAIRS[0];
+	const names = parseGuestNames(pairName);
 	return {
-		guestPair: { id: 1, name: 'Charlotte og Orla', code: 'MOCK01' },
-		guests: [
-			{ id: 1, name: 'Charlotte', attending: null, dietaryNotes: null },
-			{ id: 2, name: 'Orla', attending: null, dietaryNotes: null }
-		],
+		guestPair: { id: 1, name: pairName, code: 'MOCK01' },
+		guests: names.map((name, i) => ({
+			id: i + 1,
+			name,
+			attending: null,
+			dietaryNotes: null
+		})),
 		booking: null
 	};
 }
@@ -23,7 +29,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 	}
 
 	// Dev mode: require session cookie but skip DB lookup
-	if (process.env.DEV_SKIP_AUTH === 'true') {
+	if (env.DEV_SKIP_AUTH === 'true') {
 		return getMockData();
 	}
 

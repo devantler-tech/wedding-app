@@ -1,51 +1,35 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 import { roomBookings } from '$lib/server/schema.js';
-import { eq } from 'drizzle-orm';
-import { getSession } from '$lib/server/auth.js';
+import { validateApiSession } from '$lib/server/validate-session.js';
 import type { RequestHandler } from './$types.js';
 
+const MAX_NOTES_LENGTH = 500;
+
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (process.env.DEV_SKIP_AUTH === 'true') {
-		return json({ success: true });
-	}
-
-	const sessionId = cookies.get('session');
-	if (!sessionId) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
-
-	const session = await getSession(sessionId);
-	if (!session) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
+	const { session, error } = await validateApiSession(cookies);
+	if (error) return error;
 
 	const formData = await request.formData();
 	const requested = formData.get('requested') === 'on';
-	const notes = formData.get('notes')?.toString() ?? null;
+	const rawNotes = formData.get('notes')?.toString()?.slice(0, MAX_NOTES_LENGTH) ?? null;
+	const notes = requested ? rawNotes : null;
 
-	const existing = await db
-		.select()
-		.from(roomBookings)
-		.where(eq(roomBookings.guestPairId, session.guestPairId))
-		.limit(1);
-
-	if (existing.length > 0) {
-		await db
-			.update(roomBookings)
-			.set({
-				requested,
-				notes: requested ? notes : null,
-				updatedAt: new Date()
-			})
-			.where(eq(roomBookings.guestPairId, session.guestPairId));
-	} else {
-		await db.insert(roomBookings).values({
+	await db
+		.insert(roomBookings)
+		.values({
 			guestPairId: session.guestPairId,
 			requested,
-			notes: requested ? notes : null
+			notes
+		})
+		.onConflictDoUpdate({
+			target: roomBookings.guestPairId,
+			set: {
+				requested,
+				notes,
+				updatedAt: new Date()
+			}
 		});
-	}
 
 	return json({ success: true });
 };

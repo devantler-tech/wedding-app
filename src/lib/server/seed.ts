@@ -1,7 +1,8 @@
+import { randomBytes } from 'node:crypto';
 import { db } from './db.js';
 import { guestPairs, guests } from './schema.js';
 
-const GUEST_PAIRS = [
+export const GUEST_PAIRS = [
 	'Charlotte og Orla',
 	'Alette og Sunny',
 	'Mathias og Ane Kirstine',
@@ -19,14 +20,15 @@ const GUEST_PAIRS = [
 
 function generateCode(): string {
 	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+	const bytes = randomBytes(6);
 	let code = '';
 	for (let i = 0; i < 6; i++) {
-		code += chars[Math.floor(Math.random() * chars.length)];
+		code += chars[bytes[i] % chars.length];
 	}
 	return code;
 }
 
-function parseGuestNames(pairName: string): string[] {
+export function parseGuestNames(pairName: string): string[] {
 	if (pairName.includes(' og ')) {
 		return pairName.split(' og ').map((n) => n.trim());
 	}
@@ -44,7 +46,13 @@ export async function runSeed(): Promise<void> {
 
 	for (const pairName of GUEST_PAIRS) {
 		const code = generateCode();
-		const [pair] = await db.insert(guestPairs).values({ code, name: pairName }).returning();
+		const [pair] = await db
+			.insert(guestPairs)
+			.values({ code, name: pairName })
+			.onConflictDoNothing()
+			.returning();
+
+		if (!pair) continue;
 
 		const names = parseGuestNames(pairName);
 		for (const name of names) {
