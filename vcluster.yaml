@@ -1,0 +1,7 @@
+# vCluster Helm values configuration.
+# See https://www.vcluster.com/docs/configure/vcluster-yaml for available options.
+controlPlane:
+  distro:
+    k8s:
+      image:
+        tag: v1.35.3

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wedding-app
+  labels:
+    app.kubernetes.io/name: wedding-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wedding-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wedding-app
+    spec:
+      containers:
+        - name: wedding-app
+          image: wedding-app-local-registry:5000/wedding-app:test
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "production"
+            - name: ORIGIN
+              value: "http://localhost:3000"
+            - name: DATABASE_URL
+              value: "postgresql://wedding:testpass@postgres:5432/wedding"
+            - name: ADMIN_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: wedding-app-admin-code
+                  key: ADMIN_CODE
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5

@@ -1,0 +1,11 @@
+apiVersion: ksail.io/v1alpha1
+kind: Cluster
+metadata:
+  name: wedding-app
+spec:
+  cluster:
+    connection:
+      context: vcluster-docker_wedding-app
+    distribution: VCluster
+    localRegistry:
+      registry: localhost:5050

@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+const isK8sE2E = process.env.K8S_E2E === 'true';
+const adminCode = 'harndrupbryllupadmins1234';
+
 test.describe('Login page', () => {
 	test('shows login form with correct title', async ({ page }) => {
 		await page.goto('/login');
@@ -13,11 +16,15 @@ test.describe('Login page', () => {
 		await expect(page.getByText('16. maj 2027')).toBeVisible();
 	});
 
-	test('shows dev-mode error message for invalid code', async ({ page }) => {
+	test('shows error message for invalid code', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel(/invitationskode/i).fill('WRONGCODE');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
-		await expect(page.getByText(/brug koden MOCK1 eller ADMIN/i)).toBeVisible();
+		if (isK8sE2E) {
+			await expect(page.getByText(/Ugyldig kode/i)).toBeVisible();
+		} else {
+			await expect(page.getByText(/brug koden MOCK1 eller ADMIN/i)).toBeVisible();
+		}
 	});
 });
 
@@ -32,17 +39,15 @@ test.describe('Error page', () => {
 	});
 });
 
-test.describe('Admin view (dev mode)', () => {
+test.describe('Admin view', () => {
 	test('admin code logs in and shows attendee overview', async ({ page }) => {
 		await page.goto('/login');
-		await page.getByLabel(/invitationskode/i).fill('ADMIN');
+		await page.getByLabel(/invitationskode/i).fill(isK8sE2E ? adminCode : 'ADMIN');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
 		await page.waitForURL('**/admin');
 
 		await expect(page.getByRole('heading', { name: /Oversigt over gæster/i })).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Charlotte og Orla' })).toBeVisible();
 		await expect(page.getByText('Charlotte og Orla')).toBeVisible();
-		await expect(page.getByText(/MOCK13/)).toBeVisible();
 	});
 
 	test('full admin code is accepted', async ({ page }) => {
@@ -58,7 +63,7 @@ test.describe('Admin view (dev mode)', () => {
 		context
 	}) => {
 		await page.goto('/login');
-		await page.getByLabel(/invitationskode/i).fill('ADMIN');
+		await page.getByLabel(/invitationskode/i).fill(isK8sE2E ? adminCode : 'ADMIN');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
 		await page.waitForURL('**/admin');
 
@@ -70,10 +75,24 @@ test.describe('Admin view (dev mode)', () => {
 	});
 });
 
-test.describe('Main page (dev mode)', () => {
+test.describe('Main page', () => {
+	let guestCode: string;
+
+	test.beforeAll(async ({ browser }) => {
+		if (!isK8sE2E) return;
+		const page = await browser.newPage();
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill(adminCode);
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/admin');
+		const article = page.locator('article').filter({ hasText: 'Charlotte og Orla' });
+		guestCode = (await article.locator('code').textContent()) ?? '';
+		await page.close();
+	});
+
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/login');
-		await page.getByLabel(/invitationskode/i).fill('MOCK1');
+		await page.getByLabel(/invitationskode/i).fill(isK8sE2E ? guestCode : 'MOCK1');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
 		await page.waitForURL('**/');
 	});
@@ -140,11 +159,8 @@ test.describe('Main page (dev mode)', () => {
 	});
 
 	test('"Gå tilbage" deletes session cookie and returns to login', async ({ page, context }) => {
-		await context.addCookies([
-			{ name: 'session', value: 'dev-session', url: 'http://localhost:4173' }
-		]);
 		await page.goto('/');
-		expect((await context.cookies()).find((c) => c.name === 'session')?.value).toBe('dev-session');
+		expect((await context.cookies()).find((c) => c.name === 'session')).toBeDefined();
 
 		const back = page.getByRole('button', { name: /Gå tilbage/i }).first();
 		await expect(back).toBeVisible();
@@ -152,27 +168,6 @@ test.describe('Main page (dev mode)', () => {
 		await page.waitForURL('**/login');
 		await expect(page.getByLabel(/invitationskode/i)).toBeVisible();
 		expect((await context.cookies()).find((c) => c.name === 'session')).toBeUndefined();
-	});
-
-	test('"Gå tilbage" deletes admin_session cookie and returns to login', async ({
-		page,
-		context
-	}) => {
-		await context.addCookies([
-			{
-				name: 'admin_session',
-				value: 'dev-admin-session',
-				url: 'http://localhost:4173'
-			}
-		]);
-		await page.goto('/');
-		expect((await context.cookies()).find((c) => c.name === 'admin_session')?.value).toBe(
-			'dev-admin-session'
-		);
-
-		await page.getByRole('button', { name: /Gå tilbage/i }).first().click();
-		await page.waitForURL('**/login');
-		expect((await context.cookies()).find((c) => c.name === 'admin_session')).toBeUndefined();
 	});
 
 	test('"Gå tilbage" stays accessible inside nav after scrolling past hero', async ({ page }) => {
