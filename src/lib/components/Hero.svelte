@@ -44,9 +44,8 @@
 	</div>
 
 	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-8 leading-tight">
-		Aimée<br class="sm:hidden" />
-		<span class="text-soft-gold">&</span>
-		Nikolai Emil
+		<span class="whitespace-nowrap">Aimée <span class="text-soft-gold">&</span></span><br class="sm:hidden" />
+		<span class="whitespace-nowrap">Nikolai Emil</span>
 	</h1>
 
 	<div class="w-20 h-px bg-soft-gold mb-6"></div>
