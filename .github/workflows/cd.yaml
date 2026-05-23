@@ -4,65 +4,15 @@ on:
     tags:
       - "v*"
 
-permissions:
-  contents: read
-  packages: write
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+permissions: {}
 
 jobs:
-  publish-image:
-    name: Publish Docker Image
-    runs-on: ubuntu-latest
-    outputs:
-      digest: ${{ steps.build.outputs.digest }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
-        id: meta
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha
-            type=raw,value=latest
-
-      - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
-        id: build
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  push-manifests:
-    name: Push K8s Manifests OCI
-    runs-on: ubuntu-latest
-    needs: publish-image
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Pin image digest in manifests
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ needs.publish-image.outputs.digest }}
-        run: |
-          yq -i '(.spec.template.spec.containers[] | select(.name == "wedding-app").image) = strenv(IMAGE) + "@" + strenv(DIGEST)' deploy/deployment.yaml
-
-      - uses: fluxcd/flux2/action@main
-
-      - run: |
-          flux push artifact \
-            oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/manifests:latest \
-            --path=./deploy \
-            --source="$(git config --get remote.origin.url)" \
-            --revision="$(git branch --show-current)/$(git rev-parse HEAD)" \
-            --creds ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+  publish:
+    name: Publish
+    permissions:
+      contents: read # checkout
+      packages: write # push image + manifests OCI artifact
+      id-token: write # keyless cosign signing
+    uses: devantler-tech/reusable-workflows/.github/workflows/publish-app.yaml@main
+    with:
+      app-name: wedding-app
