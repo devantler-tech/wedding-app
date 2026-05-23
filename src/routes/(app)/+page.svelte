@@ -18,7 +18,7 @@
 <Nav />
 
 <main>
-	<Hero pairName={data.guestPair.name} />
+	<Hero pairName={data.guestPair.name} guestCount={data.guests.length} />
 	<Program />
 	<Gallery />
 	<Rsvp guests={data.guests} />
