@@ -36,8 +36,8 @@ spec:
               app.kubernetes.io/name: wedding-app
       containers:
         - name: wedding-app
-          image: ghcr.io/devantler-tech/wedding-app:latest # {"$imagepolicy": "wedding-app:wedding-app"}
-          imagePullPolicy: Always
+          image: ghcr.io/devantler-tech/wedding-app:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
               protocol: TCP
