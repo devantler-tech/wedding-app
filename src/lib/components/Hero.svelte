@@ -1,7 +1,9 @@
 <script lang="ts">
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 
-	let { pairName }: { pairName: string } = $props();
+	let { pairName, guestCount }: { pairName: string; guestCount: number } = $props();
+
+	const isSingle = $derived(guestCount === 1);
 
 	let now = $state(new Date());
 
@@ -38,7 +40,11 @@
 			Vi skal giftes
 		</p>
 		<p class="text-warm-brown text-base sm:text-lg font-serif italic max-w-md leading-relaxed text-balance">
-			I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
+			{#if isSingle}
+				Du er helt speciel for os, så derfor ønsker vi at dele vores store dag med dig.
+			{:else}
+				I er helt specielle for os, så derfor ønsker vi at dele vores store dag med jer.
+			{/if}
 		</p>
 		<div class="w-10 h-px bg-soft-gold mt-6"></div>
 	</div>

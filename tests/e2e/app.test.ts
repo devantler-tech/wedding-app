@@ -17,7 +17,7 @@ test.describe('Login page', () => {
 		await page.goto('/login');
 		await page.getByLabel(/invitationskode/i).fill('WRONGCODE');
 		await page.getByRole('button', { name: /Se invitation/i }).click();
-		await expect(page.getByText(/brug koden MOCK1 eller ADMIN/i)).toBeVisible();
+		await expect(page.getByText(/brug koden MOCK1, MOCK2 eller ADMIN/i)).toBeVisible();
 	});
 });
 
@@ -194,5 +194,22 @@ test.describe('Main page (dev mode)', () => {
 
 		const programLink = page.getByRole('link', { name: 'Program' }).first();
 		await expect(programLink).toBeVisible();
+	});
+});
+
+test.describe('Main page – single-guest invitation (dev mode)', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel(/invitationskode/i).fill('MOCK2');
+		await page.getByRole('button', { name: /Se invitation/i }).click();
+		await page.waitForURL('**/');
+	});
+
+	test('hero uses singular Danish wording for a single guest', async ({ page }) => {
+		await page.goto('/');
+		await expect(
+			page.getByText('Du er helt speciel for os, så derfor ønsker vi at dele vores store dag med dig.')
+		).toBeVisible();
+		await expect(page.getByText(/helt specielle for os/i)).toHaveCount(0);
 	});
 });
