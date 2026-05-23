@@ -12,7 +12,8 @@ import {
 	setSessionCookie,
 	setAdminSessionCookie,
 	setDevSessionCookie,
-	setDevAdminSessionCookie
+	setDevAdminSessionCookie,
+	DEV_SESSION_SINGLE
 } from '$lib/server/cookies.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
@@ -55,7 +56,11 @@ export const actions: Actions = {
 				setDevSessionCookie(cookies);
 				throw redirect(303, '/');
 			}
-			return fail(400, { error: 'Dev mode: brug koden MOCK1 eller ADMIN', code });
+			if (upper === 'MOCK2') {
+				setDevSessionCookie(cookies, DEV_SESSION_SINGLE);
+				throw redirect(303, '/');
+			}
+			return fail(400, { error: 'Dev mode: brug koden MOCK1, MOCK2 eller ADMIN', code });
 		}
 
 		if (validateAdminCode(code)) {

@@ -3,6 +3,9 @@ import type { Cookies } from '@sveltejs/kit';
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
+export const DEV_SESSION = 'dev-session';
+export const DEV_SESSION_SINGLE = 'dev-session-single';
+
 function isSecure(): boolean {
 	return env.NODE_ENV === 'production';
 }
@@ -25,8 +28,8 @@ export function setAdminSessionCookie(cookies: Cookies, sessionId: string): void
 	cookies.set('admin_session', sessionId, baseCookieOptions());
 }
 
-export function setDevSessionCookie(cookies: Cookies): void {
-	cookies.set('session', 'dev-session', {
+export function setDevSessionCookie(cookies: Cookies, value: string = DEV_SESSION): void {
+	cookies.set('session', value, {
 		...baseCookieOptions(),
 		secure: false
 	});

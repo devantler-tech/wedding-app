@@ -5,10 +5,13 @@ import { db } from '$lib/server/db.js';
 import { guests, roomBookings } from '$lib/server/schema.js';
 import { eq } from 'drizzle-orm';
 import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
+import { DEV_SESSION_SINGLE } from '$lib/server/cookies.js';
 import type { LayoutServerLoad } from './$types.js';
 
-function getMockData() {
-	const pairName = GUEST_PAIRS[0];
+function getMockData(single = false) {
+	const pairName = single
+		? (GUEST_PAIRS.find((p) => parseGuestNames(p).length === 1) ?? GUEST_PAIRS[0])
+		: GUEST_PAIRS[0];
 	const names = parseGuestNames(pairName);
 	return {
 		guestPair: { id: 1, name: pairName, code: 'MOCK01' },
@@ -30,7 +33,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 
 	// Dev mode: require session cookie but skip DB lookup
 	if (env.DEV_SKIP_AUTH === 'true') {
-		return getMockData();
+		return getMockData(sessionId === DEV_SESSION_SINGLE);
 	}
 
 	const session = await getSession(sessionId);
