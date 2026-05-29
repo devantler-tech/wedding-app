@@ -1,0 +1,14 @@
+# Files this tenant owns — template-sync (from devantler-tech/gitops-tenant-template)
+# must never overwrite them. The template only ships the files below plus the
+# shared plumbing it keeps in sync (cd.yaml, release.yaml, template-sync.yaml,
+# AGENTS.md, CLAUDE.md), so only the tenant-owned scaffolding needs listing here.
+.github/workflows/ci.yaml
+.github/dependabot.yml
+.releaserc
+.gitignore
+.sops.yaml
+Dockerfile
+README.md
+LICENSE
+deploy/
+.templatesyncignore
