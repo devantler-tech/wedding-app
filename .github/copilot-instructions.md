@@ -42,7 +42,9 @@ as an OCI-packaged Kustomize tenant on the devantler-tech platform cluster. Cano
 
 ## Validation & CI
 
-- Mirror `ci.yaml`: `npm ci && npm run lint && npm run check && npm test && npm run test:e2e && npm run build`.
+- Run the same checks CI runs (as separate jobs): `npm ci && npm run lint && npm run check && npm test`,
+  then for E2E `npx playwright install --with-deps chromium && npm run test:e2e`, and `npm run build`.
+  The Playwright browser install is required before `test:e2e` in a clean environment.
 - Private platform-tenant app — be conservative; never expose its contents publicly.
 
 When unsure, defer to [`AGENTS.md`](../AGENTS.md) and its `## Maintenance` section.
