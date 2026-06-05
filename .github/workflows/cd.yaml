@@ -13,6 +13,6 @@ jobs:
       contents: read # checkout
       packages: write # push image + manifests OCI artifact
       id-token: write # keyless cosign signing
-    uses: devantler-tech/reusable-workflows/.github/workflows/publish-app.yaml@41924797ae44fd5cc674e0914db55712da18e68f # v3.2.0
+    uses: devantler-tech/reusable-workflows/.github/workflows/publish-app.yaml@59c9a1792fbef2d5849127a1c892ed39990645d9 # v5.5.5
     with:
       app-name: wedding-app
