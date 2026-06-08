@@ -12,6 +12,13 @@ jobs:
     # Skipped in the template repo itself (it is the sync source); runs in every
     # tenant created from this template, where it opens a PR with template changes.
     if: github.repository != 'devantler-tech/gitops-tenant-template'
+    # The reusable workflow's job opens the sync PR, so the caller must grant it
+    # write to contents + pull-requests. A reusable workflow cannot be granted
+    # more than the caller, and the top-level `permissions: {}` grants none, so
+    # without this the run fails at startup (reusable-workflow permission check).
+    permissions:
+      contents: write
+      pull-requests: write
     uses: devantler-tech/reusable-workflows/.github/workflows/template-sync.yaml@e5d0f20a87d50518123513d07d633c243af6c1e6 # v5.5.8
     with:
       source-repo-path: devantler-tech/gitops-tenant-template
