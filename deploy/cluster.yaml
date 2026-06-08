@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: wedding-db
     app.kubernetes.io/part-of: wedding-app
 spec:
-  instances: 1
+  instances: 3
   storage:
     size: 1Gi
   bootstrap:
