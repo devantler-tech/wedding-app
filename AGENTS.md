@@ -21,7 +21,7 @@
 - `src/hooks.server.ts` — request hooks (auth/session).
 - `drizzle/` — generated SQL migrations and metadata; `drizzle.config.ts` at root.
 - `tests/unit/` (Vitest) and `tests/e2e/` (Playwright).
-- `deploy/` — Kustomize manifests for the platform cluster (Deployment, Service, HTTPRoute, CNPG Cluster, SOPS-encrypted secret). Flux decrypts in-cluster.
+- `deploy/` — Kustomize manifests for the platform cluster (Deployment, Service, HTTPRoute, CNPG Cluster, ExternalSecret). App secrets come from OpenBao via External Secrets through the platform-provisioned namespaced `SecretStore` (`openbao`) — no SOPS.
 - CI/CD: `.github/workflows/` — `ci.yaml` (PR gate), `release.yaml` (semantic-release on `main`), `cd.yaml` (publish OCI artifact on tags).
 
 ## Validation
@@ -37,7 +37,7 @@ npm run test:e2e      # Playwright E2E (set DEV_SKIP_AUTH=true)
 npm run build         # Vite production build
 ```
 
-E2E and DB-free local dev run with `DEV_SKIP_AUTH=true` (no PostgreSQL needed; forms return mock responses). With a database, use `DATABASE_URL`, then `npm run db:migrate` and `npm run db:seed`. Never commit secrets or `.env` files; `deploy/*.enc.yaml` are SOPS-encrypted.
+E2E and DB-free local dev run with `DEV_SKIP_AUTH=true` (no PostgreSQL needed; forms return mock responses). With a database, use `DATABASE_URL`, then `npm run db:migrate` and `npm run db:seed`. Never commit secrets or `.env` files; app secrets are delivered from OpenBao via the `deploy/` ExternalSecret (no SOPS in this repo).
 
 ## Maintenance (autonomous AI assistant)
 
