@@ -1,0 +1,44 @@
+# Generates wedding-app's admin login code and persists it to OpenBao — the
+# tenant owns this secret end-to-end; the platform never seeds it.
+#
+# Password generator → PushSecret (writes once to apps/wedding-app/admin-code via
+# the platform-provisioned namespaced `openbao` SecretStore, authenticating with
+# the tenant-scoped `wedding-app` Vault role) → admin-code-externalsecret.yaml
+# reads it back into the `wedding-app-admin-code` Secret the Deployment consumes.
+# refreshInterval "0" means the value is generated once and never rotated, so the
+# admin code is stable across reconciles. The code is case-insensitive at the app
+# (validateAdminCode lower-cases both sides), so a lowercase+digits value suffices.
+---
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: Password
+metadata:
+  name: wedding-app-admin-code
+  namespace: wedding-app
+spec:
+  length: 24
+  digits: 6
+  symbols: 0
+  noUpper: true
+  allowRepeat: true
+---
+apiVersion: external-secrets.io/v1alpha1
+kind: PushSecret
+metadata:
+  name: wedding-app-admin-code
+  namespace: wedding-app
+spec:
+  refreshInterval: "0"
+  secretStoreRefs:
+    - name: openbao
+      kind: SecretStore
+  selector:
+    generatorRef:
+      apiVersion: generators.external-secrets.io/v1alpha1
+      kind: Password
+      name: wedding-app-admin-code
+  data:
+    - match:
+        secretKey: password
+        remoteRef:
+          remoteKey: apps/wedding-app/admin-code
+          property: ADMIN_CODE
