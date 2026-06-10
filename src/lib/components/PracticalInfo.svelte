@@ -39,7 +39,7 @@
 					<p class="text-warm-brown">
 						Vi vil elske at have jer overnattende. Det gør aftenen endnu hyggeligere
 						og tryggere for alle. Check ind fra kl. 15. Book venligst et værelse under
-						<a href="#booking" class="text-soft-gold hover:text-warm-brown underline">booking-sektionen</a>.
+						<a href="#booking" class="text-warm-brown hover:text-dark-brown underline">booking-sektionen</a>.
 					</p>
 				</div>
 			</div>
@@ -71,7 +71,7 @@
 						href="https://maps.google.com/?q=Gl.+Brydegaard+Helnæsvej+4+5683+Brydegård"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="inline-flex items-center gap-1 text-soft-gold hover:text-warm-brown transition-colors text-sm"
+						class="inline-flex items-center gap-1 text-warm-brown hover:text-dark-brown transition-colors text-sm"
 					>
 						Åbn i Google Maps <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1" aria-hidden="true"></i>
 					</a>

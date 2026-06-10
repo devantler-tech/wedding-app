@@ -47,7 +47,7 @@
 
 			<button
 				type="submit"
-				class="w-full py-3 px-4 bg-soft-gold text-warm-white rounded-lg font-medium hover:bg-warm-brown transition-colors duration-200"
+				class="w-full py-3 px-4 bg-soft-gold text-dark-brown rounded-lg font-medium hover:bg-warm-brown hover:text-warm-white transition-colors duration-200"
 			>
 				Se invitation
 			</button>

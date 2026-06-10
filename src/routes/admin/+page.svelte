@@ -13,7 +13,7 @@
 	function attendingClass(attending: boolean | null): string {
 		if (attending === true) return 'text-green-700';
 		if (attending === false) return 'text-red-700';
-		return 'text-warm-brown/70';
+		return 'text-warm-brown';
 	}
 
 	const totals = $derived.by(() => {
@@ -61,22 +61,22 @@
 			aria-label="Sammenfatning"
 		>
 			<div class="bg-warm-white border border-sand rounded-lg p-3">
-				<p class="text-warm-brown/70 text-xs uppercase tracking-wide">Par</p>
+				<p class="text-warm-brown text-xs uppercase tracking-wide">Par</p>
 				<p class="text-dark-brown text-xl font-serif">{totals.pairs}</p>
 			</div>
 			<div class="bg-warm-white border border-sand rounded-lg p-3">
-				<p class="text-warm-brown/70 text-xs uppercase tracking-wide">Gæster</p>
+				<p class="text-warm-brown text-xs uppercase tracking-wide">Gæster</p>
 				<p class="text-dark-brown text-xl font-serif">{totals.people}</p>
 			</div>
 			<div class="bg-warm-white border border-sand rounded-lg p-3">
-				<p class="text-warm-brown/70 text-xs uppercase tracking-wide">Deltager</p>
+				<p class="text-warm-brown text-xs uppercase tracking-wide">Deltager</p>
 				<p class="text-dark-brown text-xl font-serif">
 					{totals.attending}
-					<span class="text-warm-brown/60 text-sm">/ {totals.declined} nej / {totals.pending} ?</span>
+					<span class="text-warm-brown text-sm">/ {totals.declined} nej / {totals.pending} ?</span>
 				</p>
 			</div>
 			<div class="bg-warm-white border border-sand rounded-lg p-3">
-				<p class="text-warm-brown/70 text-xs uppercase tracking-wide">Værelser</p>
+				<p class="text-warm-brown text-xs uppercase tracking-wide">Værelser</p>
 				<p class="text-dark-brown text-xl font-serif">
 					{totals.bookingsRequested}
 				</p>
@@ -96,7 +96,7 @@
 					</header>
 
 					<section class="mb-4">
-						<h3 class="text-xs uppercase tracking-wide text-warm-brown/70 mb-2">RSVP</h3>
+						<h3 class="text-xs uppercase tracking-wide text-warm-brown mb-2">RSVP</h3>
 						<ul class="divide-y divide-sand/60">
 							{#each pair.guests as guest (guest.id)}
 								<li class="py-2 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
@@ -106,7 +106,7 @@
 											{attendingLabel(guest.attending)}
 										</span>
 										{#if guest.dietaryNotes}
-											<span class="text-warm-brown/80 italic">
+											<span class="text-warm-brown italic">
 												Diæt: {guest.dietaryNotes}
 											</span>
 										{/if}
@@ -117,20 +117,20 @@
 					</section>
 
 					<section>
-						<h3 class="text-xs uppercase tracking-wide text-warm-brown/70 mb-2">Overnatning</h3>
+						<h3 class="text-xs uppercase tracking-wide text-warm-brown mb-2">Overnatning</h3>
 						{#if pair.booking?.requested}
 							<p class="text-sm text-dark-brown">
 								Ønsker værelse
 							</p>
 							{#if pair.booking.notes}
-								<p class="text-sm text-warm-brown/80 italic mt-1">
+								<p class="text-sm text-warm-brown italic mt-1">
 									"{pair.booking.notes}"
 								</p>
 							{/if}
 						{:else if pair.booking}
-							<p class="text-sm text-warm-brown/70">Ønsker ikke værelse</p>
+							<p class="text-sm text-warm-brown">Ønsker ikke værelse</p>
 						{:else}
-							<p class="text-sm text-warm-brown/50">Ikke svaret</p>
+							<p class="text-sm text-warm-brown">Ikke svaret</p>
 						{/if}
 					</section>
 				</article>
