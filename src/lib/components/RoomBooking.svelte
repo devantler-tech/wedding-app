@@ -111,12 +111,12 @@
 			<div class="text-center pt-4">
 				<button
 					type="submit"
-					class="px-8 py-3 bg-soft-gold text-warm-white rounded-lg font-medium hover:bg-warm-brown transition-colors duration-200"
+					class="px-8 py-3 bg-soft-gold text-dark-brown rounded-lg font-medium hover:bg-warm-brown hover:text-warm-white transition-colors duration-200"
 				>
 					Gem booking
 				</button>
 				{#if saved}
-					<p class="text-soft-gold mt-3 text-sm"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Din booking er gemt</p>
+					<p class="text-warm-brown mt-3 text-sm"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Din booking er gemt</p>
 				{/if}
 				{#if error}
 					<p class="text-red-600 mt-3 text-sm">Der opstod en fejl — prøv igen</p>

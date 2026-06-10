@@ -50,7 +50,7 @@
 	</div>
 
 	<h1 class="text-5xl sm:text-6xl md:text-8xl font-serif font-light text-dark-brown mb-8 leading-tight">
-		<span class="whitespace-nowrap">Aimée <span class="text-soft-gold">&</span></span><br class="sm:hidden" />
+		<span class="whitespace-nowrap">Aimée <span class="text-warm-brown">&</span></span><br class="sm:hidden" />
 		<span class="whitespace-nowrap">Nikolai Emil</span>
 	</h1>
 

@@ -33,7 +33,7 @@
 		<form method="POST" action="/logout">
 			<button
 				type="submit"
-				class="inline-block py-3 px-8 bg-soft-gold text-warm-white rounded-lg font-medium hover:bg-warm-brown transition-colors duration-200 cursor-pointer"
+				class="inline-block py-3 px-8 bg-soft-gold text-dark-brown rounded-lg font-medium hover:bg-warm-brown hover:text-warm-white transition-colors duration-200 cursor-pointer"
 			>
 				Gå til login
 			</button>
