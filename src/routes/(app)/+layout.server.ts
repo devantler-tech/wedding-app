@@ -6,6 +6,7 @@ import { guests, roomBookings } from '$lib/server/schema.js';
 import { eq } from 'drizzle-orm';
 import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
 import { DEV_SESSION_SINGLE } from '$lib/server/cookies.js';
+import { isRsvpClosed } from '$lib/server/rsvp-deadline.js';
 import type { LayoutServerLoad } from './$types.js';
 
 function getMockData(single = false) {
@@ -31,9 +32,11 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		throw redirect(302, '/login');
 	}
 
+	const rsvpClosed = isRsvpClosed(env.RSVP_DEADLINE);
+
 	// Dev mode: require session cookie but skip DB lookup
 	if (env.DEV_SKIP_AUTH === 'true') {
-		return getMockData(sessionId === DEV_SESSION_SINGLE);
+		return { ...getMockData(sessionId === DEV_SESSION_SINGLE), rsvpClosed };
 	}
 
 	const session = await getSession(sessionId);
@@ -70,6 +73,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 					requested: booking.requested,
 					notes: booking.notes
 				}
-			: null
+			: null,
+		rsvpClosed
 	};
 };
