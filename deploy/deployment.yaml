@@ -4,6 +4,12 @@ metadata:
   name: wedding-app
   labels:
     app.kubernetes.io/name: wedding-app
+    # Deliberate 2-replica deployment: opt out of the platform's 3-replica HA
+    # floor (validate-replica-floor, platform#1882). 2 replicas + the
+    # DoNotSchedule hostname spread + the maxUnavailable: 1 PDB keep one replica
+    # up through a node drain; a third replica buys headroom this small site
+    # doesn't need.
+    platform.devantler.tech/replica-floor: exempt
 spec:
   replicas: 2
   selector:

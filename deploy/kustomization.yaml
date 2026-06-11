@@ -6,4 +6,5 @@ resources:
   - cluster.yaml
   - deployment.yaml
   - httproute.yaml
+  - pod-disruption-budget.yaml
   - service.yaml
