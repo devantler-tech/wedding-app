@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import BackToLogin from '$lib/components/BackToLogin.svelte';
 	import type { PageData } from './$types.js';
 
@@ -54,6 +55,13 @@
 				Oversigt over gæster
 			</h1>
 			<div class="w-16 h-px bg-soft-gold mt-4"></div>
+			<a
+				href={resolve('/api/admin/export')}
+				download="rsvps.csv"
+				class="inline-flex items-center gap-2 mt-4 text-sm text-warm-brown underline underline-offset-4 hover:text-dark-brown"
+			>
+				Download gæsteliste (CSV)
+			</a>
 		</header>
 
 		<section
