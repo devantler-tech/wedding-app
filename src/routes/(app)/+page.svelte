@@ -21,7 +21,7 @@
 	<Hero pairName={data.guestPair.name} guestCount={data.guests.length} />
 	<Program />
 	<Gallery />
-	<Rsvp guests={data.guests} />
+	<Rsvp guests={data.guests} rsvpClosed={data.rsvpClosed} />
 	<RoomBooking booking={data.booking} />
 	<PracticalInfo />
 	<Wishlist />

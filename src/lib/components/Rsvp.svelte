@@ -8,7 +8,7 @@
 		dietaryNotes: string | null;
 	}
 
-	let { guests }: { guests: Guest[] } = $props();
+	let { guests, rsvpClosed = false }: { guests: Guest[]; rsvpClosed?: boolean } = $props();
 
 	let saved = $state(false);
 	let error = $state(false);
@@ -29,6 +29,13 @@
 			SU senest d. 1. januar 2027
 		</p>
 
+		{#if rsvpClosed}
+			<p class="text-center text-warm-brown text-base">
+				<i class="fa-solid fa-lock text-soft-gold mr-1" aria-hidden="true"></i>
+				Tilmeldingsfristen er overskredet, så det er desværre ikke længere muligt at svare
+				her. Kontakt os endelig direkte, hvis du har spørgsmål.
+			</p>
+		{:else}
 		<form
 			method="POST"
 			action="/api/rsvp"
@@ -96,5 +103,6 @@
 				{/if}
 			</div>
 		</form>
+		{/if}
 	</div>
 </section>

@@ -61,6 +61,11 @@ spec:
                 secretKeyRef:
                   name: wedding-app-admin-code
                   key: ADMIN_CODE
+            # Hard cutoff for RSVP submissions (ISO 8601). Matches the "SU senest"
+            # date shown in the UI. After this instant the API rejects POSTs (403)
+            # and the form is replaced with a "closed" message. Unset = always open.
+            - name: RSVP_DEADLINE
+              value: "2027-01-01"
           resources:
             requests:
               cpu: 50m
