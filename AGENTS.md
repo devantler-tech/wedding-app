@@ -35,7 +35,10 @@ npm run check         # svelte-kit sync && svelte-check (type check)
 npm test              # Vitest unit tests
 npm run test:e2e      # Playwright E2E (set DEV_SKIP_AUTH=true)
 npm run build         # Vite production build
+npm run bundlesize    # Client bundle-size budget gate (runs after build; see bundle-budget.json)
 ```
+
+The **bundle-size budget** (`bundle-budget.json` + `scripts/check-bundle-budget.mjs`) is a deterministic, first-approximation performance gate: it brotli-compresses the built client JS+CSS in-process and fails CI if the total or the largest single chunk exceeds budget. It runs in the Build job (so it gates `CI - Required Checks`). Tighten the budget as the bundle shrinks; loosen only with a justification in the PR. A full Lighthouse CI run (Core Web Vitals) was deliberately deferred — it proved flaky against the Node adapter (port binding + cold-start jitter).
 
 E2E and DB-free local dev run with `DEV_SKIP_AUTH=true` (no PostgreSQL needed; forms return mock responses). With a database, use `DATABASE_URL`, then `npm run db:migrate` and `npm run db:seed`. Never commit secrets or `.env` files; app secrets are delivered from OpenBao via the `deploy/` ExternalSecret (no SOPS in this repo).
 

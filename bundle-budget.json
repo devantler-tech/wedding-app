@@ -1,0 +1,5 @@
+{
+  "_comment": "Client bundle-size budget (first-approximation performance gate, see issue #95). Sizes are BROTLI-compressed bytes of the built client JS+CSS under build/client/_app/immutable, i.e. what guests actually download over the wire. Tighten as the bundle shrinks; loosen only with a justified reason in the PR. Enforced by `npm run bundlesize` in CI (the Build job).",
+  "totalBrotliBytes": 73728,
+  "maxChunkBrotliBytes": 24576
+}
