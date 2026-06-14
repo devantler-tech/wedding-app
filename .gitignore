@@ -9,4 +9,5 @@ build/
 test-results/
 playwright-report/
 .playwright-mcp/
+.lighthouseci/
 *.png
