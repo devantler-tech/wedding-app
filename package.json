@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "lhci": "node scripts/lighthouse.mjs",
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.60.0",
     "@sveltejs/kit": "^2.61.1",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
