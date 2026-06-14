@@ -79,6 +79,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: npm run bundlesize
 
   # Non-required lane (issue #100): measures real Core Web Vitals on the built app.
   # Deliberately NOT in `ci-required-checks` below — budget misses are warn-only and
