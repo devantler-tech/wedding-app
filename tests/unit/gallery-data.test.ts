@@ -19,4 +19,11 @@ describe('galleryEntries', () => {
 			expect(entry.src).toMatch(/^\/gallery\//);
 		}
 	});
+
+	it('each entry has a positive aspect ratio', () => {
+		for (const entry of galleryEntries) {
+			expect(typeof entry.ratio).toBe('number');
+			expect(entry.ratio).toBeGreaterThan(0);
+		}
+	});
 });

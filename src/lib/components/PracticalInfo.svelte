@@ -37,9 +37,11 @@
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Overnatning</h3>
 					<p class="text-warm-brown">
-						Vi vil elske at have jer overnattende. Det gør aftenen endnu hyggeligere
-						og tryggere for alle. Check ind fra kl. 15. Book venligst et værelse under
-						<a href="#booking" class="text-warm-brown hover:text-dark-brown underline">booking-sektionen</a>.
+						Festen varer til langt ud på natten, og der er morgenmad næste morgen — så
+						bliv endelig og sov lige i nærheden. Check ind fra kl. 15.
+						Har I ønsker til overnatningen, så skriv dem under
+						<a href="#booking" class="text-warm-brown hover:text-dark-brown underline">booking-sektionen</a>,
+						så gør vi vores bedste for at få det til at passe.
 					</p>
 				</div>
 			</div>

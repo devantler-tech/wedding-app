@@ -25,7 +25,8 @@
 		<h2 class="text-4xl sm:text-5xl font-serif font-light text-dark-brown text-center mb-4">Overnatning</h2>
 		<div class="w-16 h-px bg-soft-gold mx-auto mb-4"></div>
 		<p class="text-center text-warm-brown mb-8 max-w-lg mx-auto">
-			Vi vil elske at have jer overnattende — det gør aftenen endnu hyggeligere og tryggere for alle.
+			Vi ønsker at festlighederne kan vare så længe som muligt, og at vi kan nyde morgenmad
+			sammen. Vi håber derfor at I vil blive og sove lige i nærheden.
 		</p>
 
 		<div class="bg-warm-white/60 rounded-xl p-6 border border-sand/30 mb-8">
@@ -69,7 +70,8 @@
 		<div class="bg-soft-gold/10 rounded-lg px-5 py-4 border border-soft-gold/30 mb-12 text-center">
 			<p class="text-dark-brown font-serif text-sm sm:text-base">
 				<i class="fa-solid fa-bed text-soft-gold mr-2" aria-hidden="true"></i>
-				Vi fordeler værelserne — angiv blot at I ønsker overnatning, så finder vi det bedste match.
+				Har I særlige ønsker til værelsestypen, så skriv dem i bemærkninger herunder.
+				Vi gør vores bedste for at få det til at passe for alle.
 			</p>
 		</div>
 
@@ -94,14 +96,14 @@
 				<div class="space-y-4 pl-8 border-l-2 border-soft-gold/30">
 					<div>
 						<label for="notes" class="block text-sm text-warm-brown mb-1">
-							Eventuelle bemærkninger
+							Ønsker og bemærkninger
 						</label>
 						<textarea
 							id="notes"
 							name="notes"
 							rows="2"
 							value={booking?.notes ?? ''}
-							placeholder="Fx særlige behov..."
+							placeholder="Fx værelsestype, hvem I gerne vil bo i nærheden af, eller særlige behov..."
 							class="w-full px-4 py-2 border border-sand/50 rounded-lg bg-warm-white text-dark-brown placeholder-sand/70 focus:outline-none focus:ring-2 focus:ring-soft-gold text-sm resize-none"
 						></textarea>
 					</div>
