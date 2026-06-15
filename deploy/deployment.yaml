@@ -4,6 +4,12 @@ metadata:
   name: wedding-app
   labels:
     app.kubernetes.io/name: wedding-app
+    # Opt out of the platform replica floor (devantler-tech/platform
+    # validate-replica-floor / #1882). 2 replicas + the maxUnavailable: 1 PDB
+    # and the hostname topology spread below already keep a pod serving through
+    # a node drain, which is enough for this service -- a third replica isn't
+    # worth the extra memory.
+    platform.devantler.tech/replica-floor: exempt
 spec:
   replicas: 2
   selector:
