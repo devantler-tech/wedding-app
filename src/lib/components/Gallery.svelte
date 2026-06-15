@@ -26,7 +26,9 @@
 	let trackEl: HTMLDivElement | undefined = $state();
 	let trackX = $state(0); // computed translateX (px) that centres the active slide
 
-	const current = $derived((((pos - K) % n) + n) % n);
+	/** Map any `extended` index back to its real gallery index in [0, n-1]. */
+	const realIndex = (p: number) => (((p - K) % n) + n) % n;
+	const current = $derived(realIndex(pos));
 
 	// Slides have different widths (each photo keeps its own aspect ratio), so the
 	// centre offset is measured from the active slide's laid-out position rather than
@@ -47,6 +49,12 @@
 		pos = K + i;
 	}
 
+	/** Run a callback after two animation frames, so a transform paints before a
+	 *  flag flips (re-enabling the transition after an instant jump). */
+	function afterTwoFrames(fn: () => void) {
+		requestAnimationFrame(() => requestAnimationFrame(fn));
+	}
+
 	// Reposition whenever the active slide changes (after the DOM has updated).
 	$effect(() => {
 		centerOn(pos);
@@ -54,7 +62,7 @@
 
 	// Enable the slide transition only after the first (instant) positioning.
 	$effect(() => {
-		requestAnimationFrame(() => requestAnimationFrame(() => (mounted = true)));
+		afterTwoFrames(() => (mounted = true));
 	});
 
 	// Keep the active slide centred on viewport resize (without animating the jump).
@@ -62,7 +70,7 @@
 		const onResize = () => {
 			snapping = true;
 			centerOn(pos);
-			requestAnimationFrame(() => requestAnimationFrame(() => (snapping = false)));
+			afterTwoFrames(() => (snapping = false));
 		};
 		window.addEventListener('resize', onResize);
 		return () => window.removeEventListener('resize', onResize);
@@ -74,8 +82,8 @@
 		if (e.target !== trackEl || e.propertyName !== 'transform') return;
 		if (pos >= K + n || pos < K) {
 			snapping = true;
-			pos = ((((pos - K) % n) + n) % n) + K;
-			requestAnimationFrame(() => requestAnimationFrame(() => (snapping = false)));
+			pos = realIndex(pos) + K;
+			afterTwoFrames(() => (snapping = false));
 		}
 	}
 
@@ -129,6 +137,10 @@
 	function onSlideClick(e: number) {
 		if (e !== pos) pos = e;
 	}
+
+	// Shared styling for the prev/next chevron buttons (only the side differs).
+	const navBtnClass =
+		'absolute top-1/2 -translate-y-1/2 z-30 grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-warm-white/85 backdrop-blur-md text-dark-brown shadow-[0_10px_30px_-10px_rgba(61,46,31,0.55)] ring-1 ring-dark-brown/5 transition-all duration-200 hover:bg-warm-white hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold';
 </script>
 
 <section id="galleri" class="py-20 sm:py-24 bg-cream">
@@ -160,6 +172,7 @@
 		onfocusout={onFocusOut}
 		onpointerdown={onPointerDown}
 		onpointerup={onPointerUp}
+		onpointerleave={() => (dragging = false)}
 	>
 		<div
 			bind:this={trackEl}
@@ -184,6 +197,7 @@
 						src={entry.src}
 						alt={active ? entry.alt : ''}
 						loading="eager"
+						fetchpriority="low"
 						decoding="async"
 						draggable="false"
 						class="absolute inset-0 h-full w-full object-cover"
@@ -206,7 +220,7 @@
 		<!-- Prev / next -->
 		<button
 			type="button"
-			class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-warm-white/85 backdrop-blur-md text-dark-brown shadow-[0_10px_30px_-10px_rgba(61,46,31,0.55)] ring-1 ring-dark-brown/5 transition-all duration-200 hover:bg-warm-white hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold"
+			class="{navBtnClass} left-3 sm:left-5"
 			onclick={prev}
 			aria-label="Forrige billede"
 		>
@@ -214,7 +228,7 @@
 		</button>
 		<button
 			type="button"
-			class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-warm-white/85 backdrop-blur-md text-dark-brown shadow-[0_10px_30px_-10px_rgba(61,46,31,0.55)] ring-1 ring-dark-brown/5 transition-all duration-200 hover:bg-warm-white hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold"
+			class="{navBtnClass} right-3 sm:right-5"
 			onclick={next}
 			aria-label="Næste billede"
 		>
@@ -283,7 +297,8 @@
 		will-change: transform;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.track.is-animating {
+		.track.is-animating,
+		.slide {
 			transition-duration: 1ms;
 		}
 	}
