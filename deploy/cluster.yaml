@@ -17,3 +17,31 @@ spec:
     parameters:
       max_connections: "50"
       shared_buffers: "64MB"
+  # Continuous backup to the shared Cloudflare R2 bucket (platform-backups), the
+  # same store umami-db and Velero use. barmanObjectStore auto-enables continuous
+  # WAL archiving, so this plus the daily ScheduledBackup (db-scheduled-backup.yaml)
+  # gives point-in-time recovery within the 30d retention window. The
+  # wedding-db-backup-r2 Secret holding the R2 key/secret is provisioned
+  # platform-side by an ExternalSecret in the wedding-app registration dir (the
+  # shared infrastructure/backup/r2 OpenBao path is not reachable from a tenant's
+  # own SecretStore). Bucket name and the account-scoped endpoint are not secrets
+  # (they live in the platform's non-encrypted base config); the credentials are.
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      destinationPath: s3://platform-backups/cnpg/wedding-db
+      endpointURL: https://634e9016d402443e427865dc35457728.r2.cloudflarestorage.com
+      s3Credentials:
+        accessKeyId:
+          name: wedding-db-backup-r2
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: wedding-db-backup-r2
+          key: SECRET_ACCESS_KEY
+        region:
+          name: wedding-db-backup-r2
+          key: REGION
+      wal:
+        compression: gzip
+      data:
+        compression: gzip

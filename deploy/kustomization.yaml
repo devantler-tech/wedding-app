@@ -4,6 +4,7 @@ resources:
   - admin-code-externalsecret.yaml
   - admin-code-generator.yaml
   - cluster.yaml
+  - db-scheduled-backup.yaml
   - deployment.yaml
   - httproute.yaml
   - service.yaml
