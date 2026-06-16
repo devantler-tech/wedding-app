@@ -17,23 +17,39 @@ import {
 } from '$lib/server/cookies.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
+// Verifying an existing session is only an optimization (skip the login form
+// when already authenticated). If the database is unreachable we cannot verify,
+// so we fall through and render the login form instead of 500-ing — this keeps
+// the "Gå til login" escape on the error page working during a DB outage.
+async function hasValidAdminSession(sessionId: string): Promise<boolean> {
+	if (env.DEV_SKIP_AUTH === 'true') return true;
+	try {
+		return await getAdminSession(sessionId);
+	} catch (err) {
+		console.error('Login: admin session check failed (database unavailable?):', err);
+		return false;
+	}
+}
+
+async function hasValidGuestSession(sessionId: string): Promise<boolean> {
+	if (env.DEV_SKIP_AUTH === 'true') return true;
+	try {
+		return (await getSession(sessionId)) !== null;
+	} catch (err) {
+		console.error('Login: guest session check failed (database unavailable?):', err);
+		return false;
+	}
+}
+
 export const load: PageServerLoad = async ({ cookies }) => {
 	const adminSessionId = cookies.get('admin_session');
-	if (adminSessionId) {
-		if (env.DEV_SKIP_AUTH === 'true' || (await getAdminSession(adminSessionId))) {
-			throw redirect(302, '/admin');
-		}
+	if (adminSessionId && (await hasValidAdminSession(adminSessionId))) {
+		throw redirect(302, '/admin');
 	}
 
 	const sessionId = cookies.get('session');
-	if (sessionId) {
-		if (env.DEV_SKIP_AUTH === 'true') {
-			throw redirect(302, '/');
-		}
-		const session = await getSession(sessionId);
-		if (session) {
-			throw redirect(302, '/');
-		}
+	if (sessionId && (await hasValidGuestSession(sessionId))) {
+		throw redirect(302, '/');
 	}
 };
 
