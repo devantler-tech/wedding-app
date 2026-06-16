@@ -1,6 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # Namespaced SecretStore backing the admin-code secret below.
+  - secretstore.yaml
   - admin-code-externalsecret.yaml
   - admin-code-generator.yaml
   - cluster.yaml
@@ -8,3 +10,6 @@ resources:
   - deployment.yaml
   - httproute.yaml
   - service.yaml
+  # Tenant-owned CiliumNetworkPolicy allow-list (layered on the platform's
+  # default-deny floor): Gateway ingress (3000), app⇄DB, CNPG, R2 + DNS egress.
+  - networkpolicy.yaml
