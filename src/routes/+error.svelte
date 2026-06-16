@@ -14,6 +14,8 @@
 			{page.status}
 			{#if page.status === 404}
 				— Siden blev ikke fundet
+			{:else if page.status === 503}
+				— Midlertidig fejl
 			{:else if page.status === 500}
 				— Serverfejl
 			{:else}
@@ -24,6 +26,8 @@
 		<p class="text-warm-brown text-lg mb-8">
 			{#if page.status === 404}
 				Den side, du leder efter, findes ikke.
+			{:else if page.status === 503}
+				Vi er straks tilbage. Prøv igen om et øjeblik.
 			{:else if page.status === 500}
 				Der opstod en serverfejl. Prøv igen senere.
 			{:else}

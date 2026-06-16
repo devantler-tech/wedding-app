@@ -1,16 +1,21 @@
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { env } from '$env/dynamic/private';
-import { runMigrations } from '$lib/server/migrate.js';
-import { runSeed } from '$lib/server/seed.js';
+import { bootstrapDatabase } from '$lib/server/db-bootstrap.js';
 
 if (env.NODE_ENV === 'production' && !env.ADMIN_CODE?.trim() && env.DEV_SKIP_AUTH !== 'true') {
 	throw new Error('ADMIN_CODE environment variable is required in production');
 }
 
 if (env.DATABASE_URL) {
-	await runMigrations();
-	await runSeed();
+	// Start migrations + seed in the BACKGROUND (intentionally not awaited). A
+	// database that is unreachable at boot must not crash the server or fail the
+	// `/login` startup probe — otherwise a transient DB outage becomes a
+	// CrashLoopBackOff that also wedges the rollout (the new ReplicaSet can never
+	// pass its probe), leaving the app unable to recover even after the DB
+	// returns. The schema self-applies once the DB is reachable; the DB-free
+	// login page stays available meanwhile.
+	void bootstrapDatabase();
 }
 
 const securityHeaders: Handle = async ({ event, resolve }) => {

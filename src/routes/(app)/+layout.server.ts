@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, isRedirect, redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getSession } from '$lib/server/auth.js';
 import { db } from '$lib/server/db.js';
@@ -39,41 +39,51 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		return { ...getMockData(sessionId === DEV_SESSION_SINGLE), rsvpClosed };
 	}
 
-	const session = await getSession(sessionId);
-	if (!session) {
-		cookies.delete('session', { path: '/' });
-		throw redirect(302, '/login');
+	try {
+		const session = await getSession(sessionId);
+		if (!session) {
+			cookies.delete('session', { path: '/' });
+			throw redirect(302, '/login');
+		}
+
+		const guestList = await db
+			.select()
+			.from(guests)
+			.where(eq(guests.guestPairId, session.guestPairId));
+
+		const [booking] = await db
+			.select()
+			.from(roomBookings)
+			.where(eq(roomBookings.guestPairId, session.guestPairId))
+			.limit(1);
+
+		return {
+			guestPair: {
+				id: session.guestPairId,
+				name: session.pairName,
+				code: session.pairCode
+			},
+			guests: guestList.map((g) => ({
+				id: g.id,
+				name: g.name,
+				attending: g.attending,
+				dietaryNotes: g.dietaryNotes
+			})),
+			booking: booking
+				? {
+						requested: booking.requested,
+						notes: booking.notes
+					}
+				: null,
+			rsvpClosed
+		};
+	} catch (err) {
+		// Preserve the redirect thrown above when there is no valid session.
+		if (isRedirect(err)) throw err;
+		// The database is unreachable (or a query failed): surface a controlled
+		// 503 "try again later" rather than a raw, bug-looking 500, and keep the
+		// guest's session cookie so they stay logged in once the DB recovers.
+		console.error('Failed to load guest data (database unavailable?):', err);
+		throw error(503, 'Der opstod en serverfejl. Prøv igen senere.');
 	}
-
-	const guestList = await db
-		.select()
-		.from(guests)
-		.where(eq(guests.guestPairId, session.guestPairId));
-
-	const [booking] = await db
-		.select()
-		.from(roomBookings)
-		.where(eq(roomBookings.guestPairId, session.guestPairId))
-		.limit(1);
-
-	return {
-		guestPair: {
-			id: session.guestPairId,
-			name: session.pairName,
-			code: session.pairCode
-		},
-		guests: guestList.map((g) => ({
-			id: g.id,
-			name: g.name,
-			attending: g.attending,
-			dietaryNotes: g.dietaryNotes
-		})),
-		booking: booking
-			? {
-					requested: booking.requested,
-					notes: booking.notes
-				}
-			: null,
-		rsvpClosed
-	};
 };
