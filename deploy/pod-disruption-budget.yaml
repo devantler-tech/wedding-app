@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: wedding-app
+spec:
+  # Platform drain-safe PDB pattern (platform#1880/#1882): maxUnavailable: 1 is
+  # evaluated against the live replica count, so a drain is never deadlocked,
+  # while voluntary evictions can only take one of the two replicas at a time.
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wedding-app
