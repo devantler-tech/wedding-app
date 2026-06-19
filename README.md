@@ -94,12 +94,14 @@ Open [http://localhost:5173](http://localhost:5173) and log in with:
 
 ## Kubernetes deployment
 
-Manifests are in `deploy/`. The app expects a `wedding-db-app` secret (created automatically by the CloudNativePG operator) with a `uri` key containing the PostgreSQL connection string.
+Manifests are in `deploy/`. The app consumes two secrets, both delivered in-cluster — neither is committed to this repo (there is no SOPS in this repo):
 
-The `deploy/secret.enc.yaml` file is SOPS-encrypted with an Age key. In the cluster, Flux handles decryption automatically. For manual deployment, decrypt first:
+- **`wedding-db-app`** — the PostgreSQL connection string (`uri` key), created automatically by the CloudNativePG operator from `deploy/cluster.yaml`.
+- **`wedding-app-admin-code`** — the admin login code (`ADMIN_CODE`), materialised by External Secrets from OpenBao through the namespaced `openbao` `SecretStore` (`deploy/secretstore.yaml` + `deploy/admin-code-externalsecret.yaml`).
+
+In the cluster, Flux applies `deploy/` as an OCI Kustomize app and External Secrets fetches the admin code from OpenBao automatically. For manual deployment against a cluster that already has the CloudNativePG operator and the External Secrets Operator (with the OpenBao backend) installed:
 
 ```bash
-sops -d deploy/secret.enc.yaml | kubectl apply -f -
 kubectl apply -k deploy/
 ```
 
