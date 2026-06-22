@@ -105,3 +105,11 @@ In the cluster, Flux applies `deploy/` as an OCI Kustomize app and External Secr
 kubectl apply -k deploy/
 ```
 
+### Database backup & restore
+
+`wedding-db` is backed up to Cloudflare R2 (daily base backup at 03:00 UTC plus
+continuous WAL archiving, 30-day point-in-time recovery) via the CloudNativePG
+Barman Cloud Plugin. The restore path — bootstrapping an isolated recovery cluster
+from those backups and verifying the RSVP/booking data is intact — is documented
+in [`deploy/RESTORE-RUNBOOK.md`](deploy/RESTORE-RUNBOOK.md).
+
