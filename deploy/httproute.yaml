@@ -3,12 +3,30 @@ kind: HTTPRoute
 metadata:
   name: wedding-app
   namespace: wedding-app
+  # Homepage dashboard entry. These gethomepage.dev/* annotations are tenant
+  # self-presentation, so they live here in the tenant artifact rather than
+  # being injected by the platform's hetzner overlay — the platform's homepage
+  # app discovers them on this HTTPRoute cluster-wide wherever they are authored.
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Wedding
+    gethomepage.dev/description: Wedding RSVP and information site.
+    gethomepage.dev/group: Personal Sites
+    gethomepage.dev/icon: mdi-ring
+    gethomepage.dev/href: https://wedding.platform.devantler.tech
+    gethomepage.dev/pod-selector: app.kubernetes.io/name=wedding-app
 spec:
   parentRefs:
     - name: platform
       namespace: kube-system
       sectionName: https
+  # The tenant owns its public hostnames (the platform no longer patches them
+  # in): the prod subdomain served under the platform's wildcard certificate,
+  # and the host-file name used on local/dev clusters. The Gateway attaches
+  # only the hostname that matches a listener in each environment, so listing
+  # both is safe everywhere.
   hostnames:
+    - wedding.platform.devantler.tech
     - wedding.platform.lan
   rules:
     - backendRefs:
