@@ -9,14 +9,52 @@ spec:
   instances: 3
   storage:
     size: 1Gi
+  # Coroot database monitoring: stamp the coroot.com/postgres-scrape annotations
+  # onto the DB instance Pods (CNPG inheritedMetadata propagates to all managed
+  # objects, incl. Pods) so the platform's Coroot cluster-agent discovers and
+  # scrapes them — it only reads POD annotations. Credentials come from the
+  # CNPG-generated wedding-db-app Secret (kubernetes.io/basic-auth,
+  # username=wedding), the same one the app uses; sslmode=require works whether
+  # CNPG's pg_hba uses host or hostssl. Inert where Coroot is absent (the
+  # annotations are just metadata), so the artifact stays environment-agnostic.
+  inheritedMetadata:
+    annotations:
+      coroot.com/postgres-scrape: "true"
+      coroot.com/postgres-scrape-port: "5432"
+      coroot.com/postgres-scrape-credentials-secret-name: wedding-db-app
+      coroot.com/postgres-scrape-credentials-secret-username-key: username
+      coroot.com/postgres-scrape-credentials-secret-password-key: password
+      coroot.com/postgres-scrape-param-sslmode: require
   bootstrap:
     initdb:
       database: wedding
       owner: wedding
+  # Grant the `wedding` role membership in pg_monitor so the Coroot cluster-agent
+  # (which logs in AS that role via wedding-db-app) can read the full pg_stat_*
+  # surface, not just its own sessions. passwordSecret pins the role to the
+  # CNPG-generated wedding-db-app value the app already uses, so CNPG's role
+  # synchronizer converges to it on every reconcile/promotion (a no-op, since
+  # CNPG owns that Secret) rather than re-applying a stale bootstrap password.
+  # pg_monitor is read-only.
+  managed:
+    roles:
+      - name: wedding
+        ensure: present
+        login: true
+        inRoles:
+          - pg_monitor
+        passwordSecret:
+          name: wedding-db-app
   postgresql:
     parameters:
       max_connections: "50"
       shared_buffers: "64MB"
+      # Enable pg_stat_statements for Coroot's per-query latency/calls view. CNPG's
+      # managed-extensions feature keys off any pg_stat_statements.* parameter: it
+      # adds the library to shared_preload_libraries (a one-time rolling restart)
+      # AND runs CREATE EXTENSION IF NOT EXISTS in every database automatically.
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
   # Continuous backup to the shared Cloudflare R2 bucket (platform-backups) via
   # the Barman Cloud Plugin — the supported replacement for the in-tree
   # spec.backup.barmanObjectStore, which CNPG deprecated in 1.26 and removes in
