@@ -36,6 +36,19 @@ spec:
               protocol: TCP
             - port: "5432"
               protocol: TCP
+    # Coroot cluster-agent (observability) scrapes the wedding-db Postgres on
+    # 5432 for database monitoring — the cluster.yaml inheritedMetadata stamps the
+    # coroot.com/postgres-scrape annotations onto the DB Pods. Mutual auth is
+    # enforced automatically by the platform's cluster-wide require-mutual-auth
+    # policy (both ends carry SPIRE identities), so no authentication stanza is
+    # needed here, matching the cnpg-system rule above.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
   egress:
     # Intra-namespace (app → db)
     - toEndpoints:
