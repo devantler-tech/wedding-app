@@ -2,14 +2,21 @@
 // Non-required Lighthouse CI lane (issue #100). Warn-only: gauges real Core Web
 // Vitals (LCP/CLS/TBT/FCP/Performance) on the two pages guests actually see —
 // the public login page and the authenticated program page — against the built
-// app served by the @sveltejs/adapter-node server, with DEV_SKIP_AUTH=true.
+// app served by `vite preview`, with DEV_SKIP_AUTH=true.
+//
+// Why `vite preview` and not the @sveltejs/adapter-node server (`node build/index.js`):
+// the adapter-node server intermittently — and, on the current build, deterministically —
+// exits early with code 13 ("unsettled top-level await" during `await server.init(...)`)
+// when started DB-free in CI, so it never binds the port and the lane reds out. The e2e
+// lane already serves the same production build via `vite preview` under DEV_SKIP_AUTH
+// reliably; reusing it here gives a stable server without changing what guests' browsers
+// load. (The adapter-node cold-start hang is tracked separately.)
 //
 // Budget misses are reported as warnings (see lighthouserc.json) and never fail
 // the job; only an infrastructure error (server/Chrome) does. That is deliberate:
 // this lane is NOT in `CI - Required Checks`, so it cannot wedge a merge, and its
-// red/green over ~10 runs is the flakiness signal we use to decide whether the
-// Node-adapter server (port binding + cold-start jitter) is stable enough to ever
-// promote these budgets into the required gate.
+// red/green over ~10 runs is the flakiness signal we use to decide whether these
+// budgets are stable enough to ever promote into the required gate.
 //
 // Why a wrapper instead of plain `lhci autorun`: the program page ("/") requires a
 // `session` cookie even under DEV_SKIP_AUTH (the layout skips the DB lookup, not
@@ -35,7 +42,10 @@ const CHROME_FLAGS = '--no-sandbox --headless=new --disable-gpu --disable-dev-sh
 const RUNS = 3;
 
 function startServer() {
-  return spawn('node', ['build/index.js'], {
+  // `vite preview` serves the production build (built in the preceding CI step)
+  // on PORT; --strictPort makes a busy port fail fast so a retry can free it
+  // rather than silently binding elsewhere.
+  return spawn('npm', ['run', 'preview', '--', '--port', String(PORT), '--strictPort'], {
     env: { ...process.env, DEV_SKIP_AUTH: 'true', PORT: String(PORT) },
     stdio: 'inherit'
   });
@@ -71,11 +81,11 @@ function lhci(args) {
   return res.status ?? 1;
 }
 
-// The adapter-node server intermittently exits early with code 13 ("unsettled
-// top-level await" during server.init) on a cold start, which used to leave the
-// readiness poll to time out and red this non-required lane (~1 in 5 runs, see
-// issue #100). A fresh process almost always settles, so retry the launch a few
-// times before treating a non-ready server as a genuine infrastructure failure.
+// Guard against residual cold-start / port-bind jitter (the deferral reason in
+// #95/#100): if the preview server exits early or never answers, retry the launch
+// a few times before treating a non-ready server as a genuine infrastructure
+// failure. waitForReady aborts the moment the process exits, so a bad attempt
+// fails fast instead of burning the whole readiness timeout.
 const MAX_SERVER_ATTEMPTS = 3;
 const READY_TIMEOUT_MS = 30_000;
 
