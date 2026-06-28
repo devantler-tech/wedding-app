@@ -41,19 +41,27 @@ const PAGES = [
 const CHROME_FLAGS = '--no-sandbox --headless=new --disable-gpu --disable-dev-shm-usage';
 const RUNS = 3;
 
+/**
+ * Spawn `vite preview` serving the production build (built in the preceding CI
+ * step) on PORT. `--strictPort` makes a busy port fail fast so a retry can free
+ * it rather than silently binding elsewhere.
+ * @returns {import('node:child_process').ChildProcess} the preview server process
+ */
 function startServer() {
-  // `vite preview` serves the production build (built in the preceding CI step)
-  // on PORT; --strictPort makes a busy port fail fast so a retry can free it
-  // rather than silently binding elsewhere.
   return spawn('npm', ['run', 'preview', '--', '--port', String(PORT), '--strictPort'], {
     env: { ...process.env, DEV_SKIP_AUTH: 'true', PORT: String(PORT) },
     stdio: 'inherit'
   });
 }
 
-// Poll until the built app answers, but abort the moment the server process exits
-// early — otherwise a cold-start crash leaves us polling a dead port for the full
-// timeout before reporting (the original behaviour that redded this lane).
+/**
+ * Poll until the built app answers `/login`, but abort the moment the server
+ * process exits early — otherwise a crashed server leaves us polling a dead port
+ * for the full timeout. Each probe is itself bounded (AbortSignal.timeout) so a
+ * stalled response cannot hang the loop past the readiness budget.
+ * @param {import('node:child_process').ChildProcess} proc the preview server
+ * @param {number} timeoutMs total readiness budget in milliseconds
+ */
 async function waitForReady(proc, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   let exited = null;
@@ -62,19 +70,24 @@ async function waitForReady(proc, timeoutMs) {
   });
   while (Date.now() < deadline) {
     if (exited !== null) {
-      throw new Error(`adapter-node server exited early (${exited}) before becoming ready`);
+      throw new Error(`preview server exited early (${exited}) before becoming ready`);
     }
     try {
-      const res = await fetch(`${BASE}/login`);
+      const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(2000) });
       if (res.ok) return;
     } catch {
-      // server not up yet
+      // server not up yet (connection refused, or this probe timed out)
     }
     await sleep(500);
   }
   throw new Error(`Server did not become ready on ${BASE} within ${timeoutMs}ms`);
 }
 
+/**
+ * Run `lhci <args>` (Lighthouse CI) synchronously, inheriting stdio.
+ * @param {string[]} args arguments passed through to the `lhci` CLI
+ * @returns {number} the process exit status (1 if it could not be determined)
+ */
 function lhci(args) {
   const res = spawnSync('npx', ['lhci', ...args], { stdio: 'inherit' });
   if (res.error) throw res.error;
