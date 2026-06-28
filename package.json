@@ -23,7 +23,7 @@
   "dependencies": {
     "@sveltejs/adapter-node": "^5.5.5",
     "drizzle-orm": "^0.45.2",
-    "pg": "^8.21.0"
+    "pg": "^8.22.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
