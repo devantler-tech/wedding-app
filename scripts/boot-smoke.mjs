@@ -26,16 +26,19 @@ try {
   process.exit(1);
 }
 
+// Failures set process.exitCode instead of calling process.exit(): exit()
+// fires immediately and skips the finally, leaving the booted server behind.
 try {
   const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(5000) });
   if (!res.ok) {
     console.error(`BOOT SMOKE FAILED: /login answered ${res.status}`);
-    process.exit(1);
+    process.exitCode = 1;
+  } else {
+    console.log(`Boot smoke OK: adapter-node server is up, /login answered ${res.status}`);
   }
-  console.log(`Boot smoke OK: adapter-node server is up, /login answered ${res.status}`);
 } catch (err) {
   console.error(`BOOT SMOKE FAILED: /login probe errored after readiness: ${err.message}`);
-  process.exit(1);
+  process.exitCode = 1;
 } finally {
   server.kill('SIGTERM');
 }

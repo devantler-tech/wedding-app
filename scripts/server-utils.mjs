@@ -50,6 +50,28 @@ export async function waitForReady(proc, base, timeoutMs) {
 }
 
 /**
+ * Wait for a killed server process to actually exit — SIGTERM only requests
+ * shutdown, and the listening port is not released until the process is gone,
+ * so retrying on a timer races EADDRINUSE. Escalates to SIGKILL if the process
+ * ignores SIGTERM past the grace period.
+ * @param {import('node:child_process').ChildProcess} proc the server process
+ * @param {number} [graceMs] how long to wait before escalating to SIGKILL
+ */
+function waitForExit(proc, graceMs = 5000) {
+  return new Promise((resolve) => {
+    if (proc.exitCode !== null || proc.signalCode !== null) {
+      resolve();
+      return;
+    }
+    const timer = setTimeout(() => proc.kill('SIGKILL'), graceMs);
+    proc.once('exit', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
+/**
  * Launch the server and wait for readiness, retrying the launch a few times to
  * guard against residual cold-start / port-bind jitter (the deferral reason in
  * #95/#100). waitForReady aborts the moment the process exits, so a bad attempt
@@ -75,7 +97,7 @@ export async function launchServerWithRetries(base, port, opts = {}) {
       if (attempt === attempts) {
         throw new Error(`adapter-node server never became ready after ${attempts} attempts`);
       }
-      await sleep(1000); // let the port free before retrying
+      await waitForExit(server); // port is only released once the process is gone
     }
   }
   throw new Error('unreachable');
