@@ -7,6 +7,16 @@ updates:
     open-pull-requests-limit: 10
     cooldown:
       default-days: 7
+    ignore:
+      # 5.5.5 restructured the adapter output into a pre-bundled chunk whose
+      # top-level `await server.init(...)` never settles in our built app
+      # (Node exits 13 before binding the port — every pod CrashLoopBackOffs;
+      # took prod down for v1.14.1). Pinned to 5.5.4 in package.json; lift this
+      # ignore once a fixed release boots (verify: build + `node build/index.js`
+      # answers /login — the Lighthouse lane serves the adapter build again and
+      # is the CI canary for exactly this).
+      - dependency-name: "@sveltejs/adapter-node"
+        versions: ["5.5.5"]
 
   - package-ecosystem: docker
     directory: /
