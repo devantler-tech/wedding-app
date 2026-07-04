@@ -8,6 +8,7 @@ metadata:
 spec:
   instances: 3
   storage:
+    storageClass: longhorn-wffc
     size: 1Gi
   # Coroot database monitoring: stamp the coroot.com/postgres-scrape annotations
   # onto the DB instance Pods (CNPG inheritedMetadata propagates to all managed
