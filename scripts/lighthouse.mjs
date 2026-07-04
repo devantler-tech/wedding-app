@@ -24,8 +24,8 @@
 // the cookie gate), while the login page must be scanned WITHOUT one — a session
 // cookie redirects /login -> /. A single global `extraHeaders` cannot express that
 // per-page difference, so each page is collected with exactly the cookie it needs.
-import { spawn, spawnSync } from 'node:child_process';
-import { setTimeout as sleep } from 'node:timers/promises';
+import { spawnSync } from 'node:child_process';
+import { launchServerWithRetries } from './server-utils.mjs';
 
 const PORT = Number(process.env.PORT ?? 3000);
 const BASE = `http://localhost:${PORT}`;
@@ -43,48 +43,6 @@ const CHROME_FLAGS = '--no-sandbox --headless=new --disable-gpu --disable-dev-sh
 const RUNS = 3;
 
 /**
- * Spawn the adapter-node server (`node build/index.js`, built in the preceding
- * CI step) on PORT — the same entrypoint the production container runs, so a
- * boot regression in the adapter output fails this lane instead of prod.
- * @returns {import('node:child_process').ChildProcess} the server process
- */
-function startServer() {
-  return spawn('node', ['build/index.js'], {
-    env: { ...process.env, DEV_SKIP_AUTH: 'true', PORT: String(PORT) },
-    stdio: 'inherit'
-  });
-}
-
-/**
- * Poll until the built app answers `/login`, but abort the moment the server
- * process exits early — otherwise a crashed server leaves us polling a dead port
- * for the full timeout. Each probe is itself bounded (AbortSignal.timeout) so a
- * stalled response cannot hang the loop past the readiness budget.
- * @param {import('node:child_process').ChildProcess} proc the adapter-node server
- * @param {number} timeoutMs total readiness budget in milliseconds
- */
-async function waitForReady(proc, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  let exited = null;
-  proc.once('exit', (code, signal) => {
-    exited = code ?? signal ?? 0;
-  });
-  while (Date.now() < deadline) {
-    if (exited !== null) {
-      throw new Error(`server exited early (${exited}) before becoming ready`);
-    }
-    try {
-      const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok) return;
-    } catch {
-      // server not up yet (connection refused, or this probe timed out)
-    }
-    await sleep(500);
-  }
-  throw new Error(`Server did not become ready on ${BASE} within ${timeoutMs}ms`);
-}
-
-/**
  * Run `lhci <args>` (Lighthouse CI) synchronously, inheriting stdio.
  * @param {string[]} args arguments passed through to the `lhci` CLI
  * @returns {number} the process exit status (1 if it could not be determined)
@@ -100,24 +58,7 @@ function lhci(args) {
 // a few times before treating a non-ready server as a genuine infrastructure
 // failure. waitForReady aborts the moment the process exits, so a bad attempt
 // fails fast instead of burning the whole readiness timeout.
-const MAX_SERVER_ATTEMPTS = 3;
-const READY_TIMEOUT_MS = 30_000;
-
-let server;
-for (let attempt = 1; attempt <= MAX_SERVER_ATTEMPTS; attempt += 1) {
-  server = startServer();
-  try {
-    await waitForReady(server, READY_TIMEOUT_MS);
-    break;
-  } catch (err) {
-    console.error(`Server start attempt ${attempt}/${MAX_SERVER_ATTEMPTS} failed: ${err.message}`);
-    server.kill('SIGTERM');
-    if (attempt === MAX_SERVER_ATTEMPTS) {
-      throw new Error(`adapter-node server never became ready after ${MAX_SERVER_ATTEMPTS} attempts`);
-    }
-    await sleep(1000); // let the port free before retrying
-  }
-}
+const server = await launchServerWithRetries(BASE, PORT);
 
 let status = 0;
 try {

@@ -81,6 +81,28 @@ jobs:
       - run: npm run build
       - run: npm run bundlesize
 
+  # Required boot-smoke (issue #153): the only REQUIRED lane that boots the real
+  # adapter-node entrypoint (`node build/index.js`). e2e serves the build via
+  # `vite preview` and Lighthouse is non-required, so without this a boot-dead
+  # adapter build (like @sveltejs/adapter-node 5.5.5 in v1.14.1) merges green
+  # and CrashLoops prod.
+  boot-smoke:
+    name: Boot Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run boot-smoke
+        env:
+          DEV_SKIP_AUTH: "true"
+
   # Non-required lane (issue #100): measures real Core Web Vitals on the built app.
   # Deliberately NOT in `ci-required-checks` below — budget misses are warn-only and
   # this job's red/green over ~10 runs is the flakiness signal we use to decide
@@ -105,7 +127,7 @@ jobs:
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build]
+    needs: [lint, check, test, e2e, build, boot-smoke]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -118,3 +140,4 @@ jobs:
             ${{ needs.test.result }}
             ${{ needs.e2e.result }}
             ${{ needs.build.result }}
+            ${{ needs.boot-smoke.result }}
