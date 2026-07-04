@@ -2,15 +2,16 @@
 // Non-required Lighthouse CI lane (issue #100). Warn-only: gauges real Core Web
 // Vitals (LCP/CLS/TBT/FCP/Performance) on the two pages guests actually see —
 // the public login page and the authenticated program page — against the built
-// app served by `vite preview`, with DEV_SKIP_AUTH=true.
+// app served by the @sveltejs/adapter-node server, with DEV_SKIP_AUTH=true.
 //
-// Why `vite preview` and not the @sveltejs/adapter-node server (`node build/index.js`):
-// the adapter-node server intermittently — and, on the current build, deterministically —
-// exits early with code 13 ("unsettled top-level await" during `await server.init(...)`)
-// when started DB-free in CI, so it never binds the port and the lane reds out. The e2e
-// lane already serves the same production build via `vite preview` under DEV_SKIP_AUTH
-// reliably; reusing it here gives a stable server without changing what guests' browsers
-// load. (The adapter-node cold-start hang is tracked separately.)
+// This lane deliberately serves `node build/index.js` (NOT `vite preview`): it
+// is the only CI lane that boots the adapter-node entrypoint prod runs, so it
+// doubles as the boot-smoke canary. The "cold-start hang" that briefly made it
+// use `vite preview` was the @sveltejs/adapter-node 5.5.5 regression (top-level
+// `await server.init(...)` in the adapter's pre-bundled chunk never settles —
+// Node exits 13 before binding the port), which shipped in v1.14.1 and
+// CrashLoopBackOff'd prod. Serving the real adapter build here is what catches
+// that class of breakage before a release does.
 //
 // Budget misses are reported as warnings (see lighthouserc.json) and never fail
 // the job; only an infrastructure error (server/Chrome) does. That is deliberate:
@@ -42,13 +43,13 @@ const CHROME_FLAGS = '--no-sandbox --headless=new --disable-gpu --disable-dev-sh
 const RUNS = 3;
 
 /**
- * Spawn `vite preview` serving the production build (built in the preceding CI
- * step) on PORT. `--strictPort` makes a busy port fail fast so a retry can free
- * it rather than silently binding elsewhere.
- * @returns {import('node:child_process').ChildProcess} the preview server process
+ * Spawn the adapter-node server (`node build/index.js`, built in the preceding
+ * CI step) on PORT — the same entrypoint the production container runs, so a
+ * boot regression in the adapter output fails this lane instead of prod.
+ * @returns {import('node:child_process').ChildProcess} the server process
  */
 function startServer() {
-  return spawn('npm', ['run', 'preview', '--', '--port', String(PORT), '--strictPort'], {
+  return spawn('node', ['build/index.js'], {
     env: { ...process.env, DEV_SKIP_AUTH: 'true', PORT: String(PORT) },
     stdio: 'inherit'
   });
@@ -59,7 +60,7 @@ function startServer() {
  * process exits early — otherwise a crashed server leaves us polling a dead port
  * for the full timeout. Each probe is itself bounded (AbortSignal.timeout) so a
  * stalled response cannot hang the loop past the readiness budget.
- * @param {import('node:child_process').ChildProcess} proc the preview server
+ * @param {import('node:child_process').ChildProcess} proc the adapter-node server
  * @param {number} timeoutMs total readiness budget in milliseconds
  */
 async function waitForReady(proc, timeoutMs) {
@@ -70,7 +71,7 @@ async function waitForReady(proc, timeoutMs) {
   });
   while (Date.now() < deadline) {
     if (exited !== null) {
-      throw new Error(`preview server exited early (${exited}) before becoming ready`);
+      throw new Error(`server exited early (${exited}) before becoming ready`);
     }
     try {
       const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(2000) });
@@ -95,7 +96,7 @@ function lhci(args) {
 }
 
 // Guard against residual cold-start / port-bind jitter (the deferral reason in
-// #95/#100): if the preview server exits early or never answers, retry the launch
+// #95/#100): if the server exits early or never answers, retry the launch
 // a few times before treating a non-ready server as a genuine infrastructure
 // failure. waitForReady aborts the moment the process exits, so a bad attempt
 // fails fast instead of burning the whole readiness timeout.
