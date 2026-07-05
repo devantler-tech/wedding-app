@@ -9,11 +9,33 @@ requests) is **irreplaceable**: there is no second source of truth, and it must
 be intact on **16 May 2027**. An untested backup is a guess. This drill turns it
 into evidence.
 
-> **Scope & safety.** Every step runs in a throwaway `wedding-db-restore`
-> namespace and reads the R2 backups **read-only** via `externalClusters`. The
-> live `wedding-app` / `wedding-db` is **never** touched, and the recovery
-> cluster runs **no WAL archiver**, so it can never write into the live backup
-> path. Teardown deletes the scratch namespace and everything in it.
+> **Drill-proven.** This procedure was executed against production on
+> **2026-07-05** ([#133](https://github.com/devantler-tech/wedding-app/issues/133)):
+> base backup + WAL pulled from R2, recovery cluster healthy in **~95 seconds**,
+> all row counts identical to the live primary, and per-row content checksums of
+> `guest_pairs` / `guests` / `room_bookings` **byte-identical**. The live cluster
+> was never modified.
+
+> **Scope & safety.** The recovery cluster runs **in the `wedding-app`
+> namespace under a different name** (`wedding-db-drill`). CloudNativePG scopes
+> every resource it creates per cluster name (pods, PVCs, secrets, and the
+> `-rw`/`-ro`/`-r` services), and the app only ever connects to `wedding-db-rw`,
+> so the drill cannot collide with the live database. The drill spec has **no
+> WAL archiver** (`spec.plugins` omitted), so it reads the backup path via
+> `externalClusters` and can never write into it. Teardown is a single
+> `kubectl delete` of the drill `Cluster`, which cascades its pod and PVC.
+>
+> **Why not a scratch namespace?** An earlier version of this runbook restored
+> into a throwaway `wedding-db-restore` namespace with copies of the
+> `ObjectStore` and R2 `Secret`. On this platform that procedure **does not
+> work as written**: Kyverno's `add-default-deny` policy generates a
+> default-deny network policy into every new namespace, so the recovery job's
+> egress to R2 is blocked and the restore hangs at the base-backup pull.
+> Running in `wedding-app` avoids all of it — the namespace-wide `app`
+> `CiliumNetworkPolicy` already allows egress to `*.r2.cloudflarestorage.com:443`
+> plus the CNPG operator ingress, and the platform-shipped `ObjectStore
+> wedding-db` and `wedding-db-backup-r2` secret are already present, so there is
+> nothing to copy.
 
 ## What is backed up (verified live)
 
@@ -28,24 +50,21 @@ The backup chain is the CNPG **Barman Cloud Plugin**, not the deprecated in-tree
 | R2 credentials | platform-shipped `ExternalSecret wedding-db-backup-r2` (from OpenBao `infrastructure/backup/r2`) | `ACCESS_KEY_ID` / `SECRET_ACCESS_KEY` / `REGION=auto` |
 
 Together these give **point-in-time recovery** anywhere inside the 30-day window.
+Before drilling, sanity-check the window is live:
 
-The destination, credentials and retention are **platform-owned** (the tenant's
-namespaced `SecretStore` cannot reach the shared backup creds, and
-`barmancloud.cnpg.io` is outside the tenant's RBAC) — the tenant `Cluster` only
-references the `ObjectStore` by name. The drill below therefore **copies** the
-live `ObjectStore` and its credential `Secret` into the scratch namespace rather
-than hardcoding the R2 endpoint/bucket here (those are Flux-substituted platform
-values and may rotate).
+```sh
+kubectl --context admin@prod -n wedding-app get objectstore wedding-db \
+  -o jsonpath='{.status.serverRecoveryWindow}'
+# expect a recent lastSuccessfulBackupTime (daily 03:00 UTC)
+```
 
 ## Prerequisites
 
-- `kubectl` pointed at a cluster that has the **CloudNativePG operator** and the
-  **Barman Cloud Plugin** installed and that can reach R2 — i.e. the prod cluster
-  (`--context admin@prod`). The drill is isolated, so running it on prod is safe.
-- Optional but convenient: the [`kubectl cnpg`](https://cloudnative-pg.io/documentation/current/kubectl-plugin/)
-  plugin for `psql` access and status.
-- **Do not run during a storage incident.** A recovery cluster provisions a PVC
-  and pulls the full base backup + WAL from R2; run it only when Longhorn and the
+- `kubectl` pointed at the prod cluster (`--context admin@prod`), which has the
+  **CloudNativePG operator** and the **Barman Cloud Plugin** installed and can
+  reach R2. The drill is isolated by cluster name, so running it on prod is safe.
+- **Do not run during a storage incident.** The recovery provisions a PVC and
+  pulls the full base backup + WAL from R2; run it only when Longhorn and the
   live cluster are healthy.
 
 All commands below assume `--context admin@prod`; set it once:
@@ -54,65 +73,62 @@ All commands below assume `--context admin@prod`; set it once:
 CTX="--context admin@prod"
 ```
 
-## Step 1 — scratch namespace
+## Step 1 — record the live baseline
+
+Counts plus an order-independent, schema-agnostic content checksum per core
+table (run on the current primary — `kubectl $CTX -n wedding-app get cluster
+wedding-db -o jsonpath='{.status.currentPrimary}'`):
 
 ```sh
-kubectl $CTX create namespace wedding-db-restore
+PRIMARY=$(kubectl $CTX -n wedding-app get cluster wedding-db -o jsonpath='{.status.currentPrimary}')
+live() { kubectl $CTX -n wedding-app exec "$PRIMARY" -c postgres -- psql -U postgres -d wedding -tAc "$1"; }
+
+live "select 'guest_pairs', count(*) from guest_pairs union all
+      select 'guests', count(*) from guests union all
+      select 'room_bookings', count(*) from room_bookings"
+for t in guest_pairs guests room_bookings; do
+  echo -n "$t: "
+  live "select md5(string_agg(h,'|')) from (select md5(t::text) h from $t t order by 1) s"
+done
 ```
 
-## Step 2 — copy the R2 credentials into the scratch namespace
+## Step 2 — bootstrap the recovery cluster
 
-The platform-shipped `ExternalSecret` only materialises `wedding-db-backup-r2` in
-the `wedding-app` namespace. Copy the resolved `Secret` (stripping namespace-bound
-and owner metadata so External Secrets does not reclaim it):
+Apply the drill `Cluster`. Key details:
 
-```sh
-kubectl $CTX -n wedding-app get secret wedding-db-backup-r2 -o json \
-  | jq 'del(.metadata.namespace, .metadata.resourceVersion, .metadata.uid,
-            .metadata.creationTimestamp, .metadata.ownerReferences,
-            .metadata.managedFields, .metadata.annotations, .metadata.labels)' \
-  | kubectl $CTX -n wedding-db-restore apply -f -
-```
-
-## Step 3 — copy the `ObjectStore` into the scratch namespace
-
-Copy the live platform-shipped `ObjectStore` verbatim (same R2 path, endpoint and
-credential reference) so the recovery reads the exact backup location:
-
-```sh
-kubectl $CTX -n wedding-app get objectstore wedding-db -o json \
-  | jq 'del(.metadata.namespace, .metadata.resourceVersion, .metadata.uid,
-            .metadata.generation, .metadata.creationTimestamp,
-            .metadata.ownerReferences, .metadata.managedFields,
-            .metadata.annotations, .metadata.labels, .status)' \
-  | kubectl $CTX -n wedding-db-restore apply -f -
-```
-
-## Step 4 — bootstrap the recovery cluster
-
-Apply the recovery `Cluster`. The key detail is **`serverName: wedding-db`**: the
-recovery cluster has a different name (`wedding-db-restore`), so without an
-explicit `serverName` the plugin would look under a non-existent server path
-instead of the live one the backups were archived under.
+- **`serverName: wedding-db`** — the drill cluster has a different name, so
+  without this the plugin would look under a non-existent path instead of the
+  one the live cluster archives under.
+- **No `spec.plugins`** — the drill must never archive into the live backup
+  path; `externalClusters` gives read-only access.
+- `imageName` pinned to the live cluster's image (WAL replay needs a matching
+  or newer PostgreSQL major); check `deploy/cluster.yaml` if it has moved.
+- Same storage size as live (`1Gi` today); bump if the live volume grows.
 
 ```sh
 cat <<'EOF' | kubectl $CTX apply -f -
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: wedding-db-restore
-  namespace: wedding-db-restore
+  name: wedding-db-drill
+  namespace: wedding-app
+  labels:
+    app.kubernetes.io/component: recovery-drill
+  annotations:
+    devantler.tech/purpose: "wedding-app#133 backup restore drill — throwaway, delete after verification"
 spec:
   instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie
+  enableSuperuserAccess: false
+  enablePDB: false
   storage:
-    size: 2Gi  # >= the live cluster's 1Gi; headroom for the restored data
+    size: 1Gi
+    storageClass: longhorn-wffc
   bootstrap:
     recovery:
       source: wedding-db
-      database: wedding
-      owner: wedding
-      # For a point-in-time restore, uncomment and pick a target inside the
-      # 30-day retention window (omit to restore to the latest archived WAL):
+      # For point-in-time recovery, pick a target inside the 30-day window
+      # (omit to restore to the latest archived WAL):
       # recoveryTarget:
       #   targetTime: "2026-06-20 12:00:00+00"
   externalClusters:
@@ -120,83 +136,79 @@ spec:
       plugin:
         name: barman-cloud.cloudnative-pg.io
         parameters:
-          barmanObjectName: wedding-db  # the ObjectStore copied in step 3
-          serverName: wedding-db        # the path the LIVE cluster archived under
-  # NOTE: deliberately NO spec.plugins WAL archiver — the recovery cluster must
-  # never archive into the live backup path. externalClusters gives read-only
-  # access to the existing backups; this cluster keeps its WAL local.
+          barmanObjectName: wedding-db  # the platform-shipped ObjectStore, already in this namespace
+          serverName: wedding-db        # the path the LIVE cluster archives under
 EOF
 ```
 
-Watch it bootstrap (restore is complete when `STATUS` is `Cluster in healthy
-state`):
+Watch it bootstrap — the full-recovery job pulls the base backup, then the
+instance replays WAL and promotes onto a **new timeline** (expected):
 
 ```sh
-kubectl $CTX -n wedding-db-restore get cluster wedding-db-restore -w
-# In another shell, the restore job logs:
-kubectl $CTX -n wedding-db-restore logs -l cnpg.io/cluster=wedding-db-restore --all-containers -f
+kubectl $CTX -n wedding-app get cluster wedding-db-drill -w
+# 2026-07-05 drill: "Setting up primary" ~60s → "Cluster in healthy state" at ~95s
 ```
 
-## Step 5 — verify data integrity
-
-Compare row counts between the **restore** and the **live** primary — they should
-match (the restore is as-of the latest archived WAL):
+If it sticks in "Setting up primary", read the recovery job logs:
 
 ```sh
-# Restore cluster
-kubectl $CTX cnpg psql -n wedding-db-restore wedding-db-restore -- -d wedding -c "
-  SELECT (SELECT count(*) FROM guest_pairs)   AS guest_pairs,
-         (SELECT count(*) FROM guests)        AS guests,
-         (SELECT count(*) FROM room_bookings) AS room_bookings,
-         (SELECT count(*) FROM guests WHERE attending IS NOT NULL) AS responded;"
-
-# Live cluster (read-only count, same query)
-kubectl $CTX cnpg psql -n wedding-app wedding-db -- -d wedding -c "
-  SELECT (SELECT count(*) FROM guest_pairs)   AS guest_pairs,
-         (SELECT count(*) FROM guests)        AS guests,
-         (SELECT count(*) FROM room_bookings) AS room_bookings,
-         (SELECT count(*) FROM guests WHERE attending IS NOT NULL) AS responded;"
+kubectl $CTX -n wedding-app logs -l cnpg.io/cluster=wedding-db-drill --all-containers --tail 50
 ```
 
-> Without the `kubectl cnpg` plugin, exec directly:
-> `kubectl $CTX -n wedding-db-restore exec -it wedding-db-restore-1 -c postgres -- psql -U postgres -d wedding -c "<query>"`.
+## Step 3 — verify data integrity
 
-Spot-check that the restored rows hold **real** content, not just the right count:
+Run the same counts + checksums as step 1 against the drill and compare:
 
 ```sh
-kubectl $CTX cnpg psql -n wedding-db-restore wedding-db-restore -- -d wedding -c "
-  SELECT gp.name AS pair, g.name AS guest, g.attending, g.dietary_notes
-  FROM guests g JOIN guest_pairs gp ON gp.id = g.guest_pair_id
-  WHERE g.dietary_notes IS NOT NULL AND g.dietary_notes <> '' LIMIT 5;"
+drill() { kubectl $CTX -n wedding-app exec wedding-db-drill-1 -c postgres -- psql -U postgres -d wedding -tAc "$1"; }
 
-kubectl $CTX cnpg psql -n wedding-db-restore wedding-db-restore -- -d wedding -c "
-  SELECT gp.code, rb.requested, rb.nights, rb.notes
-  FROM room_bookings rb JOIN guest_pairs gp ON gp.id = rb.guest_pair_id
-  WHERE rb.requested LIMIT 5;"
+drill "select 'guest_pairs', count(*) from guest_pairs union all
+       select 'guests', count(*) from guests union all
+       select 'room_bookings', count(*) from room_bookings"
+for t in guest_pairs guests room_bookings; do
+  echo -n "$t: "
+  drill "select md5(string_agg(h,'|')) from (select md5(t::text) h from $t t order by 1) s"
+done
 ```
 
-**Pass criteria:** counts match the live primary and the spot-checks return
-genuine RSVP / dietary / booking rows → the R2 backup is proven restorable.
-
-## Step 6 — teardown
+**Pass criteria:** counts match and the three checksums are **identical** to the
+live baseline (checksums are as-of the last archived WAL — `archive_timeout` is
+5 min, so a write landing mid-drill can legitimately differ; re-check against a
+fresh live baseline before calling it a failure). Optionally spot-check real
+content presence (aggregates only — never paste raw guest rows into GitHub,
+they are personal data):
 
 ```sh
-kubectl $CTX delete namespace wedding-db-restore
+drill "select count(*) from guests where attending is not null"
+drill "select count(*) from guests where dietary_notes is not null and dietary_notes <> ''"
+drill "select count(*) from room_bookings where requested"
 ```
 
-This removes the recovery `Cluster`, its PVC, and the copied `Secret` /
-`ObjectStore`. The live cluster and the R2 backups are untouched throughout.
+## Step 4 — teardown
+
+```sh
+kubectl $CTX -n wedding-app delete cluster wedding-db-drill
+```
+
+This cascades the drill pod, PVC and per-cluster secrets/services. Confirm only
+the live cluster remains:
+
+```sh
+kubectl $CTX -n wedding-app get cluster,pods,pvc
+```
+
+The live cluster and the R2 backups are untouched throughout.
 
 ## Recording the result
 
-Paste the step-5 output (restore vs live counts + spot-checks) into
-[issue #133](https://github.com/devantler-tech/wedding-app/issues/133) as the
-evidence the drill succeeded, with the date it was run.
+Post the counts + checksums comparison (no raw rows — PII) to
+[issue #133](https://github.com/devantler-tech/wedding-app/issues/133) (first
+drill) or the ops log, with the date it was run.
 
 ## Making it periodic
 
-This is a one-off drill today. To keep the guarantee fresh, re-run it on a cadence
-(e.g. quarterly, and again close to May 2027). A future enhancement could wrap
-steps 1–6 as a scheduled `Job` that bootstraps the recovery cluster, asserts the
-counts are non-zero and consistent, and tears itself down — turning the manual
-drill into a continuous backup-restore check.
+The 2026-07-05 drill proves the chain today. To keep the guarantee fresh, re-run
+this on a cadence (e.g. quarterly, and again close to May 2027). A future
+enhancement could wrap steps 2–4 as a scheduled `Job` that bootstraps the
+recovery cluster, asserts counts/checksums are consistent, and tears itself
+down — turning the manual drill into a continuous backup-restore check.
