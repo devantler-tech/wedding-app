@@ -88,7 +88,7 @@ live "select 'guest_pairs', count(*) from guest_pairs union all
       select 'room_bookings', count(*) from room_bookings"
 for t in guest_pairs guests room_bookings; do
   echo -n "$t: "
-  live "select md5(string_agg(h,'|')) from (select md5(t::text) h from $t t order by 1) s"
+  live "select md5(string_agg(h,'|' order by h)) from (select md5(t::text) h from $t t) s"
 done
 ```
 
@@ -167,7 +167,7 @@ drill "select 'guest_pairs', count(*) from guest_pairs union all
        select 'room_bookings', count(*) from room_bookings"
 for t in guest_pairs guests room_bookings; do
   echo -n "$t: "
-  drill "select md5(string_agg(h,'|')) from (select md5(t::text) h from $t t order by 1) s"
+  drill "select md5(string_agg(h,'|' order by h)) from (select md5(t::text) h from $t t) s"
 done
 ```
 
@@ -190,11 +190,15 @@ drill "select count(*) from room_bookings where requested"
 kubectl $CTX -n wedding-app delete cluster wedding-db-drill
 ```
 
-This cascades the drill pod, PVC and per-cluster secrets/services. Confirm only
-the live cluster remains:
+This cascades the drill pod, PVC and per-cluster secrets/services. Confirm
+nothing drill-labelled survives (covers secrets and services too) and only the
+live cluster remains:
 
 ```sh
-kubectl $CTX -n wedding-app get cluster,pods,pvc
+kubectl $CTX -n wedding-app get cluster,pods,pvc,secrets,services -l cnpg.io/cluster=wedding-db-drill
+# expect: No resources found
+kubectl $CTX -n wedding-app get cluster
+# expect: only wedding-db
 ```
 
 The live cluster and the R2 backups are untouched throughout.
