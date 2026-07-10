@@ -22,8 +22,14 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event);
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+	// Kept for old browsers; superseded by the CSP frame-ancestors directive
+	// (svelte.config.js kit.csp).
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	// TLS terminates at the platform gateway (which does not set HSTS — dedupe
+	// decided in issue #172); the browser associates the header with the https
+	// origin it fetched from, so setting it at the app layer is correct.
+	response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 	return response;
 };
 
