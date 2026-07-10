@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { galleryEntries } from '$lib/gallery-data.js';
+	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
@@ -50,7 +50,7 @@
 		return { update };
 	}
 
-	function slideRatioClass(ratio: number): string {
+	function slideRatioClass(ratio: GalleryRatio): string {
 		switch (ratio) {
 			case 1.333:
 				return 'slide-ratio-1333';
@@ -60,8 +60,6 @@
 				return 'slide-ratio-563';
 			case 0.709:
 				return 'slide-ratio-709';
-			default:
-				throw new Error(`Unsupported gallery aspect ratio: ${ratio}`);
 		}
 	}
 

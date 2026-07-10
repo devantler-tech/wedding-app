@@ -17,6 +17,9 @@ const invitationCodeLabel = /invitationskode/i;
 const submitButtonName = /Se invitation/i;
 const invalidCodeMessage = /brug koden MOCK1, MOCK2 eller ADMIN/i;
 const cspSourceSeparator = /\s+/;
+const inlineStyleAttributePattern = /\sstyle\s*=/i;
+const slideClassAttributePattern = /class="([^"]*\bslide\b[^"]*)"/g;
+const slideRatioClassPattern = /\bslide-ratio-(?:1333|750|563|709)\b/;
 const svelteKitAnnouncerStyleHash =
 	"'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='";
 
@@ -194,15 +197,16 @@ test('server-rendered pages contain no inline style attributes', async ({ reques
 		});
 		expect(response.status(), path).toBe(status);
 		const html = await response.text();
-		expect(html, path).not.toMatch(/\sstyle\s*=/i);
+		expect(html, path).not.toMatch(inlineStyleAttributePattern);
 
 		if (path === '/') {
-			const slideClasses = [...html.matchAll(/class="([^"]*\bslide\b[^"]*)"/g)].map(
+			const slideClasses = Array.from(
+				html.matchAll(slideClassAttributePattern),
 				(match) => match[1]
 			);
 			expect(slideClasses.length).toBeGreaterThan(0);
 			expect(
-				slideClasses.every((className) => /\bslide-ratio-(?:1333|750|563|709)\b/.test(className)),
+				slideClasses.every((className) => slideRatioClassPattern.test(className)),
 				'SSR must preserve every gallery slide ratio before hydration'
 			).toBe(true);
 		}
