@@ -8,7 +8,39 @@ const config = {
 		adapter: adapter({
 			out: 'build',
 			precompress: true
-		})
+		}),
+		// Content-Security-Policy, served as a response header by the
+		// adapter-node server. mode 'auto' injects a per-request nonce for
+		// SvelteKit's own inline hydration script, so script-src needs no
+		// 'unsafe-inline'. Only the origins the site actually uses are
+		// allow-listed (self-hosted Umami analytics, Google Fonts, the cdnjs
+		// Font Awesome stylesheet + its webfonts). SvelteKit's navigation
+		// announcer mounts client-side with one constant style attribute; allow
+		// exactly that value by hash instead of opening every style attribute via
+		// 'unsafe-inline'. A SvelteKit upgrade that changes the announcer style
+		// will fail the security E2E test loudly. frame-ancestors is valid here
+		// (header CSP, unlike a meta CSP) and supersedes the X-Frame-Options
+		// header kept in hooks.server.ts for old browsers.
+		csp: {
+			mode: 'auto',
+			directives: {
+				'default-src': ['self'],
+				'script-src': ['self', 'https://analytics.platform.devantler.tech'],
+				'style-src': ['self', 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com'],
+				'style-src-attr': [
+					'unsafe-hashes',
+					'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='
+				],
+				'font-src': ['self', 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
+				// data: covers the inline SVG favicon in app.html.
+				'img-src': ['self', 'data:'],
+				'connect-src': ['self', 'https://analytics.platform.devantler.tech'],
+				'object-src': ['none'],
+				'base-uri': ['self'],
+				'form-action': ['self'],
+				'frame-ancestors': ['none']
+			}
+		}
 	}
 };
 

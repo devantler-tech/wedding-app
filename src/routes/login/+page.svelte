@@ -11,10 +11,12 @@
 	<CornerOrnament corner="tr" size={150} />
 	<div class="max-w-md w-full px-6">
 		<div class="text-center mb-12">
-			<p class="text-dark-brown mb-2" style="font-family: var(--font-script); font-size: 4.5rem; line-height: 1; letter-spacing: 0.02em;">
+			<p class="wedding-script-heading text-dark-brown mb-2">
 				Bryllup
 			</p>
-			<h1 class="font-serif font-light text-dark-brown mb-4 whitespace-nowrap" style="font-size: clamp(1.4rem, 6.5vw, 3rem);">
+			<h1
+				class="wedding-couple-heading font-serif font-light text-dark-brown mb-4 whitespace-nowrap"
+			>
 				Aimée & Nikolai Emil
 			</h1>
 			<p class="text-warm-brown text-lg">16. maj 2027</p>

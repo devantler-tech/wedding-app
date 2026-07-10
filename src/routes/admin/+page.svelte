@@ -45,10 +45,7 @@
 <main class="min-h-screen bg-cream py-12 px-4 sm:px-6">
 	<div class="max-w-5xl mx-auto">
 		<header class="mb-8">
-			<p
-				class="text-dark-brown mb-2"
-				style="font-family: var(--font-script); font-size: 3rem; line-height: 1;"
-			>
+			<p class="wedding-admin-heading text-dark-brown mb-2">
 				Administrator
 			</p>
 			<h1 class="font-serif font-light text-dark-brown text-2xl sm:text-3xl">

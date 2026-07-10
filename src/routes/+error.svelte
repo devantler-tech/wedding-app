@@ -7,7 +7,7 @@
 	<CornerOrnament corner="tl" size={150} />
 	<CornerOrnament corner="tr" size={150} />
 	<div class="max-w-md w-full px-6 text-center">
-		<p class="text-dark-brown mb-2" style="font-family: var(--font-script); font-size: 4.5rem; line-height: 1; letter-spacing: 0.02em;">
+		<p class="wedding-script-heading text-dark-brown mb-2">
 			Ups
 		</p>
 		<h1 class="font-serif font-light text-dark-brown mb-4 text-2xl sm:text-3xl">

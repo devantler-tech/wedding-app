@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { galleryEntries } from '$lib/gallery-data.js';
+	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
@@ -37,6 +37,30 @@
 		const slide = trackEl?.children[i] as HTMLElement | undefined;
 		if (!slide || !regionEl) return;
 		trackX = regionEl.clientWidth / 2 - (slide.offsetLeft + slide.offsetWidth / 2);
+	}
+
+	// Svelte actions run only in the browser, so the dynamic track offset never
+	// becomes an SSR style attribute. Updating the individual CSSOM property
+	// remains compatible with a strict style-src-attr policy.
+	function setTrackOffset(node: HTMLElement, offset: number) {
+		const update = (nextOffset: number) => {
+			node.style.transform = `translateX(${nextOffset}px)`;
+		};
+		update(offset);
+		return { update };
+	}
+
+	function slideRatioClass(ratio: GalleryRatio): string {
+		switch (ratio) {
+			case 1.333:
+				return 'slide-ratio-1333';
+			case 0.75:
+				return 'slide-ratio-750';
+			case 0.563:
+				return 'slide-ratio-563';
+			case 0.709:
+				return 'slide-ratio-709';
+		}
 	}
 
 	function next() {
@@ -177,17 +201,16 @@
 		<div
 			bind:this={trackEl}
 			class="track {mounted && !snapping ? 'is-animating' : ''}"
-			style="transform: translateX({trackX}px);"
+			use:setTrackOffset={trackX}
 			ontransitionend={onTrackTransitionEnd}
 		>
 			{#each extended as entry, e (e)}
 				{@const active = e === pos}
 				<button
 					type="button"
-					class="slide relative flex-shrink-0 overflow-hidden rounded-2xl transition-[opacity,transform,box-shadow] duration-500 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold {active
+					class="slide {slideRatioClass(entry.ratio)} relative flex-shrink-0 overflow-hidden rounded-2xl transition-[opacity,transform,box-shadow] duration-500 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold {active
 						? 'opacity-100 scale-100 cursor-default shadow-[0_28px_64px_-24px_rgba(61,46,31,0.6)] ring-1 ring-dark-brown/10'
 						: 'opacity-50 scale-[0.94] cursor-pointer shadow-[0_14px_40px_-26px_rgba(61,46,31,0.5)] hover:opacity-80'}"
-					style="--r: {entry.ratio};"
 					tabindex="-1"
 					aria-hidden={active ? undefined : true}
 					aria-label={active ? entry.caption : `Gå til billede: ${entry.caption}`}
@@ -307,5 +330,17 @@
 		width: min(var(--max-w), calc(var(--h) * var(--r)));
 		aspect-ratio: var(--r);
 		max-height: var(--h);
+	}
+	.slide-ratio-1333 {
+		--r: 1.333;
+	}
+	.slide-ratio-750 {
+		--r: 0.75;
+	}
+	.slide-ratio-563 {
+		--r: 0.563;
+	}
+	.slide-ratio-709 {
+		--r: 0.709;
 	}
 </style>

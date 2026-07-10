@@ -4,8 +4,13 @@ export interface GalleryEntry {
   caption: string;
   /** Intrinsic aspect ratio (width / height). Drives the carousel slide width so
    *  each photo is shown whole, at its natural shape — no cropping, no letterbox. */
-  ratio: number;
+  ratio: GalleryRatio;
 }
+
+// The CSP-safe carousel renders one static class per supported intrinsic ratio.
+// Keeping the allowed values in the type makes a new ratio a build-time change
+// instead of a render-path exception or a silent pre-hydration layout fallback.
+export type GalleryRatio = 1.333 | 0.75 | 0.563 | 0.709;
 
 export const galleryEntries: readonly GalleryEntry[] = [
   {
