@@ -17,6 +17,8 @@ const invitationCodeLabel = /invitationskode/i;
 const submitButtonName = /Se invitation/i;
 const invalidCodeMessage = /brug koden MOCK1, MOCK2 eller ADMIN/i;
 const cspSourceSeparator = /\s+/;
+const svelteKitAnnouncerStyleHash =
+	"'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='";
 
 // Collects browser-level securitypolicyviolation events (the authoritative
 // CSP signal — console text is browser-specific and can match unrelated
@@ -88,10 +90,14 @@ function assertCspShape(cspHeader: string | undefined): string {
 		'https://fonts.googleapis.com',
 		'https://cdnjs.cloudflare.com'
 	]);
-	// style-src-attr 'unsafe-inline' is the documented compromise for the
-	// SSR'd dynamic style attributes (#175 tracks tightening); the -elem
-	// variant must not exist so styles stay governed by style-src above.
-	expect(csp.get('style-src-attr')).toEqual(["'unsafe-inline'"]);
+	// SvelteKit's client-side navigation announcer mounts with one constant
+	// style attribute. Allow only that known value by hash; never reopen every
+	// style attribute with 'unsafe-inline'. The -elem variant must not exist so
+	// stylesheet elements stay governed by style-src above.
+	expect(csp.get('style-src-attr')).toEqual([
+		"'unsafe-hashes'",
+		svelteKitAnnouncerStyleHash
+	]);
 	expect(csp.has('style-src-elem')).toBe(false);
 	// script-src: exactly self + the analytics origin + SvelteKit's
 	// per-request hydration nonce — and nothing else (no 'unsafe-inline').
@@ -153,13 +159,54 @@ test('CSP header allows exactly what the page needs, with zero violations', asyn
 test('the invitation page serves the same policy with zero violations', async ({ page }) => {
 	await armCspViolationCapture(page);
 
-	const response = await page.goto('/');
+	await page.goto('/login');
+	await page.getByLabel(invitationCodeLabel).fill('MOCK1');
+	await page.getByRole('button', { name: submitButtonName }).click();
+	await page.waitForURL('**/');
+	const response = await page.reload();
 
 	assertCspShape(response?.headers()['content-security-policy']);
+	await expect(page.getByRole('heading', { name: 'Vores Rejse' })).toBeVisible();
+
+	const track = page.locator('#galleri .track');
+	const initialOffset = await track.evaluate((element) => (element as HTMLElement).style.transform);
+	await page.getByRole('button', { name: 'Næste billede' }).click();
+	await expect
+		.poll(() => track.evaluate((element) => (element as HTMLElement).style.transform))
+		.not.toBe(initialOffset);
 	await expect(page.locator('body')).toBeVisible();
 
 	const violations = await reportedCspViolations(page);
 	expect(violations, `CSP violations:\n${violations.join('\n')}`).toEqual([]);
+});
+
+test('server-rendered pages contain no inline style attributes', async ({ request }) => {
+	const pages = [
+		{ path: '/', status: 200, cookie: 'session=dev-session' },
+		{ path: '/login', status: 200 },
+		{ path: '/admin', status: 200, cookie: 'admin_session=dev-admin-session' },
+		{ path: '/missing-page-for-csp-probe', status: 404 }
+	];
+
+	for (const { path, status, cookie } of pages) {
+		const response = await request.get(path, {
+			headers: cookie ? { cookie } : undefined
+		});
+		expect(response.status(), path).toBe(status);
+		const html = await response.text();
+		expect(html, path).not.toMatch(/\sstyle\s*=/i);
+
+		if (path === '/') {
+			const slideClasses = [...html.matchAll(/class="([^"]*\bslide\b[^"]*)"/g)].map(
+				(match) => match[1]
+			);
+			expect(slideClasses.length).toBeGreaterThan(0);
+			expect(
+				slideClasses.every((className) => /\bslide-ratio-(?:1333|750|563|709)\b/.test(className)),
+				'SSR must preserve every gallery slide ratio before hydration'
+			).toBe(true);
+		}
+	}
 });
 
 test('the hydration nonce is unique per response', async ({ request }) => {

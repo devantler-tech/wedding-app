@@ -28,3 +28,20 @@ body {
 h1, h2, h3, h4, h5, h6 {
 	font-family: var(--font-serif);
 }
+
+.wedding-script-heading {
+	font-family: var(--font-script);
+	font-size: 4.5rem;
+	line-height: 1;
+	letter-spacing: 0.02em;
+}
+
+.wedding-admin-heading {
+	font-family: var(--font-script);
+	font-size: 3rem;
+	line-height: 1;
+}
+
+.wedding-couple-heading {
+	font-size: clamp(1.4rem, 6.5vw, 3rem);
+}

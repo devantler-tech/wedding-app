@@ -18,7 +18,7 @@
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<!-- Tailwind's `contents` utility instead of an inline style attribute,
-		     keeping own markup out of the CSP style-src-attr compromise. -->
+		     keeping server-rendered markup compatible with strict style-src-attr. -->
 		<div class="contents">%sveltekit.body%</div>
 	</body>
 </html>
