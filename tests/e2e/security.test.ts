@@ -19,7 +19,7 @@ const invalidCodeMessage = /brug koden MOCK1, MOCK2 eller ADMIN/i;
 const cspSourceSeparator = /\s+/;
 const inlineStyleAttributePattern = /\sstyle\s*=/i;
 const slideClassAttributePattern = /class="([^"]*\bslide\b[^"]*)"/g;
-const slideRatioClassPattern = /\bslide-ratio-(?:1333|750|563|709)\b/;
+const slideRatioClassPattern = /^slide-ratio-(?:1333|750|563|709)$/;
 const svelteKitAnnouncerStyleHash =
 	"'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='";
 
@@ -206,7 +206,15 @@ test('server-rendered pages contain no inline style attributes', async ({ reques
 			);
 			expect(slideClasses.length).toBeGreaterThan(0);
 			expect(
-				slideClasses.every((className) => slideRatioClassPattern.test(className)),
+				slideClasses.every((className) => {
+					const ratioClasses = className
+						.split(cspSourceSeparator)
+						.filter((classToken) => classToken.startsWith('slide-ratio-'));
+					return (
+						ratioClasses.length === 1 &&
+						slideRatioClassPattern.test(ratioClasses[0] ?? '')
+					);
+				}),
 				'SSR must preserve every gallery slide ratio before hydration'
 			).toBe(true);
 		}
