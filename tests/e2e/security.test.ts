@@ -66,6 +66,21 @@ function parseCsp(csp: string): { directives: Map<string, string[]>; duplicates:
 	return { directives, duplicates };
 }
 
+/** Returns true when a class list contains exactly one supported slide ratio. */
+function hasExactlyOneSupportedSlideRatioClass(className: string): boolean {
+	let ratioClass: string | undefined;
+	for (const classToken of className.split(cspSourceSeparator)) {
+		if (!classToken.startsWith('slide-ratio-')) {
+			continue;
+		}
+		if (ratioClass !== undefined) {
+			return false;
+		}
+		ratioClass = classToken;
+	}
+	return ratioClass !== undefined && slideRatioClassPattern.test(ratioClass);
+}
+
 // Asserts the exact shape of the served CSP header and returns the hydration
 // nonce so callers can compare nonces across responses.
 function assertCspShape(cspHeader: string | undefined): string {
@@ -206,15 +221,7 @@ test('server-rendered pages contain no inline style attributes', async ({ reques
 			);
 			expect(slideClasses.length).toBeGreaterThan(0);
 			expect(
-				slideClasses.every((className) => {
-					const ratioClasses = className
-						.split(cspSourceSeparator)
-						.filter((classToken) => classToken.startsWith('slide-ratio-'));
-					return (
-						ratioClasses.length === 1 &&
-						slideRatioClassPattern.test(ratioClasses[0] ?? '')
-					);
-				}),
+				slideClasses.every(hasExactlyOneSupportedSlideRatioClass),
 				'SSR must preserve every gallery slide ratio before hydration'
 			).toBe(true);
 		}
