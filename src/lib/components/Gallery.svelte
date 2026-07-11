@@ -3,11 +3,17 @@
 	import { galleryImage } from '$lib/gallery-images.js';
 	import { galleryImageLoading } from '$lib/gallery-loading.js';
 
-	/** Responsive `sizes` hint: a slide is at most 86vw wide (the mobile cap) and
-	 *  at most `ratio × 640px` (the desktop height cap times the photo's aspect
-	 *  ratio), so the browser never downloads a larger variant than the slide can
-	 *  render. */
-	const slideSizes = (ratio: GalleryRatio) => `min(86vw, ${Math.round(ratio * 640)}px)`;
+	/** Responsive `sizes` hint mirroring the slide CSS exactly — per breakpoint the
+	 *  rendered width is `min(--max-w, --h × ratio)` (86vw/58vh, then 68vw/62vh,
+	 *  then 52vw/min(64vh, 640px)) — so the browser never downloads a larger
+	 *  variant than the slide can actually render at that viewport. Keep in sync
+	 *  with the `.gallery` breakpoint variables in the style block below. */
+	const slideSizes = (ratio: GalleryRatio) =>
+		[
+			`(min-width: 1024px) min(52vw, ${(64 * ratio).toFixed(1)}vh, ${Math.round(ratio * 640)}px)`,
+			`(min-width: 640px) min(68vw, ${(62 * ratio).toFixed(1)}vh)`,
+			`min(86vw, ${(58 * ratio).toFixed(1)}vh)`
+		].join(', ');
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
