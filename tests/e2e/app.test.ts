@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { EAGER_RADIUS } from '../../src/lib/gallery-loading.js';
 
 test.describe('Login page', () => {
 	test('shows login form with correct title', async ({ page }) => {
@@ -104,6 +105,22 @@ test.describe('Main page (dev mode)', () => {
 	test('shows gallery section', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'Vores Rejse' })).toBeVisible();
+	});
+
+	test('gallery defers off-screen slides instead of eager-loading every photo', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const slides = page.locator('.gallery .track img');
+		const slideCount = await slides.count();
+		const eagerCount = await page.locator('.gallery .track img[loading="eager"]').count();
+		const lazyCount = await page.locator('.gallery .track img[loading="lazy"]').count();
+		// Exactly the active slide, its peeking neighbours, and one prefetch per
+		// side (2 * EAGER_RADIUS + 1) load eagerly; the rest of the gallery must
+		// defer so first paint isn't competing with megabytes of below-the-fold
+		// photo downloads.
+		expect(eagerCount).toBe(2 * EAGER_RADIUS + 1);
+		expect(lazyCount).toBe(slideCount - eagerCount);
 	});
 
 	test('shows RSVP section with guest names', async ({ page }) => {
