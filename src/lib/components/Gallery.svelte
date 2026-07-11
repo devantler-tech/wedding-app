@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
+	import { galleryImageLoading } from '$lib/gallery-loading.js';
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
@@ -219,7 +220,7 @@
 					<img
 						src={entry.src}
 						alt={active ? entry.alt : ''}
-						loading="eager"
+						loading={galleryImageLoading(e, pos)}
 						fetchpriority="low"
 						decoding="async"
 						draggable="false"

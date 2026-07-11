@@ -106,6 +106,21 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByRole('heading', { name: 'Vores Rejse' })).toBeVisible();
 	});
 
+	test('gallery defers off-screen slides instead of eager-loading every photo', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const slides = page.locator('.gallery .track img');
+		const slideCount = await slides.count();
+		const eagerCount = await page.locator('.gallery .track img[loading="eager"]').count();
+		const lazyCount = await page.locator('.gallery .track img[loading="lazy"]').count();
+		// Only the active slide, its peeking neighbours, and one prefetch per side
+		// may load eagerly; the rest of the gallery must defer so first paint isn't
+		// competing with megabytes of below-the-fold photo downloads.
+		expect(eagerCount).toBeLessThanOrEqual(5);
+		expect(lazyCount).toBe(slideCount - eagerCount);
+	});
+
 	test('shows RSVP section with guest names', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible();
