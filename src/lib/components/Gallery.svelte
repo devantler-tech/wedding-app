@@ -218,9 +218,9 @@
 					onclick={() => onSlideClick(e)}
 				>
 					<img
+						loading={galleryImageLoading(e, pos)}
 						src={entry.src}
 						alt={active ? entry.alt : ''}
-						loading={galleryImageLoading(e, pos)}
 						fetchpriority="low"
 						decoding="async"
 						draggable="false"

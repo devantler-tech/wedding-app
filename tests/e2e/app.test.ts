@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { EAGER_RADIUS } from '../../src/lib/gallery-loading.js';
 
 test.describe('Login page', () => {
 	test('shows login form with correct title', async ({ page }) => {
@@ -114,10 +115,11 @@ test.describe('Main page (dev mode)', () => {
 		const slideCount = await slides.count();
 		const eagerCount = await page.locator('.gallery .track img[loading="eager"]').count();
 		const lazyCount = await page.locator('.gallery .track img[loading="lazy"]').count();
-		// Only the active slide, its peeking neighbours, and one prefetch per side
-		// may load eagerly; the rest of the gallery must defer so first paint isn't
-		// competing with megabytes of below-the-fold photo downloads.
-		expect(eagerCount).toBeLessThanOrEqual(5);
+		// Exactly the active slide, its peeking neighbours, and one prefetch per
+		// side (2 * EAGER_RADIUS + 1) load eagerly; the rest of the gallery must
+		// defer so first paint isn't competing with megabytes of below-the-fold
+		// photo downloads.
+		expect(eagerCount).toBe(2 * EAGER_RADIUS + 1);
 		expect(lazyCount).toBe(slideCount - eagerCount);
 	});
 
