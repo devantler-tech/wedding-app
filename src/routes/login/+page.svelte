@@ -6,6 +6,11 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
+<svelte:head>
+	<!-- Same late-discovered CSS-background LCP as the hero — see Hero.svelte. -->
+	<link rel="preload" as="image" href="/gl-brydegaard.jpg" fetchpriority="high" />
+</svelte:head>
+
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={150} />
 	<CornerOrnament corner="tr" size={150} />

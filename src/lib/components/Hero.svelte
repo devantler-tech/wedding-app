@@ -27,6 +27,13 @@
 	});
 </script>
 
+<svelte:head>
+	<!-- The hero background is the page's LCP element, but as a CSS background it
+	     is only discovered after the stylesheet parses — preload it so the fetch
+	     starts with the document instead of after the render-blocking CSS chain. -->
+	<link rel="preload" as="image" href="/gl-brydegaard.jpg" fetchpriority="high" />
+</svelte:head>
+
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />

@@ -19,6 +19,13 @@ test.describe('Login page', () => {
 		await page.getByRole('button', { name: /Se invitation/i }).click();
 		await expect(page.getByText(/brug koden MOCK1, MOCK2 eller ADMIN/i)).toBeVisible();
 	});
+
+	test('preloads the LCP background image', async ({ page }) => {
+		await page.goto('/login');
+		await expect(
+			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
+		).toHaveCount(1);
+	});
 });
 
 test.describe('Error page', () => {
@@ -104,6 +111,13 @@ test.describe('Main page (dev mode)', () => {
 	test('shows gallery section', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'Vores Rejse' })).toBeVisible();
+	});
+
+	test('preloads the hero LCP background image', async ({ page }) => {
+		await page.goto('/');
+		await expect(
+			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
+		).toHaveCount(1);
 	});
 
 	test('shows RSVP section with guest names', async ({ page }) => {
