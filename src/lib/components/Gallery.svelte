@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
+	import { galleryImage } from '$lib/gallery-images.js';
 	import { galleryImageLoading } from '$lib/gallery-loading.js';
+
+	/** Responsive `sizes` hint: a slide is at most 86vw wide (the mobile cap) and
+	 *  at most `ratio × 640px` (the desktop height cap times the photo's aspect
+	 *  ratio), so the browser never downloads a larger variant than the slide can
+	 *  render. */
+	const slideSizes = (ratio: GalleryRatio) => `min(86vw, ${Math.round(ratio * 640)}px)`;
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
@@ -217,9 +224,10 @@
 					aria-label={active ? entry.caption : `Gå til billede: ${entry.caption}`}
 					onclick={() => onSlideClick(e)}
 				>
-					<img
+					<enhanced:img
 						loading={galleryImageLoading(e, pos)}
-						src={entry.src}
+						src={galleryImage(entry.file)}
+						sizes={slideSizes(entry.ratio)}
 						alt={active ? entry.alt : ''}
 						fetchpriority="low"
 						decoding="async"
@@ -263,7 +271,7 @@
 	<div class="max-w-5xl mx-auto px-6">
 		<!-- Progress dots -->
 		<div class="mt-8 flex flex-wrap items-center justify-center gap-1.5">
-			{#each galleryEntries as entry, i (entry.src)}
+			{#each galleryEntries as entry, i (entry.file)}
 				<button
 					type="button"
 					class="h-1.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream {i ===

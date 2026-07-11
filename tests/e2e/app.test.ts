@@ -137,6 +137,22 @@ test.describe('Main page (dev mode)', () => {
 		expect(lazyCount).toBe(slideCount - eagerCount);
 	});
 
+	test('gallery serves build-time optimized responsive images', async ({ page }) => {
+		await page.goto('/');
+		const slides = page.locator('.gallery .track img');
+		const slideCount = await slides.count();
+		expect(slideCount).toBeGreaterThan(0);
+		// Every slide is a <picture> offering AVIF and WebP ahead of the JPEG
+		// fallback, so no slide ships the original multi-hundred-KB static file.
+		const avifCount = await page.locator('.gallery .track picture source[type="image/avif"]').count();
+		const webpCount = await page.locator('.gallery .track picture source[type="image/webp"]').count();
+		expect(avifCount).toBe(slideCount);
+		expect(webpCount).toBe(slideCount);
+		expect(await page.locator('.gallery .track img[src^="/gallery/"]').count()).toBe(0);
+		// Intrinsic dimensions reserve the slide's box before the photo arrives.
+		expect(await page.locator('.gallery .track img[width][height]').count()).toBe(slideCount);
+	});
+
 	test('shows RSVP section with guest names', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible();
