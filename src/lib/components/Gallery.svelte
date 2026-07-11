@@ -1,6 +1,19 @@
 <script lang="ts">
 	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
+	import { galleryImage } from '$lib/gallery-images.js';
 	import { galleryImageLoading } from '$lib/gallery-loading.js';
+
+	/** Responsive `sizes` hint mirroring the slide CSS exactly — per breakpoint the
+	 *  rendered width is `min(--max-w, --h × ratio)` (86vw/58vh, then 68vw/62vh,
+	 *  then 52vw/min(64vh, 640px)) — so the browser never downloads a larger
+	 *  variant than the slide can actually render at that viewport. Keep in sync
+	 *  with the `.gallery` breakpoint variables in the style block below. */
+	const slideSizes = (ratio: GalleryRatio) =>
+		[
+			`(min-width: 1024px) min(52vw, ${(64 * ratio).toFixed(1)}vh, ${Math.round(ratio * 640)}px)`,
+			`(min-width: 640px) min(68vw, ${(62 * ratio).toFixed(1)}vh)`,
+			`min(86vw, ${(58 * ratio).toFixed(1)}vh)`
+		].join(', ');
 
 	const n = galleryEntries.length;
 	const K = 3; // cloned slides on each side for the seamless loop
@@ -217,9 +230,10 @@
 					aria-label={active ? entry.caption : `Gå til billede: ${entry.caption}`}
 					onclick={() => onSlideClick(e)}
 				>
-					<img
+					<enhanced:img
 						loading={galleryImageLoading(e, pos)}
-						src={entry.src}
+						src={galleryImage(entry.file)}
+						sizes={slideSizes(entry.ratio)}
 						alt={active ? entry.alt : ''}
 						fetchpriority="low"
 						decoding="async"
@@ -263,7 +277,7 @@
 	<div class="max-w-5xl mx-auto px-6">
 		<!-- Progress dots -->
 		<div class="mt-8 flex flex-wrap items-center justify-center gap-1.5">
-			{#each galleryEntries as entry, i (entry.src)}
+			{#each galleryEntries as entry, i (entry.file)}
 				<button
 					type="button"
 					class="h-1.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream {i ===
