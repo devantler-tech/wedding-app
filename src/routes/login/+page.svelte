@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
+	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
 	import type { ActionData } from './$types.js';
 
 	let { form }: { form: ActionData } = $props();
 </script>
+
+<HeroBackgroundPreload />
 
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={150} />

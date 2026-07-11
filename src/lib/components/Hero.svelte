@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
+	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
 
 	let { pairName, guestCount }: { pairName: string; guestCount: number } = $props();
 
@@ -26,6 +27,8 @@
 		return { days, hours, minutes, seconds };
 	});
 </script>
+
+<HeroBackgroundPreload />
 
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
 	<CornerOrnament corner="tl" size={170} />
