@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { faCalendarCheck, faCheck, faLock } from '@fortawesome/free-solid-svg-icons';
+	import Icon from './Icon.svelte';
 	import { createSubmitHandler } from '$lib/submit-helper.js';
 
 	interface Guest {
@@ -25,13 +27,13 @@
 		<div class="w-16 h-px bg-soft-gold mx-auto mb-12"></div>
 
 		<p class="text-center text-warm-brown mb-12 text-sm">
-			<i class="fa-solid fa-calendar-check text-soft-gold mr-1" aria-hidden="true"></i>
+			<Icon icon={faCalendarCheck} class="text-soft-gold mr-1" />
 			SU senest d. 1. januar 2027
 		</p>
 
 		{#if rsvpClosed}
 			<p class="text-center text-warm-brown text-base">
-				<i class="fa-solid fa-lock text-soft-gold mr-1" aria-hidden="true"></i>
+				<Icon icon={faLock} class="text-soft-gold mr-1" />
 				Tilmeldingsfristen er overskredet, så det er desværre ikke længere muligt at svare
 				her. Kontakt os endelig direkte, hvis du har spørgsmål.
 			</p>
@@ -96,7 +98,7 @@
 					Gem svar
 				</button>
 				{#if saved}
-					<p class="text-warm-brown mt-3 text-sm animate-fade-in"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Dit svar er gemt</p>
+					<p class="text-warm-brown mt-3 text-sm animate-fade-in"><Icon icon={faCheck} class="mr-1" />Dit svar er gemt</p>
 				{/if}
 				{#if error}
 					<p class="text-red-600 mt-3 text-sm">Der opstod en fejl — prøv igen</p>

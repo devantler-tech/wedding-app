@@ -26,12 +26,14 @@ const config = {
 			directives: {
 				'default-src': ['self'],
 				'script-src': ['self', 'https://analytics.platform.devantler.tech'],
-				'style-src': ['self', 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com'],
+				'style-src': ['self'],
 				'style-src-attr': [
 					'unsafe-hashes',
 					'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='
 				],
-				'font-src': ['self', 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
+				// Fonts are self-hosted (fontsource) and icons are inline SVG, so no
+				// cross-origin style/font hosts remain in the policy.
+				'font-src': ['self'],
 				// data: covers the inline SVG favicon in app.html.
 				'img-src': ['self', 'data:'],
 				'connect-src': ['self', 'https://analytics.platform.devantler.tech'],
