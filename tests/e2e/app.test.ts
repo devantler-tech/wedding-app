@@ -1,6 +1,24 @@
 import { test, expect } from '@playwright/test';
 import { EAGER_RADIUS } from '../../src/lib/gallery-loading.js';
 
+const lcpFontPreloadSelector =
+	'link[rel="preload"][as="font"][type="font/woff2"][crossorigin][fetchpriority="high"]';
+
+async function expectSingleLcpFontPreload(
+	page: import('@playwright/test').Page,
+	expectedAssetName: string
+): Promise<void> {
+	const preload = page.locator(lcpFontPreloadSelector);
+	await expect(preload).toHaveCount(1);
+	const href = await preload.getAttribute('href');
+	if (!href) {
+		throw new Error('LCP font preload must have an href');
+	}
+	expect(href).toContain(expectedAssetName);
+	const fontResponse = await page.request.get(new URL(href, page.url()).toString());
+	expect(fontResponse.ok()).toBe(true);
+}
+
 test.describe('Login page', () => {
 	test('shows login form with correct title', async ({ page }) => {
 		await page.goto('/login');
@@ -21,11 +39,16 @@ test.describe('Login page', () => {
 		await expect(page.getByText(/brug koden MOCK1, MOCK2 eller ADMIN/i)).toBeVisible();
 	});
 
-	test('preloads the LCP background image', async ({ page }) => {
+	test('preloads the login background image', async ({ page }) => {
 		await page.goto('/login');
 		await expect(
 			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
 		).toHaveCount(1);
+	});
+
+	test('preloads only the login LCP font', async ({ page }) => {
+		await page.goto('/login');
+		await expectSingleLcpFontPreload(page, 'pinyon-script-latin-400-normal');
 	});
 });
 
@@ -114,11 +137,16 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByRole('heading', { name: 'Vores Rejse' })).toBeVisible();
 	});
 
-	test('preloads the hero LCP background image', async ({ page }) => {
+	test('preloads the hero background image', async ({ page }) => {
 		await page.goto('/');
 		await expect(
 			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
 		).toHaveCount(1);
+	});
+
+	test('preloads only the invitation-page LCP font', async ({ page }) => {
+		await page.goto('/');
+		await expectSingleLcpFontPreload(page, 'cormorant-garamond-latin-300-normal');
 	});
 
 	test('gallery defers off-screen slides instead of eager-loading every photo', async ({

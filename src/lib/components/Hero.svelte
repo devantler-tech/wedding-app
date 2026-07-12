@@ -1,5 +1,7 @@
 <script lang="ts">
+	import cormorantGaramondLatin300 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-300-normal.woff2?url';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
+	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
 	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
 
 	let { pairName, guestCount }: { pairName: string; guestCount: number } = $props();
@@ -28,6 +30,7 @@
 	});
 </script>
 
+<CriticalFontPreload href={cormorantGaramondLatin300} />
 <HeroBackgroundPreload />
 
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
