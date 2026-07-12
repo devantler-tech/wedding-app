@@ -1,12 +1,15 @@
 <script lang="ts">
+	import pinyonScriptLatin400 from '@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2?url';
 	import { enhance } from '$app/forms';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
+	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
 	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
 	import type { ActionData } from './$types.js';
 
 	let { form }: { form: ActionData } = $props();
 </script>
 
+<CriticalFontPreload href={pinyonScriptLatin400} />
 <HeroBackgroundPreload />
 
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
