@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+	import Icon from './Icon.svelte';
 	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
 	import { galleryImage } from '$lib/gallery-images.js';
 	import { galleryImageLoading } from '$lib/gallery-loading.js';
@@ -262,7 +264,7 @@
 			onclick={prev}
 			aria-label="Forrige billede"
 		>
-			<i class="fa-solid fa-chevron-left text-sm" aria-hidden="true"></i>
+			<Icon icon={faChevronLeft} class="text-sm" />
 		</button>
 		<button
 			type="button"
@@ -270,7 +272,7 @@
 			onclick={next}
 			aria-label="Næste billede"
 		>
-			<i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+			<Icon icon={faChevronRight} class="text-sm" />
 		</button>
 	</div>
 

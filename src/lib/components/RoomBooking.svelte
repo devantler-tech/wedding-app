@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { faBed, faCheck } from '@fortawesome/free-solid-svg-icons';
+	import Icon from './Icon.svelte';
 	import { createSubmitHandler } from '$lib/submit-helper.js';
 
 	interface Booking {
@@ -69,7 +71,7 @@
 
 		<div class="bg-soft-gold/10 rounded-lg px-5 py-4 border border-soft-gold/30 mb-12 text-center">
 			<p class="text-dark-brown font-serif text-sm sm:text-base">
-				<i class="fa-solid fa-bed text-soft-gold mr-2" aria-hidden="true"></i>
+				<Icon icon={faBed} class="text-soft-gold mr-2" />
 				Har I særlige ønsker til værelsestypen, så skriv dem i bemærkninger herunder.
 				Vi gør vores bedste for at få det til at passe for alle.
 			</p>
@@ -118,7 +120,7 @@
 					Gem booking
 				</button>
 				{#if saved}
-					<p class="text-warm-brown mt-3 text-sm"><i class="fa-solid fa-check mr-1" aria-hidden="true"></i>Din booking er gemt</p>
+					<p class="text-warm-brown mt-3 text-sm"><Icon icon={faCheck} class="mr-1" />Din booking er gemt</p>
 				{/if}
 				{#if error}
 					<p class="text-red-600 mt-3 text-sm">Der opstod en fejl — prøv igen</p>

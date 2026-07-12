@@ -1,3 +1,15 @@
+<script lang="ts">
+	import {
+		faArrowUpRightFromSquare,
+		faBanSmoking,
+		faHeart,
+		faHouse,
+		faLocationDot,
+		faShirt
+	} from '@fortawesome/free-solid-svg-icons';
+	import Icon from './Icon.svelte';
+</script>
+
 <section id="praktisk" class="py-20 px-6 bg-warm-white">
 	<div class="max-w-2xl mx-auto">
 		<h2 class="text-4xl sm:text-5xl font-serif font-light text-dark-brown text-center mb-4">Praktisk Information</h2>
@@ -6,7 +18,7 @@
 		<div class="space-y-8">
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
-					<i class="fa-solid fa-shirt text-soft-gold text-xl" aria-hidden="true"></i>
+					<Icon icon={faShirt} class="text-soft-gold text-xl" />
 				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Påklædning</h3>
@@ -19,7 +31,7 @@
 
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
-					<i class="fa-solid fa-heart text-soft-gold text-xl" aria-hidden="true"></i>
+					<Icon icon={faHeart} class="text-soft-gold text-xl" />
 				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">En aften for voksne</h3>
@@ -32,7 +44,7 @@
 
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
-					<i class="fa-solid fa-house text-soft-gold text-xl" aria-hidden="true"></i>
+					<Icon icon={faHouse} class="text-soft-gold text-xl" />
 				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Overnatning</h3>
@@ -48,7 +60,7 @@
 
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
-					<i class="fa-solid fa-ban-smoking text-soft-gold text-xl" aria-hidden="true"></i>
+					<Icon icon={faBanSmoking} class="text-soft-gold text-xl" />
 				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Røgfrit hotel</h3>
@@ -61,7 +73,7 @@
 
 			<div class="flex gap-4 items-start">
 				<span class="flex-shrink-0 mt-1 w-7 text-center">
-					<i class="fa-solid fa-location-dot text-soft-gold text-xl" aria-hidden="true"></i>
+					<Icon icon={faLocationDot} class="text-soft-gold text-xl" />
 				</span>
 				<div>
 					<h3 class="font-serif text-lg text-dark-brown mb-1">Adresse</h3>
@@ -75,7 +87,7 @@
 						rel="noopener noreferrer"
 						class="inline-flex items-center gap-1 text-warm-brown hover:text-dark-brown transition-colors text-sm"
 					>
-						Åbn i Google Maps <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1" aria-hidden="true"></i>
+						Åbn i Google Maps <Icon icon={faArrowUpRightFromSquare} class="text-xs ml-1" />
 					</a>
 				</div>
 			</div>

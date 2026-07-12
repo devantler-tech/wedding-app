@@ -3,8 +3,9 @@ import { test, expect } from '@playwright/test';
 // The Content-Security-Policy is a tested invariant (#172): adapter-node
 // serves a header CSP (svelte.config.js kit.csp) with a per-request nonce for
 // SvelteKit's inline hydration script, allow-listing exactly the site's
-// external origins (self-hosted Umami analytics, Google Fonts, cdnjs Font
-// Awesome). A directive typo would silently break analytics, fonts or
+// one external origin (the self-hosted Umami analytics host — fonts are
+// self-hosted same-origin and icons are inline SVG, so no font/style hosts
+// remain). A directive typo would silently break analytics, fonts or
 // hydration in production, so the pages are exercised under the enforced
 // policy here and any browser-reported violation fails the test.
 //
@@ -96,18 +97,10 @@ function assertCspShape(cspHeader: string | undefined): string {
 	expect(csp.get('object-src')).toEqual(["'none'"]);
 	expect(csp.get('base-uri')).toEqual(["'self'"]);
 	expect(csp.get('form-action')).toEqual(["'self'"]);
-	expect(csp.get('font-src')).toEqual([
-		"'self'",
-		'https://fonts.gstatic.com',
-		'https://cdnjs.cloudflare.com'
-	]);
+	expect(csp.get('font-src')).toEqual(["'self'"]);
 	expect(csp.get('img-src')).toEqual(["'self'", 'data:']);
 	expect(csp.get('connect-src')).toEqual(["'self'", 'https://analytics.platform.devantler.tech']);
-	expect(csp.get('style-src')).toEqual([
-		"'self'",
-		'https://fonts.googleapis.com',
-		'https://cdnjs.cloudflare.com'
-	]);
+	expect(csp.get('style-src')).toEqual(["'self'"]);
 	// SvelteKit's client-side navigation announcer mounts with one constant
 	// style attribute. Allow only that known value by hash; never reopen every
 	// style attribute with 'unsafe-inline'. The -elem variant must not exist so
@@ -144,12 +137,9 @@ function assertCspShape(cspHeader: string | undefined): string {
 test('CSP header allows exactly what the page needs, with zero violations', async ({ page }) => {
 	await armCspViolationCapture(page);
 
-	const fontsCss = page.waitForResponse((response) =>
-		response.url().startsWith('https://fonts.googleapis.com/')
-	);
-	const fontBinary = page.waitForResponse((response) =>
-		response.url().startsWith('https://fonts.gstatic.com/')
-	);
+	// Fonts are self-hosted: a real same-origin woff2 must load under the
+	// policy (a blocked font fetch must not go unnoticed).
+	const fontBinary = page.waitForResponse((response) => response.url().endsWith('.woff2'));
 	const analyticsScript = page.waitForResponse((response) =>
 		response.url().startsWith('https://analytics.platform.devantler.tech/script.js')
 	);
@@ -157,11 +147,11 @@ test('CSP header allows exactly what the page needs, with zero violations', asyn
 
 	assertCspShape(response?.headers()['content-security-policy']);
 
-	// The external consumers actually load under the policy: the stylesheet
-	// AND a real font binary from the font origin (a blocked font fetch must
-	// not go unnoticed), plus the analytics script itself.
-	expect((await fontsCss).ok()).toBe(true);
-	expect((await fontBinary).ok()).toBe(true);
+	// The consumers actually load under the policy: a self-hosted font binary
+	// plus the analytics script itself.
+	const fontResponse = await fontBinary;
+	expect(fontResponse.ok()).toBe(true);
+	expect(new URL(fontResponse.url()).origin).toBe(new URL(page.url()).origin);
 	expect((await analyticsScript).ok()).toBe(true);
 
 	// Exercise the hydrated app under the enforced CSP: the login form's
