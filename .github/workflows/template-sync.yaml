@@ -15,7 +15,8 @@ jobs:
     # The reusable workflow's job opens the sync PR, so the caller must grant it
     # write to contents + pull-requests. A reusable workflow cannot be granted
     # more than the caller, and the top-level `permissions: {}` grants none, so
-    # without this the run fails at startup (reusable-workflow permission check).
+    # without this the run fails at startup (reusable-workflow permission check)
+    # — both here and in every tenant where the job actually runs.
     permissions:
       contents: write
       pull-requests: write

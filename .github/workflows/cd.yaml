@@ -1,4 +1,5 @@
 name: 🚀 CD
+
 on:
   push:
     tags:
@@ -9,10 +10,16 @@ permissions: {}
 jobs:
   publish:
     name: Publish
+    # Skipped in the template repo itself (it ships no app); runs in every tenant
+    # created from this template.
+    if: github.repository != 'devantler-tech/gitops-tenant-template'
     permissions:
       contents: read # checkout
       packages: write # push image + manifests OCI artifact
-      id-token: write # keyless cosign signing
-    uses: devantler-tech/actions/.github/workflows/publish-app.yaml@9713532ad079498f12077b06b6cdf6e127f53773 # v9.0.10
+      id-token: write # keyless cosign signing (via GitHub OIDC)
+    uses: devantler-tech/actions/.github/workflows/publish-app.yaml@84813ae61fb21741e0a6193b5c14c6941a448577 # v9.0.7
     with:
-      app-name: wedding-app
+      # publish-app pins the freshly built image digest into the container with
+      # this name in deploy/deployment.yaml. Keep that container's name equal to
+      # the repository name (the platform's signed-publish convention).
+      app-name: ${{ github.event.repository.name }}
