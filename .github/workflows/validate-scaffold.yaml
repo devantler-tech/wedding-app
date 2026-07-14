@@ -1,0 +1,117 @@
+name: 🧱 Validate Scaffold
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+# Template-repo-only scaffold-integrity gate. The deploy/ Kustomize manifests are
+# this template's core deliverable — every new tenant inherits them — so a PR that
+# breaks the kustomization (a renamed/removed resource, a YAML error) must not
+# merge green and ship broken manifests downstream. Two layers run here:
+#   1. schema-validate the deploy/ manifests (a typo'd CRD field that renders
+#      without complaint must fail loudly), and
+#   2. exercise scripts/rename-placeholders.sh — the onboarding script every new
+#      tenant runs first; a botched sed address (a missed file, a corrupted label
+#      KEY, a double-renamed CNPG `-app` suffix) would otherwise ship broken to
+#      every tenant while the manifest validation above — which only ever sees the
+#      UNrenamed scaffold — stays green.
+# This job runs ONLY in the template repo; it no-ops in tenants created from it
+# (the guard below is false there), mirroring how cd.yaml/release.yaml run only in
+# tenants. Tenants replace deploy/ with their own app and validate it via their
+# own ci.yaml.
+jobs:
+  validate-scaffold:
+    name: Validate Scaffold
+    if: github.repository == 'devantler-tech/gitops-tenant-template'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout
+    env:
+      KUBECONFORM_VERSION: v0.7.0
+      KUBECONFORM_SHA256: c31518ddd122663b3f3aa874cfe8178cb0988de944f29c74a0b9260920d115d3
+      # Pin the datreeio CRDs-catalog to a commit so validation is deterministic.
+      # Bumping this ref is the refresh mechanism — a small, visible, reviewed
+      # one-line change. We deliberately do NOT vendor the schemas in-repo: a
+      # megabyte of copied JSON has no natural owner and drifts silently from
+      # upstream, which is worse than the transient network dependency the cache
+      # below already neutralises for the steady state.
+      CRDS_CATALOG_REF: 1f22207301c45da9ee687f6bbf728da049e6c105
+    steps:
+      - name: 🔒 Harden runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+      - name: 📥 Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false # read-only job; never pushes, so don't keep the token
+      - name: ♻️ Cache CRD schemas
+        # Persist the schemas kubeconform downloads from the catalog, keyed on the
+        # pinned ref. A cache hit makes the validate step network-free (no fetch at
+        # all), so a raw.githubusercontent.com blip can't flake the gate in steady
+        # state; only a cold cache or a ref bump re-fetches.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .kubeconform-cache
+          key: kubeconform-crds-${{ env.CRDS_CATALOG_REF }}
+      - name: 🧱 Build & schema-validate deploy/ manifests
+        # kubectl (with embedded kustomize) is preinstalled on ubuntu-latest. Render
+        # the manifests (a broken kustomization fails the render, not silently
+        # downstream), then schema-validate every rendered resource with kubeconform —
+        # the devantler-tech-standard manifest validator (KSail embeds it; the
+        # platform's gitops-repo-audit skill uses it). Standard Kubernetes kinds
+        # validate against kubeconform's built-in default schemas; the CRD-backed
+        # resources (ExternalSecret, SecretStore, CloudNativePG Cluster, Gateway-API
+        # HTTPRoute) validate against the datreeio CRDs-catalog, pinned + cached above.
+        # NOTE: there is intentionally NO `-ignore-missing-schemas` — a CRD whose
+        # schema doesn't resolve fails the gate loudly rather than being silently
+        # skipped (which would pass green while validating nothing). The explicit
+        # `Skipped: 0` assertion below enforces that invariant. Adding a CRD to deploy/
+        # therefore requires the pinned catalog to carry its schema. This catches a
+        # typo'd field that `kubectl kustomize` renders without complaint before it
+        # ships to tenants.
+        run: |
+          set -euo pipefail
+          mkdir -p .kubeconform-cache
+          # Download + checksum-verify the kubeconform binary (supply-chain integrity).
+          curl -fsSL --retry 3 --retry-all-errors -o kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          echo "${KUBECONFORM_SHA256}  kubeconform.tar.gz" | sha256sum -c -
+          tar -xzf kubeconform.tar.gz kubeconform
+          # Render first (broken kustomization fails here), then schema-validate.
+          kubectl kustomize deploy/ > rendered.yaml
+          # Short retry absorbs a transient catalog blip while (re)populating the cache;
+          # a cache hit needs no network and succeeds on the first attempt. Fold stderr
+          # into the capture (2>&1) so the Skipped:0 assertion below reads kubeconform's
+          # summary regardless of which stream a future version prints it on.
+          ok=
+          for attempt in 1 2 3; do
+            if ./kubeconform \
+                -strict -summary -verbose \
+                -cache .kubeconform-cache \
+                -schema-location default \
+                -schema-location "https://raw.githubusercontent.com/datreeio/CRDs-catalog/${CRDS_CATALOG_REF}/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json" \
+                rendered.yaml 2>&1 | tee kubeconform.out; then
+              ok=1
+              break
+            fi
+            echo "kubeconform attempt ${attempt} failed; retrying in 5s..."
+            sleep 5
+          done
+          [ -n "${ok}" ] || { echo "::error::kubeconform failed after 3 attempts"; exit 1; }
+          # Guardrail: never pass green while validating nothing. Without
+          # -ignore-missing-schemas an unresolved schema already errors above; this
+          # asserts it explicitly so the invariant holds even if the flag is re-added.
+          grep -Eq 'Skipped: 0$' kubeconform.out || {
+            echo "::error::a resource was skipped — its CRD schema did not resolve; pin a catalog ref that carries it or fix the kind"
+            exit 1
+          }
+      - name: 🧱 Validate onboarding (rename-placeholders.sh)
+        # Run the onboarding script end-to-end against a throwaway copy and assert
+        # the rename is correct (the build step above only ever sees the UNrenamed
+        # scaffold, so this is the only thing that catches a botched rename before
+        # it ships to every tenant). kubectl is preinstalled, so the test's
+        # post-rename `kubectl kustomize` build assertion runs here too.
+        run: sh scripts/rename-placeholders.test.sh
