@@ -13,3 +13,9 @@ README.md
 LICENSE
 deploy/
 .templatesyncignore
+
+# Template scaffolding — dead code in a live tenant; keep ignored so a
+# template-sync never re-introduces it (deleted here, lives only in the template).
+scripts/rename-placeholders.sh
+scripts/rename-placeholders.test.sh
+.github/workflows/validate-scaffold.yaml
