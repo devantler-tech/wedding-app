@@ -26,9 +26,7 @@ async function expectOptimizedHeroBackground(
 	backgroundSelector: string,
 	expectPreload = true
 ): Promise<void> {
-	if (expectPreload) {
-		await expect(page.locator(heroPreloadSelector)).toHaveCount(1);
-	}
+	await expect(page.locator(heroPreloadSelector)).toHaveCount(expectPreload ? 1 : 0);
 	for (const { path, contentType, maxBytes } of [
 		{ path: '/gl-brydegaard.avif', contentType: 'image/avif', maxBytes: 60_000 },
 		{ path: '/gl-brydegaard.webp', contentType: 'image/webp', maxBytes: 70_000 },
@@ -41,12 +39,19 @@ async function expectOptimizedHeroBackground(
 			expect((await response.body()).byteLength, path).toBeLessThan(maxBytes);
 		}
 	}
-	const backgroundImage = await page
-		.locator(backgroundSelector)
-		.evaluate((element) => getComputedStyle(element, '::before').backgroundImage);
-	expect(backgroundImage).toContain('gl-brydegaard.avif');
-	expect(backgroundImage).toContain('gl-brydegaard.webp');
-	expect(backgroundImage).toContain('gl-brydegaard.jpg');
+	const picture = page.locator(backgroundSelector).locator('picture.hero-background');
+	await expect(picture).toHaveCount(1);
+	await expect(picture.locator('source[type="image/avif"][srcset="/gl-brydegaard.avif"]')).toHaveCount(
+		1
+	);
+	await expect(picture.locator('source[type="image/webp"][srcset="/gl-brydegaard.webp"]')).toHaveCount(
+		1
+	);
+	const fallback = picture.locator('img[src="/gl-brydegaard.jpg"][alt=""]');
+	await expect(fallback).toHaveCount(1);
+	expect(
+		await fallback.evaluate((element) => new URL((element as HTMLImageElement).currentSrc).pathname)
+	).toBe('/gl-brydegaard.avif');
 	const heroRequests = await page.evaluate(() =>
 		performance
 			.getEntriesByType('resource')

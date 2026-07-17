@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
+	import HeroBackground from '$lib/components/HeroBackground.svelte';
 </script>
 
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
+	<HeroBackground />
 	<CornerOrnament corner="tl" size={150} />
 	<CornerOrnament corner="tr" size={150} />
 	<div class="max-w-md w-full px-6 text-center">
@@ -49,22 +51,6 @@
 	.login-bg {
 		position: relative;
 		isolation: isolate;
-	}
-	.login-bg::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background-image: url('/gl-brydegaard.jpg');
-		background-image: image-set(
-			url('/gl-brydegaard.avif') type('image/avif'),
-			url('/gl-brydegaard.webp') type('image/webp'),
-			url('/gl-brydegaard.jpg') type('image/jpeg')
-		);
-		background-size: cover;
-		background-position: center;
-		opacity: 0.4;
-		filter: saturate(0.65) sepia(0.25);
-		z-index: -2;
 	}
 	.login-bg::after {
 		content: '';

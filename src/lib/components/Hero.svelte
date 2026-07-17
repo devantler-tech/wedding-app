@@ -2,7 +2,7 @@
 	import cormorantGaramondLatin300 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-300-normal.woff2?url';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
-	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
+	import HeroBackground from '$lib/components/HeroBackground.svelte';
 
 	let { pairName, guestCount }: { pairName: string; guestCount: number } = $props();
 
@@ -31,9 +31,9 @@
 </script>
 
 <CriticalFontPreload href={cormorantGaramondLatin300} />
-<HeroBackgroundPreload />
 
 <section id="top" class="hero-bg min-h-screen flex flex-col items-center justify-center text-center px-6 bg-cream relative overflow-hidden">
+	<HeroBackground preload />
 	<CornerOrnament corner="tl" size={170} />
 	<CornerOrnament corner="tr" size={170} />
 
@@ -97,22 +97,6 @@
 <style>
 	.hero-bg {
 		isolation: isolate;
-	}
-	.hero-bg::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background-image: url('/gl-brydegaard.jpg');
-		background-image: image-set(
-			url('/gl-brydegaard.avif') type('image/avif'),
-			url('/gl-brydegaard.webp') type('image/webp'),
-			url('/gl-brydegaard.jpg') type('image/jpeg')
-		);
-		background-size: cover;
-		background-position: center;
-		opacity: 0.4;
-		filter: saturate(0.65) sepia(0.25);
-		z-index: -2;
 	}
 	.hero-bg::after {
 		content: '';
