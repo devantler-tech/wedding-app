@@ -73,6 +73,11 @@
 		position: absolute;
 		inset: 0;
 		background-image: url('/gl-brydegaard.jpg');
+		background-image: image-set(
+			url('/gl-brydegaard.avif') type('image/avif'),
+			url('/gl-brydegaard.webp') type('image/webp'),
+			url('/gl-brydegaard.jpg') type('image/jpeg')
+		);
 		background-size: cover;
 		background-position: center;
 		opacity: 0.4;
