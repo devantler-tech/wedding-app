@@ -3,6 +3,8 @@ import { EAGER_RADIUS } from '../../src/lib/gallery-loading.js';
 
 const lcpFontPreloadSelector =
 	'link[rel="preload"][as="font"][type="font/woff2"][crossorigin][fetchpriority="high"]';
+const heroPreloadSelector =
+	'link[rel="preload"][as="image"][type="image/avif"][href="/gl-brydegaard.avif"][fetchpriority="high"]';
 
 async function expectSingleLcpFontPreload(
 	page: import('@playwright/test').Page,
@@ -17,6 +19,46 @@ async function expectSingleLcpFontPreload(
 	expect(href).toContain(expectedAssetName);
 	const fontResponse = await page.request.get(new URL(href, page.url()).toString());
 	expect(fontResponse.ok()).toBe(true);
+}
+
+async function expectOptimizedHeroBackground(
+	page: import('@playwright/test').Page,
+	backgroundSelector: string,
+	expectPreload = true
+): Promise<void> {
+	await expect(page.locator(heroPreloadSelector)).toHaveCount(expectPreload ? 1 : 0);
+	for (const { path, contentType, maxBytes } of [
+		{ path: '/gl-brydegaard.avif', contentType: 'image/avif', maxBytes: 60_000 },
+		{ path: '/gl-brydegaard.webp', contentType: 'image/webp', maxBytes: 70_000 },
+		{ path: '/gl-brydegaard.jpg', contentType: 'image/jpeg', maxBytes: undefined }
+	]) {
+		const response = await page.request.get(path);
+		expect(response.ok(), path).toBe(true);
+		expect(response.headers()['content-type'], path).toContain(contentType);
+		if (maxBytes) {
+			expect((await response.body()).byteLength, path).toBeLessThan(maxBytes);
+		}
+	}
+	const picture = page.locator(backgroundSelector).locator('picture.hero-background');
+	await expect(picture).toHaveCount(1);
+	await expect(picture.locator('source[type="image/avif"][srcset="/gl-brydegaard.avif"]')).toHaveCount(
+		1
+	);
+	await expect(picture.locator('source[type="image/webp"][srcset="/gl-brydegaard.webp"]')).toHaveCount(
+		1
+	);
+	const fallback = picture.locator('img[src="/gl-brydegaard.jpg"][alt=""]');
+	await expect(fallback).toHaveCount(1);
+	expect(
+		await fallback.evaluate((element) => new URL((element as HTMLImageElement).currentSrc).pathname)
+	).toBe('/gl-brydegaard.avif');
+	const heroRequests = await page.evaluate(() =>
+		performance
+			.getEntriesByType('resource')
+			.map((entry) => new URL(entry.name).pathname)
+			.filter((path) => path.startsWith('/gl-brydegaard.'))
+	);
+	expect(heroRequests).toEqual(['/gl-brydegaard.avif']);
 }
 
 test.describe('Login page', () => {
@@ -41,9 +83,7 @@ test.describe('Login page', () => {
 
 	test('preloads the login background image', async ({ page }) => {
 		await page.goto('/login');
-		await expect(
-			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
-		).toHaveCount(1);
+		await expectOptimizedHeroBackground(page, '.login-bg');
 	});
 
 	test('preloads only the login LCP font', async ({ page }) => {
@@ -60,6 +100,7 @@ test.describe('Error page', () => {
 		await expect(page.getByText(/Siden blev ikke fundet/)).toBeVisible();
 		await expect(page.getByText(/Den side, du leder efter, findes ikke/)).toBeVisible();
 		await expect(page.getByRole('button', { name: /Gå til login/i })).toBeVisible();
+		await expectOptimizedHeroBackground(page, '.login-bg', false);
 	});
 });
 
@@ -139,9 +180,7 @@ test.describe('Main page (dev mode)', () => {
 
 	test('preloads the hero background image', async ({ page }) => {
 		await page.goto('/');
-		await expect(
-			page.locator('link[rel="preload"][as="image"][href="/gl-brydegaard.jpg"]')
-		).toHaveCount(1);
+		await expectOptimizedHeroBackground(page, '.hero-bg');
 	});
 
 	test('preloads only the invitation-page LCP font', async ({ page }) => {

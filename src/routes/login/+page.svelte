@@ -3,16 +3,16 @@
 	import { enhance } from '$app/forms';
 	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
 	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
-	import HeroBackgroundPreload from '$lib/components/HeroBackgroundPreload.svelte';
+	import HeroBackground from '$lib/components/HeroBackground.svelte';
 	import type { ActionData } from './$types.js';
 
 	let { form }: { form: ActionData } = $props();
 </script>
 
 <CriticalFontPreload href={pinyonScriptLatin400} />
-<HeroBackgroundPreload />
 
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">
+	<HeroBackground preload />
 	<CornerOrnament corner="tl" size={150} />
 	<CornerOrnament corner="tr" size={150} />
 	<div class="max-w-md w-full px-6">
@@ -67,17 +67,6 @@
 	.login-bg {
 		position: relative;
 		isolation: isolate;
-	}
-	.login-bg::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background-image: url('/gl-brydegaard.jpg');
-		background-size: cover;
-		background-position: center;
-		opacity: 0.4;
-		filter: saturate(0.65) sepia(0.25);
-		z-index: -2;
 	}
 	.login-bg::after {
 		content: '';
