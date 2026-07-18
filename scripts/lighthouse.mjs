@@ -24,10 +24,19 @@
 // the cookie gate), while the login page must be scanned WITHOUT one — a session
 // cookie redirects /login -> /. A single global `extraHeaders` cannot express that
 // per-page difference, so each page is collected with exactly the cookie it needs.
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { launchServerWithRetries } from './server-utils.mjs';
 
-const PORT = Number(process.env.PORT ?? 3000);
+// The app is served through a compressing proxy so the lane measures the
+// transport guests actually get (issue #176). Production is fronted by
+// Cloudflare, which returns the document as `content-encoding: br`, while
+// adapter-node returns a server-rendered document uncompressed — ~105 kB
+// instead of ~12 kB on the program page. Scanning the bare server charged that
+// ~8.7x transfer difference to the app and made the budgets unreachable for
+// reasons no guest experiences. See scripts/edge-proxy.mjs.
+const APP_PORT = Number(process.env.PORT ?? 3000);
+const PORT = APP_PORT + 1;
 const BASE = `http://localhost:${PORT}`;
 
 // `session=dev-session` is the dev cookie the login form sets for a guest (see
@@ -58,7 +67,31 @@ function lhci(args) {
 // a few times before treating a non-ready server as a genuine infrastructure
 // failure. waitForReady aborts the moment the process exits, so a bad attempt
 // fails fast instead of burning the whole readiness timeout.
-const server = await launchServerWithRetries(BASE, PORT);
+const server = await launchServerWithRetries(`http://localhost:${APP_PORT}`, APP_PORT);
+
+// The proxy runs as its own process on purpose: `lhci` below is driven through
+// spawnSync, which blocks this event loop for the whole collection, so an
+// in-process proxy would stop answering the moment Chrome started.
+const proxy = spawn('node', ['scripts/edge-proxy.mjs', String(APP_PORT), String(PORT)], {
+  stdio: 'inherit'
+});
+await waitForProxy();
+
+/** Poll until the proxy accepts, so collection never races its bind. */
+async function waitForProxy(timeoutMs = 15_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (proxy.exitCode !== null) throw new Error(`edge-proxy exited (${proxy.exitCode})`);
+    try {
+      await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(2000) });
+      return;
+    } catch {
+      // not listening yet
+    }
+    await sleep(250);
+  }
+  throw new Error(`edge-proxy did not become ready on ${BASE} within ${timeoutMs}ms`);
+}
 
 let status = 0;
 try {
@@ -88,6 +121,7 @@ try {
     if (assertCode !== 0) status = assertCode;
   }
 } finally {
+  proxy.kill('SIGTERM');
   server.kill('SIGTERM');
 }
 
