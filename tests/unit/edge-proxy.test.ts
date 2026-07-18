@@ -161,4 +161,25 @@ describe('edge proxy end to end', () => {
 		const res = await rawGet('/missing', { 'accept-encoding': 'identity' });
 		expect(res.status).toBe(404);
 	});
+
+	// Regression guard: binding the proxy to 127.0.0.1 makes headless Chrome hang
+	// on `http://localhost:<port>`, because it resolves `localhost` to ::1 first
+	// and does not fall back to IPv4 the way curl does. The failure is unusually
+	// nasty — every curl probe succeeds while Lighthouse waits forever — so the
+	// bind must stay dual-stack.
+	it('accepts connections over the IPv6 loopback', async () => {
+		const body = await new Promise<string>((resolve, reject) => {
+			const req = httpRequest(
+				{ host: '::1', port: PROXY_PORT, path: '/echo-cookie', headers: { cookie: 'v6=yes' } },
+				(res) => {
+					const chunks: Buffer[] = [];
+					res.on('data', (c) => chunks.push(c));
+					res.on('end', () => resolve(Buffer.concat(chunks).toString()));
+				}
+			);
+			req.on('error', reject);
+			req.end();
+		});
+		expect(body).toBe('v6=yes');
+	});
 });

@@ -96,6 +96,13 @@ export function shouldCompress(headers, statusCode) {
 
 /**
  * Start the compressing proxy in front of an already-running app server.
+ *
+ * `host` is the address of the UPSTREAM app, not the proxy's own bind address:
+ * the proxy deliberately listens on every interface, mirroring the app's own
+ * `0.0.0.0` bind. Binding it to `127.0.0.1` instead makes headless Chrome hang
+ * on `http://localhost:<port>` — Chrome resolves `localhost` to `::1` first and
+ * does not fall back to IPv4 the way curl does, so the page never loads and
+ * Lighthouse waits forever on a proxy that answers every curl you throw at it.
  * @param {{targetPort: number, listenPort: number, host?: string}} opts
  * @returns {Promise<import('node:http').Server>} the listening proxy
  */
@@ -141,6 +148,6 @@ export function startEdgeProxy({ targetPort, listenPort, host = '127.0.0.1' }) {
 
   return new Promise((resolve, reject) => {
     proxy.once('error', reject);
-    proxy.listen(listenPort, host, () => resolve(proxy));
+    proxy.listen(listenPort, () => resolve(proxy));
   });
 }
