@@ -26,8 +26,17 @@
 // per-page difference, so each page is collected with exactly the cookie it needs.
 import { spawnSync } from 'node:child_process';
 import { launchServerWithRetries } from './server-utils.mjs';
+import { startEdgeProxy } from './edge-proxy.mjs';
 
-const PORT = Number(process.env.PORT ?? 3000);
+// The app is served through a compressing proxy so the lane measures the
+// transport guests actually get (issue #176). Production is fronted by
+// Cloudflare, which returns the document as `content-encoding: br`, while
+// adapter-node returns a server-rendered document uncompressed — ~105 kB
+// instead of ~12 kB on the program page. Scanning the bare server charged that
+// ~8.7x transfer difference to the app and made the budgets unreachable for
+// reasons no guest experiences. See scripts/edge-proxy.mjs.
+const APP_PORT = Number(process.env.PORT ?? 3000);
+const PORT = APP_PORT + 1;
 const BASE = `http://localhost:${PORT}`;
 
 // `session=dev-session` is the dev cookie the login form sets for a guest (see
@@ -58,7 +67,8 @@ function lhci(args) {
 // a few times before treating a non-ready server as a genuine infrastructure
 // failure. waitForReady aborts the moment the process exits, so a bad attempt
 // fails fast instead of burning the whole readiness timeout.
-const server = await launchServerWithRetries(BASE, PORT);
+const server = await launchServerWithRetries(`http://localhost:${APP_PORT}`, APP_PORT);
+const proxy = await startEdgeProxy({ targetPort: APP_PORT, listenPort: PORT });
 
 let status = 0;
 try {
@@ -88,6 +98,7 @@ try {
     if (assertCode !== 0) status = assertCode;
   }
 } finally {
+  proxy.close();
   server.kill('SIGTERM');
 }
 
