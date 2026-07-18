@@ -19,7 +19,14 @@
 // This proxy restores that one production property — and nothing else. It does
 // not touch the application or its production entrypoint: `node build/index.js`
 // still runs unchanged behind it, so the boot-smoke guarantee is unaffected.
+//
+// It MUST run as its own process. The Lighthouse runner drives `lhci` through
+// `spawnSync`, which blocks the Node event loop for the whole collection — an
+// in-process proxy would simply stop answering the moment Chrome started, and
+// hang the lane. That is also how production is shaped: the compressing edge is
+// a separate hop, not part of the app process.
 import { createServer, request as httpRequest } from 'node:http';
+import { argv, env, exit } from 'node:process';
 import { createBrotliCompress, createGzip } from 'node:zlib';
 
 /** Response content types worth compressing — text-shaped payloads only.
@@ -150,4 +157,18 @@ export function startEdgeProxy({ targetPort, listenPort, host = '127.0.0.1' }) {
     proxy.once('error', reject);
     proxy.listen(listenPort, () => resolve(proxy));
   });
+}
+
+// CLI entrypoint: `node scripts/edge-proxy.mjs <targetPort> <listenPort>`.
+// Prints a readiness line on stdout so the parent can wait for the port to be
+// accepting rather than racing it.
+if (import.meta.url === `file://${argv[1]}`) {
+  const targetPort = Number(argv[2] ?? env.TARGET_PORT);
+  const listenPort = Number(argv[3] ?? env.LISTEN_PORT);
+  if (!Number.isInteger(targetPort) || !Number.isInteger(listenPort)) {
+    console.error('usage: node scripts/edge-proxy.mjs <targetPort> <listenPort>');
+    exit(2);
+  }
+  await startEdgeProxy({ targetPort, listenPort });
+  console.log(`edge-proxy listening on ${listenPort} -> ${targetPort}`);
 }

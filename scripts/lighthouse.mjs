@@ -24,9 +24,9 @@
 // the cookie gate), while the login page must be scanned WITHOUT one — a session
 // cookie redirects /login -> /. A single global `extraHeaders` cannot express that
 // per-page difference, so each page is collected with exactly the cookie it needs.
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { launchServerWithRetries } from './server-utils.mjs';
-import { startEdgeProxy } from './edge-proxy.mjs';
 
 // The app is served through a compressing proxy so the lane measures the
 // transport guests actually get (issue #176). Production is fronted by
@@ -68,7 +68,30 @@ function lhci(args) {
 // failure. waitForReady aborts the moment the process exits, so a bad attempt
 // fails fast instead of burning the whole readiness timeout.
 const server = await launchServerWithRetries(`http://localhost:${APP_PORT}`, APP_PORT);
-const proxy = await startEdgeProxy({ targetPort: APP_PORT, listenPort: PORT });
+
+// The proxy runs as its own process on purpose: `lhci` below is driven through
+// spawnSync, which blocks this event loop for the whole collection, so an
+// in-process proxy would stop answering the moment Chrome started.
+const proxy = spawn('node', ['scripts/edge-proxy.mjs', String(APP_PORT), String(PORT)], {
+  stdio: 'inherit'
+});
+await waitForProxy();
+
+/** Poll until the proxy accepts, so collection never races its bind. */
+async function waitForProxy(timeoutMs = 15_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (proxy.exitCode !== null) throw new Error(`edge-proxy exited (${proxy.exitCode})`);
+    try {
+      await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(2000) });
+      return;
+    } catch {
+      // not listening yet
+    }
+    await sleep(250);
+  }
+  throw new Error(`edge-proxy did not become ready on ${BASE} within ${timeoutMs}ms`);
+}
 
 let status = 0;
 try {
@@ -98,7 +121,7 @@ try {
     if (assertCode !== 0) status = assertCode;
   }
 } finally {
-  proxy.close();
+  proxy.kill('SIGTERM');
   server.kill('SIGTERM');
 }
 
