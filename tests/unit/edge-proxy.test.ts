@@ -42,6 +42,9 @@ function startUpstream(port: number): Promise<Server> {
 		} else if (req.url === '/image') {
 			res.writeHead(200, { 'content-type': 'image/avif' });
 			res.end(Buffer.alloc(5_000, 1));
+		} else if (req.url === '/echo-headers') {
+			res.writeHead(200, { 'content-type': 'text/plain' });
+			res.end(JSON.stringify(req.headers));
 		} else if (req.url === '/echo-cookie') {
 			res.writeHead(200, { 'content-type': 'text/plain' });
 			res.end(String(req.headers.cookie ?? 'none'));
@@ -89,6 +92,13 @@ describe('negotiateEncoding', () => {
 		expect(negotiateEncoding('br;q=0, gzip')).toBe('gzip');
 		expect(negotiateEncoding('br;q=0, gzip;q=0')).toBeNull();
 	});
+
+	// A client may explicitly rank gzip above brotli; preferring br by position
+	// would send a less-preferred representation than the client asked for.
+	it('picks the highest q rather than always preferring brotli', () => {
+		expect(negotiateEncoding('gzip;q=1, br;q=0.1')).toBe('gzip');
+		expect(negotiateEncoding('gzip;q=0.5, br;q=0.8')).toBe('br');
+	});
 });
 
 describe('shouldCompress', () => {
@@ -110,6 +120,15 @@ describe('shouldCompress', () => {
 
 	it('skips bodiless statuses', () => {
 		expect(shouldCompress({ 'content-type': 'text/html' }, 304)).toBe(false);
+	});
+
+	// A 206 body is the byte range named by Content-Range. Compressing it while
+	// keeping that header makes the bytes disagree with the declared range.
+	it('skips partial responses', () => {
+		expect(shouldCompress({ 'content-type': 'text/css' }, 206)).toBe(false);
+		expect(
+			shouldCompress({ 'content-type': 'text/css', 'content-range': 'bytes 0-99/500' }, 200)
+		).toBe(false);
 	});
 });
 
@@ -155,6 +174,21 @@ describe('edge proxy end to end', () => {
 			'accept-encoding': 'identity'
 		});
 		expect(res.body.toString()).toBe('session=dev-session');
+	});
+
+	// `Connection: X-Foo` nominates X-Foo as hop-by-hop (RFC 9110 §7.6.1), so it
+	// must not cross the proxy either — dropping only the fixed header names
+	// leaks it upstream.
+	it('drops headers nominated by Connection, not just the fixed set', async () => {
+		const res = await rawGet('/echo-headers', {
+			connection: 'keep-alive, X-Hop-Only',
+			'x-hop-only': 'must-not-cross',
+			'x-kept': 'must-cross',
+			'accept-encoding': 'identity'
+		});
+		const seen = JSON.parse(res.body.toString());
+		expect(seen['x-hop-only']).toBeUndefined();
+		expect(seen['x-kept']).toBe('must-cross');
 	});
 
 	it('preserves upstream status codes', async () => {

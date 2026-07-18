@@ -50,13 +50,24 @@ const HOP_BY_HOP = new Set([
 
 /**
  * Copy headers, dropping the hop-by-hop ones that must not cross a connection
- * boundary.
+ * boundary. `Connection` may itself NOMINATE further hop-by-hop headers by name
+ * (RFC 9110 §7.6.1) — e.g. `Connection: X-Foo` makes `X-Foo` hop-by-hop too — so
+ * those are dropped as well rather than only the fixed set above.
  * @param {import('node:http').IncomingHttpHeaders} headers the source headers
  * @returns {import('node:http').IncomingHttpHeaders} a forwardable copy
  */
 function forwardableHeaders(headers) {
+  const nominated = new Set(
+    String(headers.connection ?? '')
+      .split(',')
+      .map((name) => name.trim().toLowerCase())
+      .filter(Boolean)
+  );
   return Object.fromEntries(
-    Object.entries(headers).filter(([name]) => !HOP_BY_HOP.has(name.toLowerCase()))
+    Object.entries(headers).filter(([name]) => {
+      const lower = name.toLowerCase();
+      return !HOP_BY_HOP.has(lower) && !nominated.has(lower);
+    })
   );
 }
 
@@ -77,11 +88,16 @@ export function negotiateEncoding(acceptEncoding) {
       return [name.toLowerCase(), q ? Number.parseFloat(q.slice(2)) : 1];
     })
   );
+  // Highest q wins, so a client that explicitly prefers gzip
+  // (`gzip;q=1, br;q=0.1`) gets gzip. Brotli is only the tie-breaker, which is
+  // the common case where both are offered without q-values.
+  let best = null;
   for (const encoding of /** @type {const} */ (['br', 'gzip'])) {
     const q = offers.get(encoding);
-    if (q !== undefined && q > 0) return encoding;
+    if (q === undefined || !(q > 0)) continue;
+    if (best === null || q > best.q) best = { encoding, q };
   }
-  return null;
+  return best?.encoding ?? null;
 }
 
 /**
@@ -98,6 +114,10 @@ export function shouldCompress(headers, statusCode) {
   // 204/304 carry no body; compressing them would emit a body where the status
   // forbids one.
   if (statusCode === 204 || statusCode === 304) return false;
+  // A 206 body is a byte range described by Content-Range. Compressing it while
+  // keeping that header would make the bytes disagree with the declared range,
+  // so range requests must pass through untouched.
+  if (statusCode === 206 || headers['content-range']) return false;
   return COMPRESSIBLE.test(String(headers['content-type'] ?? ''));
 }
 
