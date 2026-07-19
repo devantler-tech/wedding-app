@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// @ts-expect-error - plain .mjs CI helper, no type declarations
 import { collectWithRetries } from '../../scripts/lhci-utils.mjs';
 
 /**

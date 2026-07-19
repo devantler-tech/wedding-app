@@ -27,6 +27,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { launchServerWithRetries } from './server-utils.mjs';
+import { collectWithRetries } from './lhci-utils.mjs';
 
 // The app is served through a compressing proxy so the lane measures the
 // transport guests actually get (issue #176). Production is fronted by
@@ -110,11 +111,21 @@ try {
     ];
     if (cookie) args.push(`--settings.extraHeaders={"Cookie":"${cookie}"}`);
 
-    const collectCode = lhci(args);
+    // Retry a failed collect: a hung headless Chrome (PROTOCOL_TIMEOUT / NO_FCP /
+    // Target closed) is the lane's one measured flake mode, and it reddens a run
+    // that has nothing wrong with it. See scripts/lhci-utils.mjs.
+    const { code: collectCode, attempts: collectAttempts } = await collectWithRetries(() =>
+      lhci(args)
+    );
     if (collectCode !== 0) {
       status = collectCode;
-      console.error(`lhci collect failed for ${url} (exit ${collectCode})`);
+      console.error(
+        `lhci collect failed for ${url} (exit ${collectCode}) after ${collectAttempts} attempt(s)`
+      );
       continue;
+    }
+    if (collectAttempts > 1) {
+      console.log(`lhci collect for ${url} succeeded on attempt ${collectAttempts}`);
     }
     console.log(`\nCore Web Vitals budgets for ${url}:`);
     const assertCode = lhci(['assert']);
