@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: devantler-tech/actions/.github/workflows/template-sync.yaml@625b7c0cd5ad4a04f9eb7494298c6d0fa44521ef # v11.0.4
+    uses: devantler-tech/actions/.github/workflows/template-sync.yaml@8357620c1486a29b6f71949375ee946d1792f023 # v13.0.3
     with:
       source-repo-path: devantler-tech/platform-tenant-template
       # Workflow-file syncs require the configured App's workflows permission.
