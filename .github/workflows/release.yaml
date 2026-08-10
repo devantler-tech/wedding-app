@@ -11,8 +11,6 @@ jobs:
   release:
     # Skipped in the template repo itself; runs in every tenant created from it.
     if: github.repository != 'devantler-tech/platform-tenant-template'
-    uses: devantler-tech/actions/.github/workflows/create-release.yaml@8357620c1486a29b6f71949375ee946d1792f023 # v13.0.3
-    with:
-      disable-issue-side-effects: true
+    uses: devantler-tech/actions/.github/workflows/create-release.yaml@8349b0935ade387313cf1a92d17dc068d92daee1 # v13.0.1
     secrets:
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
