@@ -124,10 +124,30 @@ jobs:
         env:
           DEV_SKIP_AUTH: "true"
 
+  # The portable pin contract ships from platform-tenant-template and is deliberately NOT
+  # tenant-ignored, so it lands here on every sync — but nothing here ran it, so the SHA pins on the
+  # three devantler-tech/actions callers (cd, release, template-sync) were unchecked in this tenant.
+  # A caller reverting to a movable tag is the ordinary outcome of a hand edit or a bad merge, and it
+  # is exactly what this guard refuses. The template's own scaffold contract already specifies this
+  # wiring by name — a `workflow-caller-pins` job running the script, and required checks depending
+  # on it — so this is that wiring, not a new convention. No npm install: the script is `sh` + `yq`,
+  # both present on the runner.
+  workflow-caller-pins:
+    name: Workflow Caller Pins
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 📌 Validate reusable workflow caller pins
+        run: sh scripts/workflow-caller-pin-contract.test.sh
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -141,3 +161,4 @@ jobs:
             ${{ needs.e2e.result }}
             ${{ needs.build.result }}
             ${{ needs.boot-smoke.result }}
+            ${{ needs.workflow-caller-pins.result }}
