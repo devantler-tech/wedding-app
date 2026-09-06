@@ -31,6 +31,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # The portable caller-pin contract requires these workflows to advance together.
+    groups:
+      shared-workflows:
+        patterns:
+          - "devantler-tech/actions/.github/workflows/*"
     cooldown:
       default-days: 7
       # devantler-tech actions/workflows are our own code — bump now, no cooldown.
