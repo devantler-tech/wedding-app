@@ -41,7 +41,7 @@
     "@types/node": "^26.4.0",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.0",
-    "eslint": "^10.9.0",
+    "eslint": "^10.9.1",
     "eslint-plugin-svelte": "^3.23.0",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
