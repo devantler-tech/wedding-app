@@ -9,7 +9,8 @@ spec:
   instances: 3
   storage:
     storageClass: longhorn-wffc
-    size: 1Gi
+    # Leave room for PostgreSQL data, WAL, and filesystem overhead.
+    size: 2Gi
   # Coroot database monitoring: stamp the coroot.com/postgres-scrape annotations
   # onto the DB instance Pods (CNPG inheritedMetadata propagates to all managed
   # objects, incl. Pods) so the platform's Coroot cluster-agent discovers and

@@ -103,7 +103,7 @@ Apply the drill `Cluster`. Key details:
   path; `externalClusters` gives read-only access.
 - `imageName` pinned to the live cluster's image (WAL replay needs a matching
   or newer PostgreSQL major); check `deploy/cluster.yaml` if it has moved.
-- Same storage size as live (`1Gi` today); bump if the live volume grows.
+- Same storage size as live (`2Gi`); increase the recovery volume if the live volume grows.
 
 ```sh
 cat <<'EOF' | kubectl $CTX apply -f -
@@ -122,7 +122,7 @@ spec:
   enableSuperuserAccess: false
   enablePDB: false
   storage:
-    size: 1Gi
+    size: 2Gi
     storageClass: longhorn-wffc
   bootstrap:
     recovery:
