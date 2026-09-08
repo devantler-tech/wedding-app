@@ -122,7 +122,7 @@ spec:
   enableSuperuserAccess: false
   enablePDB: false
   storage:
-    size: 1Gi
+    size: 2Gi
     storageClass: longhorn-wffc
   bootstrap:
     recovery:
