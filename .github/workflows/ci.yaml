@@ -177,3 +177,4 @@ jobs:
             ${{ needs.build.result }}
             ${{ needs.boot-smoke.result }}
             ${{ needs.workflow-caller-pins.result }}
+            ${{ needs.readonly-rootfs.result }}
