@@ -144,10 +144,25 @@ jobs:
       - name: 📌 Validate reusable workflow caller pins
         run: sh scripts/workflow-caller-pin-contract.test.sh
 
+  # Issue #324: the platform suppressed Kubescape C-0017 for this namespace on the promise that the app
+  # would run with a read-only root filesystem. This keeps that flag and its declared /tmp scratch
+  # mount from silently reverting. `sh` + `yq` only, like the pin contract above.
+  readonly-rootfs:
+    name: Read-only Root Filesystem
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 🔒 Validate the app container's read-only root filesystem
+        run: sh scripts/readonly-rootfs.test.sh
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -162,3 +177,4 @@ jobs:
             ${{ needs.build.result }}
             ${{ needs.boot-smoke.result }}
             ${{ needs.workflow-caller-pins.result }}
+            ${{ needs.readonly-rootfs.result }}
