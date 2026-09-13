@@ -81,9 +81,14 @@ spec:
               memory: 128Mi
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            # The Node server writes nothing to its image at runtime, so the root filesystem is
+            # read-only. /tmp is the one declared scratch path, in case a dependency ever needs it.
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           # Gate liveness/readiness behind a startup probe so a slow cold start
           # (e.g. constrained CPU after a VPA resize, or first request compiling
           # the route) is not killed by the liveness probe mid-boot. Liveness and
@@ -106,3 +111,7 @@ spec:
               port: 3000
             initialDelaySeconds: 3
             periodSeconds: 5
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
