@@ -56,6 +56,10 @@
     "node": ">=22"
   },
   "overrides": {
+    "devalue": "5.9.4",
+    "lighthouse": "13.5.0",
+    "sharp": "0.35.4",
+    "vite-imagetools": "12.0.1",
     "cookie": "^0.7.0",
     "tmp": "^0.2.6",
     "uuid": "^11.1.1",
