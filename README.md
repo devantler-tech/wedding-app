@@ -27,7 +27,7 @@ Guests log in with a unique invitation code to access the site, confirm attendan
 
 ### Prerequisites
 
-- Node.js ≥ 22
+- Node.js ≥ 26
 - npm
 
 ### Install dependencies
