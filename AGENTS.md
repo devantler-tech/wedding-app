@@ -10,7 +10,7 @@
 - TailwindCSS v4
 - Drizzle ORM + PostgreSQL (`pg`)
 - Vitest (unit) + Playwright (E2E)
-- Node.js >= 22, npm
+- Node.js >= 26, npm
 
 ## Structure
 
