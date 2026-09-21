@@ -159,10 +159,33 @@ jobs:
       - name: 🔒 Validate the app container's read-only root filesystem
         run: sh scripts/readonly-rootfs.test.sh
 
+  # The platform deploys a release only when its publish-app.yaml revision is approved for this tenant.
+  # A PR that moves the pin to an unapproved revision would ship a release the platform refuses, so the
+  # template's check compares the base and head pins and fails the move here instead. An unchanged pin
+  # passes without contacting the platform.
+  publish-pin-approved:
+    name: Publish Pin Approved
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: 🧪 Test the publish pin check
+        run: sh scripts/publish-pin-approved.test.sh
+      - name: 📌 Refuse an unapproved publish-app pin
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git show "${BASE_SHA}:.github/workflows/cd.yaml" >"${RUNNER_TEMP}/base-cd.yaml"
+          sh scripts/publish-pin-approved.sh "${RUNNER_TEMP}/base-cd.yaml" .github/workflows/cd.yaml
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -178,3 +201,4 @@ jobs:
             ${{ needs.boot-smoke.result }}
             ${{ needs.workflow-caller-pins.result }}
             ${{ needs.readonly-rootfs.result }}
+            ${{ needs.publish-pin-approved.result }}
