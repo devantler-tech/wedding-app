@@ -179,8 +179,11 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
+          # Run the check as it exists on the base branch: a PR must not be able to weaken the check
+          # that judges it.
+          git show "${BASE_SHA}:scripts/publish-pin-approved.sh" >"${RUNNER_TEMP}/publish-pin-approved.sh"
           git show "${BASE_SHA}:.github/workflows/cd.yaml" >"${RUNNER_TEMP}/base-cd.yaml"
-          sh scripts/publish-pin-approved.sh "${RUNNER_TEMP}/base-cd.yaml" .github/workflows/cd.yaml
+          sh "${RUNNER_TEMP}/publish-pin-approved.sh" "${RUNNER_TEMP}/base-cd.yaml" .github/workflows/cd.yaml
 
   ci-required-checks:
     name: CI - Required Checks
