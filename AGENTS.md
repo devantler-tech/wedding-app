@@ -22,7 +22,7 @@
 - `drizzle/` — generated SQL migrations and metadata; `drizzle.config.ts` at root.
 - `tests/unit/` (Vitest) and `tests/e2e/` (Playwright).
 - `deploy/` — Kustomize manifests for the platform cluster (Deployment, Service, HTTPRoute, CNPG Cluster, ExternalSecret). App secrets come from OpenBao via External Secrets through the platform-provisioned namespaced `SecretStore` (`openbao`) — no SOPS.
-- CI/CD: `.github/workflows/` — `ci.yaml` (PR gate), `release.yaml` (semantic-release on `main`), `cd.yaml` (publish OCI artifact on tags).
+- CI/CD: `.github/workflows/` — `ci.yaml` (PR gate, also run on every push to `main`), `release.yaml` (semantic-release on `main`), `cd.yaml` (publish OCI artifact on tags).
 
 ## Validation
 

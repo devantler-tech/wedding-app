@@ -2,6 +2,17 @@ name: ✅ CI
 on:
   pull_request:
     branches: [main]
+  # main is validated too, so a commit that reaches it outside a pull request still gets linted,
+  # tested and built, and the default branch carries a real health signal (issue #342).
+  push:
+    branches: [main]
+
+# On main each run is that commit's verification record, so it gets a run-unique group: a group holds
+# one running plus one pending run, and a third push would cancel the pending one, leaving a commit
+# whose checks never completed. Pull requests keep the ref-keyed group, so a superseded run cancels.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -177,8 +188,15 @@ jobs:
         run: sh scripts/publish-pin-approved.test.sh
       - name: 📌 Refuse an unapproved publish-app pin
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          # A pull request compares against its base; a push to main against the tip it replaced.
+          BASE_SHA: ${{ github.event_name == 'push' && github.event.before || github.event.pull_request.base.sha }}
         run: |
+          # An empty base would turn `git show ":path"` into an index read, comparing the head with
+          # itself and passing without checking anything.
+          if [ -z "${BASE_SHA}" ]; then
+            echo "::error::No base commit to compare the publish-app pin against."
+            exit 1
+          fi
           # Run the check as it exists on the base branch: a PR must not be able to weaken the check
           # that judges it.
           git show "${BASE_SHA}:scripts/publish-pin-approved.sh" >"${RUNNER_TEMP}/publish-pin-approved.sh"
