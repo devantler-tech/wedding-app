@@ -1,11 +1,14 @@
 # Files this tenant owns — template-sync (from devantler-tech/platform-tenant-template)
 # must never overwrite them. The template only ships the files below plus the
 # shared plumbing it keeps in sync (cd.yaml, release.yaml, template-sync.yaml,
-# CLAUDE.md, zizmor.yml), so only the tenant-owned scaffolding needs listing here.
+# CLAUDE.md, zizmor.yml and the portable scripts/workflow-caller-pin-contract.test.sh,
+# scripts/publish-pin-approved.sh and its test), so only the tenant-owned
+# scaffolding needs listing here.
 AGENTS.md
 .claude/skills/maintain/SKILL.md
 .github/workflows/ci.yaml
 .github/dependabot.yml
+.github/CODEOWNERS
 .releaserc
 .gitignore
 Dockerfile
@@ -19,3 +22,22 @@ deploy/
 scripts/rename-placeholders.sh
 scripts/rename-placeholders.test.sh
 .github/workflows/validate-scaffold.yaml
+
+# Template-only validation contracts depend on scaffold and Platform fixtures
+# that do not exist in a live tenant.
+scripts/agent-instructions.test.sh
+scripts/workflow-caller-contract.test.sh
+scripts/platform-network-floor-contract.test.sh
+scripts/platform-network-floor.test.sh
+scripts/platform-tenant-envelope-contract.test.sh
+scripts/platform-tenant-envelope.test.sh
+scripts/platform-vpa-floor-contract.test.sh
+scripts/platform-vpa-floor.test.sh
+scripts/pod-security-admission-contract.test.sh
+scripts/pod-security-admission.test.sh
+scripts/tenant-ci-contract.test.sh
+scripts/tenant-rbac-contract.test.sh
+scripts/tenant-rbac.test.sh
+
+# The template lists scripts/publish-pin-approved.test.sh as scaffolding too, but
+# this tenant's CI runs it beside the check it tests, so it stays synced with it.
