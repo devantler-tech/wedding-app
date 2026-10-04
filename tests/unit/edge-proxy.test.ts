@@ -1,4 +1,5 @@
 import { createServer, request as httpRequest, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { brotliDecompressSync, gunzipSync } from 'node:zlib';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { negotiateEncoding, shouldCompress, startEdgeProxy } from '../../scripts/edge-proxy.mjs';
@@ -56,20 +57,32 @@ function startUpstream(port: number): Promise<Server> {
 	return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
 }
 
-const UPSTREAM_PORT = 34_871;
-const PROXY_PORT = 34_872;
+/** The port a listening server was actually given. */
+function portOf(server: Server): number {
+	return (server.address() as AddressInfo).port;
+}
+
+// Both servers ask the OS for a free port (0). Fixed numbers in the ephemeral
+// range collide with whatever else the machine happens to be using, which
+// failed the suite with EADDRINUSE on a CI runner.
+let UPSTREAM_PORT: number;
+let PROXY_PORT: number;
 
 let upstream: Server;
 let proxy: Server;
 
 beforeAll(async () => {
-	upstream = await startUpstream(UPSTREAM_PORT);
-	proxy = await startEdgeProxy({ targetPort: UPSTREAM_PORT, listenPort: PROXY_PORT });
+	upstream = await startUpstream(0);
+	UPSTREAM_PORT = portOf(upstream);
+	proxy = await startEdgeProxy({ targetPort: UPSTREAM_PORT, listenPort: 0 });
+	PROXY_PORT = portOf(proxy);
 });
 
+// Close only what started, so a failed start reports its own error instead of
+// a second one from this hook.
 afterAll(async () => {
-	await new Promise((r) => proxy.close(r));
-	await new Promise((r) => upstream.close(r));
+	if (proxy) await new Promise((r) => proxy.close(r));
+	if (upstream) await new Promise((r) => upstream.close(r));
 });
 
 describe('negotiateEncoding', () => {
