@@ -57,17 +57,12 @@ spec:
       # AND runs CREATE EXTENSION IF NOT EXISTS in every database automatically.
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
-  # Continuous backup to the shared Cloudflare R2 bucket (platform-backups) via
-  # the Barman Cloud Plugin — the supported replacement for the in-tree
-  # spec.backup.barmanObjectStore, which CNPG deprecated in 1.26 and removes in
-  # 1.30. The R2 destination, the wedding-db-backup-r2 credentials and the 30d
-  # retention live in the `wedding-db` ObjectStore the platform ships in the
-  # wedding-app registration dir (the shared infrastructure/backup/r2 creds need
-  # the cluster-scoped ClusterSecretStore, and barmancloud.cnpg.io is outside a
-  # tenant's RBAC); this Cluster just references it by name. isWALArchiver routes
-  # WAL archiving through the plugin; the daily base backup is db-scheduled-backup.yaml.
+  # Continuous backup through the tenant's dedicated ObjectStore, supplied by
+  # the platform together with its dedicated credential. The platform pins the
+  # production archive identity separately. No shared backup credential belongs
+  # in this tenant. Daily base backups are configured in db-scheduled-backup.yaml.
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: wedding-db
+        barmanObjectName: wedding-db-dedicated
