@@ -14,6 +14,9 @@ fi
 jq -n --slurpfile ci "$work/ci.json" --slurpfile config "$work/config.json" \
   '{ci:$ci[0],config:$config[0]}' >"$work/bundle.json"
 
+# Validate a JSON bundle containing the consumer scope and CI workflow definitions.
+# Require a bounded scan, read-only enabled execution, and required-check registration.
+# Return zero for valid wiring; otherwise jq reports the violated invariant and returns nonzero.
 guard() {
   jq -e '
     def runnable: .if == null and (.["continue-on-error"] // false) == false;
