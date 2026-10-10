@@ -34,7 +34,19 @@ check_root() {
 	esac
 
 	[ -f "$dir/Dockerfile" ] || { echo "Dockerfile is missing"; return 1; }
-	images=$(sed -n 's/^[Ff][Rr][Oo][Mm][[:space:]]\{1,\}node:\([^[:space:]]*\).*/\1/p' "$dir/Dockerfile")
+	# Every stage's image, whatever flags precede it or registry prefixes it: "FROM --platform=…
+	# docker.io/library/node:27" must not slip past a pattern that only knows the short form.
+	images=$(awk '
+		toupper($1) == "FROM" {
+			i = 2
+			while (i <= NF && $i ~ /^--/) i++
+			image = $i
+			sub(/@.*/, "", image)
+			name = image; sub(/:[^\/]*$/, "", name); sub(/.*\//, "", name)
+			if (name != "node") next
+			tag = (image ~ /:[^\/]*$/) ? image : ""; sub(/.*:/, "", tag)
+			print (tag == "" ? "untagged" : tag)
+		}' "$dir/Dockerfile")
 	[ -n "$images" ] || { echo "Dockerfile has no 'FROM node:' stage"; return 1; }
 	for tag in $images; do
 		case $tag in
@@ -71,6 +83,10 @@ check_root() {
 	if [ "${NODE_TOOLCHAIN_LIVE:-0}" = 1 ]; then
 		live_node=$(node --version | sed 's/^v\([0-9]*\).*/\1/')
 		[ "$live_node" = "$want" ] || { echo "installed Node major is $live_node, declared $want"; return 1; }
+		# Majors on purpose. CI and the image run the npm bundled with whichever Node 26 release
+		# they resolve, so an exact comparison would fail unrelated pull requests on every Node
+		# patch release. #340 was a major skew: npm 10 rejected lockfiles npm 11 wrote. The exact
+		# packageManager value is what Dependabot and version managers read; it is not installed.
 		live_npm=$(npm --version | sed 's/\..*//')
 		[ "$live_npm" = "$npm_major" ] || { echo "installed npm major is $live_npm, packageManager declares $npm_major"; return 1; }
 	fi
@@ -112,6 +128,11 @@ fixture
 sed "s/^FROM node:$major-alpine\$/FROM node:$next-alpine/" "$root/Dockerfile" >"$scratch/root/Dockerfile"
 cmp -s "$root/Dockerfile" "$scratch/root/Dockerfile" && fail "the runtime-stage mutation changed nothing"
 must_refuse "runtime image moved alone"
+
+fixture
+sed "s|^FROM node:$major-alpine AS build\$|FROM --platform=linux/amd64 docker.io/library/node:$next-alpine AS build|" "$root/Dockerfile" >"$scratch/root/Dockerfile"
+cmp -s "$root/Dockerfile" "$scratch/root/Dockerfile" && fail "the build-stage mutation changed nothing"
+must_refuse "flagged, registry-qualified build image moved alone"
 
 fixture
 jq '.engines.node = ">=22"' "$root/package.json" >"$scratch/root/package.json"
