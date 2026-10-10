@@ -105,7 +105,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm run lint
@@ -119,7 +119,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm run check
@@ -133,7 +133,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm test
@@ -147,7 +147,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
@@ -164,7 +164,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -184,7 +184,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -205,7 +205,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -281,10 +281,31 @@ jobs:
           git show "${BASE_SHA}:.github/workflows/cd.yaml" >"${RUNNER_TEMP}/base-cd.yaml"
           sh "${RUNNER_TEMP}/publish-pin-approved.sh" "${RUNNER_TEMP}/base-cd.yaml" .github/workflows/cd.yaml
 
+  # Issue #343: CI once ran a different Node major than the image ships, and the two bundled npm
+  # majors resolve one manifest into different trees, so `npm ci` rejected every Dependabot lockfile
+  # (#340). .node-version is the single declaration; this keeps the Dockerfile, every setup-node step
+  # and package.json agreeing with it, and compares the Node and npm the runner actually installed.
+  node-toolchain:
+    name: Node Toolchain
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+      - name: 🧰 Validate the declared Node toolchain
+        env:
+          NODE_TOOLCHAIN_LIVE: "1"
+        run: sh scripts/node-toolchain-contract.test.sh
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -302,3 +323,4 @@ jobs:
             ${{ needs.readonly-rootfs.result }}
             ${{ needs.publish-pin-approved.result }}
             ${{ needs.validate-retired-links.result }}
+            ${{ needs.node-toolchain.result }}

@@ -1,3 +1,5 @@
+# The Node major here is declared in .node-version; scripts/node-toolchain-contract.test.sh fails CI
+# when the two disagree, so bump both together (#343).
 FROM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./

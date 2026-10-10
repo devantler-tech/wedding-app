@@ -10,7 +10,7 @@
 - TailwindCSS v4
 - Drizzle ORM + PostgreSQL (`pg`)
 - Vitest (unit) + Playwright (E2E)
-- Node.js >= 26, npm
+- Node.js 26 and npm 11 — one declared toolchain: `.node-version` (read by CI and version managers), the `node:` image in `Dockerfile`, and `engines.node` + `packageManager` in `package.json`. `sh scripts/node-toolchain-contract.test.sh` (the `Node Toolchain` CI job) fails when they disagree; bump them together.
 
 ## Structure
 
