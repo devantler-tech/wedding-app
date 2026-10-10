@@ -11,7 +11,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: Wedding
     gethomepage.dev/description: Wedding RSVP and information site.
-    gethomepage.dev/group: Personal Sites
+    gethomepage.dev/group: Personal
     gethomepage.dev/icon: mdi-ring
     gethomepage.dev/href: https://wedding.platform.devantler.tech
     gethomepage.dev/pod-selector: app.kubernetes.io/name=wedding-app
