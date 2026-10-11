@@ -1,8 +1,8 @@
-import { db } from '$lib/server/db.js';
-import { env } from '$env/dynamic/private';
-import { guestPairs, guests, roomBookings } from '$lib/server/schema.js';
+import { db } from '#lib/server/db.js';
+import { env } from '#lib/server/env.js';
+import { guestPairs, guests, roomBookings } from '#lib/server/schema.js';
 import { asc } from 'drizzle-orm';
-import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
+import { GUEST_PAIRS, parseGuestNames } from '#lib/server/seed.js';
 import type { PageServerLoad } from './$types.js';
 
 type AdminGuest = {

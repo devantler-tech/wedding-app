@@ -1,8 +1,8 @@
 <script lang="ts">
 	import cormorantGaramondLatin300 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-300-normal.woff2?url';
-	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
-	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
-	import HeroBackground from '$lib/components/HeroBackground.svelte';
+	import CornerOrnament from '#lib/components/CornerOrnament.svelte';
+	import CriticalFontPreload from '#lib/components/CriticalFontPreload.svelte';
+	import HeroBackground from '#lib/components/HeroBackground.svelte';
 
 	let { pairName, guestCount }: { pairName: string; guestCount: number } = $props();
 

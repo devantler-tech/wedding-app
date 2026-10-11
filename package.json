@@ -22,7 +22,7 @@
     "db:seed": "tsx src/lib/server/seed.ts"
   },
   "dependencies": {
-    "@sveltejs/adapter-node": "5.5.7",
+    "@sveltejs/adapter-node": "6.0.0",
     "drizzle-orm": "^0.45.3",
     "pg": "^8.23.1"
   },
@@ -35,11 +35,12 @@
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.63.0",
     "@sveltejs/enhanced-img": "^1.0.0",
-    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/kit": "^3.0.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/pg": "^8.23.1",
+    "cookie": "^2.0.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.12.0",
     "eslint-plugin-svelte": "^3.23.0",
@@ -61,11 +62,14 @@
     "lighthouse": "13.5.0",
     "sharp": "0.35.5",
     "vite-imagetools": "12.0.1",
-    "cookie": "^0.7.0",
     "tmp": "^0.2.6",
     "uuid": "^11.1.1",
     "@esbuild-kit/core-utils": {
       "esbuild": "^0.25.0"
     }
+  },
+  "imports": {
+    "#lib": "./src/lib",
+    "#lib/*": "./src/lib/*"
   }
 }

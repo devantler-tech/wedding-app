@@ -1,4 +1,4 @@
-import { env } from '$env/dynamic/private';
+import { env } from '#lib/server/env.js';
 import type { Cookies } from '@sveltejs/kit';
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { getSession } from '$lib/server/auth.js';
+import { env } from '#lib/server/env.js';
+import { getSession } from '#lib/server/auth.js';
 import type { Cookies } from '@sveltejs/kit';
 
 type SessionResult =

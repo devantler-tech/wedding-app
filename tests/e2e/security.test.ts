@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // The Content-Security-Policy is a tested invariant (#172): adapter-node
-// serves a header CSP (svelte.config.js kit.csp) with a per-request nonce for
+// serves a header CSP (vite.config.ts sveltekit csp) with a per-request nonce for
 // SvelteKit's inline hydration script, allow-listing exactly the site's
 // one external origin (the self-hosted Umami analytics host — fonts are
 // self-hosted same-origin and icons are inline SVG, so no font/style hosts

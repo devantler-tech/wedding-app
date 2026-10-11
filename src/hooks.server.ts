@@ -1,7 +1,7 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit/hooks';
 import { sequence } from '@sveltejs/kit/hooks';
-import { env } from '$env/dynamic/private';
-import { bootstrapDatabase } from '$lib/server/db-bootstrap.js';
+import { env } from '#lib/server/env.js';
+import { bootstrapDatabase } from '#lib/server/db-bootstrap.js';
 
 if (env.NODE_ENV === 'production' && !env.ADMIN_CODE?.trim() && env.DEV_SKIP_AUTH !== 'true') {
 	throw new Error('ADMIN_CODE environment variable is required in production');
@@ -23,7 +23,7 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	// Kept for old browsers; superseded by the CSP frame-ancestors directive
-	// (svelte.config.js kit.csp).
+	// (vite.config.ts sveltekit csp).
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 	// TLS terminates at the platform gateway (which does not set HSTS — dedupe

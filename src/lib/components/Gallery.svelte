@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 	import Icon from './Icon.svelte';
-	import { galleryEntries, type GalleryRatio } from '$lib/gallery-data.js';
-	import { galleryImage } from '$lib/gallery-images.js';
-	import { galleryImageLoading } from '$lib/gallery-loading.js';
+	import { galleryEntries, type GalleryRatio } from '#lib/gallery-data.js';
+	import { galleryImage } from '#lib/gallery-images.js';
+	import { galleryImageLoading } from '#lib/gallery-loading.js';
 
 	/** Responsive `sizes` hint mirroring the slide CSS exactly — per breakpoint the
 	 *  rendered width is `min(--max-w, --h × ratio)` (86vw/58vh, then 68vw/62vh,

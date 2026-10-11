@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import BackToLogin from '$lib/components/BackToLogin.svelte';
+	import BackToLogin from '#lib/components/BackToLogin.svelte';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();

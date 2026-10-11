@@ -291,11 +291,15 @@ test.describe('Main page (dev mode)', () => {
 
 	test('"Gå tilbage" stays accessible inside nav after scrolling past hero', async ({ page }) => {
 		await page.goto('/');
-		await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
-		await page.waitForTimeout(800);
 
 		const navBack = page.locator('nav').getByRole('button', { name: /Gå tilbage/i });
-		await expect(navBack).toBeVisible();
+		// SvelteKit restores the scroll position while it starts the page, which
+		// undoes a scroll made in the first moments after load. Scroll until it
+		// holds instead of assuming the page has finished starting.
+		await expect(async () => {
+			await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
+			await expect(navBack).toBeVisible({ timeout: 1500 });
+		}).toPass();
 		await navBack.click();
 		await page.waitForURL('**/login');
 	});

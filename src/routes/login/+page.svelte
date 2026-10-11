@@ -1,9 +1,9 @@
 <script lang="ts">
 	import pinyonScriptLatin400 from '@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2?url';
 	import { enhance } from '$app/forms';
-	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
-	import CriticalFontPreload from '$lib/components/CriticalFontPreload.svelte';
-	import HeroBackground from '$lib/components/HeroBackground.svelte';
+	import CornerOrnament from '#lib/components/CornerOrnament.svelte';
+	import CriticalFontPreload from '#lib/components/CriticalFontPreload.svelte';
+	import HeroBackground from '#lib/components/HeroBackground.svelte';
 	import type { ActionData } from './$types.js';
 
 	let { form }: { form: ActionData } = $props();

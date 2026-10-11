@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { deleteAdminSession, deleteSession } from '$lib/server/auth.js';
-import { clearSessionCookies } from '$lib/server/cookies.js';
+import { env } from '#lib/server/env.js';
+import { deleteAdminSession, deleteSession } from '#lib/server/auth.js';
+import { clearSessionCookies } from '#lib/server/cookies.js';
 import type { Actions } from './$types.js';
 
 export const actions: Actions = {

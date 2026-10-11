@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { EAGER_RADIUS, galleryImageLoading } from '$lib/gallery-loading.js';
-import { galleryEntries } from '$lib/gallery-data.js';
+import { EAGER_RADIUS, galleryImageLoading } from '#lib/gallery-loading.js';
+import { galleryEntries } from '#lib/gallery-data.js';
 
 describe('galleryImageLoading', () => {
 	it('loads the active slide and its visible neighbours eagerly', () => {
