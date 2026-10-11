@@ -22,7 +22,7 @@
     "db:seed": "tsx src/lib/server/seed.ts"
   },
   "dependencies": {
-    "@sveltejs/adapter-node": "5.5.7",
+    "@sveltejs/adapter-node": "6.0.0",
     "drizzle-orm": "^0.45.3",
     "pg": "^8.23.1"
   },
