@@ -232,6 +232,8 @@ jobs:
           persist-credentials: false
       - name: 📌 Validate reusable workflow caller pins
         run: sh scripts/workflow-caller-pin-contract.test.sh
+      - name: Validate Homepage site classification
+        run: sh scripts/homepage-group.test.sh
 
   # Issue #324: the platform suppressed Kubescape C-0017 for this namespace on the promise that the app
   # would run with a read-only root filesystem. This keeps that flag and its declared /tmp scratch
