@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import CornerOrnament from '$lib/components/CornerOrnament.svelte';
-	import HeroBackground from '$lib/components/HeroBackground.svelte';
+	import CornerOrnament from '#lib/components/CornerOrnament.svelte';
+	import HeroBackground from '#lib/components/HeroBackground.svelte';
 </script>
 
 <div class="login-bg min-h-screen flex items-center justify-center bg-cream relative overflow-hidden">

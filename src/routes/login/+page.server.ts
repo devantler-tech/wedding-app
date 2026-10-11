@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import { env } from '#lib/server/env.js';
 import {
 	validateCode,
 	createSession,
@@ -7,14 +7,14 @@ import {
 	createAdminSession,
 	getAdminSession,
 	getSession
-} from '$lib/server/auth.js';
+} from '#lib/server/auth.js';
 import {
 	setSessionCookie,
 	setAdminSessionCookie,
 	setDevSessionCookie,
 	setDevAdminSessionCookie,
 	DEV_SESSION_SINGLE
-} from '$lib/server/cookies.js';
+} from '#lib/server/cookies.js';
 import type { Actions, PageServerLoad } from './$types.js';
 
 // Verifying an existing session is only an optimization (skip the login form

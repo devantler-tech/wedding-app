@@ -1,5 +1,5 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { env } from '$env/dynamic/private';
+import { env } from '#lib/server/env.js';
 import { db } from './db.js';
 import { adminSessions, guestPairs, sessions } from './schema.js';
 import { eq, and, gt } from 'drizzle-orm';

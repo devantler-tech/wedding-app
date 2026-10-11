@@ -1,10 +1,10 @@
 import { json } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { db } from '$lib/server/db.js';
-import { guests } from '$lib/server/schema.js';
+import { env } from '#lib/server/env.js';
+import { db } from '#lib/server/db.js';
+import { guests } from '#lib/server/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { validateApiSession } from '$lib/server/validate-session.js';
-import { isRsvpClosed } from '$lib/server/rsvp-deadline.js';
+import { validateApiSession } from '#lib/server/validate-session.js';
+import { isRsvpClosed } from '#lib/server/rsvp-deadline.js';
 import type { RequestHandler } from './$types.js';
 
 const MAX_GUEST_COUNT = 10;

@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { getAdminSession } from '$lib/server/auth.js';
+import { env } from '#lib/server/env.js';
+import { getAdminSession } from '#lib/server/auth.js';
 import type { LayoutServerLoad } from './$types.js';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {

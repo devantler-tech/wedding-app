@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { getAdminSession } from '$lib/server/auth.js';
-import { buildRsvpCsv } from '$lib/server/export.js';
+import { env } from '#lib/server/env.js';
+import { getAdminSession } from '#lib/server/auth.js';
+import { buildRsvpCsv } from '#lib/server/export.js';
 import type { RequestHandler } from './$types.js';
 
 /**

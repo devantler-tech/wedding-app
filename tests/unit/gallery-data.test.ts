@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { galleryEntries } from '$lib/gallery-data.js';
+import { galleryEntries } from '#lib/gallery-data.js';
 
 describe('galleryEntries', () => {
 	it('has at least one entry', () => {

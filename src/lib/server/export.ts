@@ -3,7 +3,7 @@
  * shares with the caterer and venue. Mirrors the admin page's DEV_SKIP_AUTH mock
  * fallback so a local/dev run produces a valid file without a database.
  */
-import { env } from '$env/dynamic/private';
+import { env } from '#lib/server/env.js';
 import { asc, eq } from 'drizzle-orm';
 import { db } from './db.js';
 import { guestPairs, guests, roomBookings } from './schema.js';

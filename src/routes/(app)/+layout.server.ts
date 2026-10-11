@@ -1,12 +1,12 @@
 import { error, isRedirect, redirect } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
-import { getSession } from '$lib/server/auth.js';
-import { db } from '$lib/server/db.js';
-import { guests, roomBookings } from '$lib/server/schema.js';
+import { env } from '#lib/server/env.js';
+import { getSession } from '#lib/server/auth.js';
+import { db } from '#lib/server/db.js';
+import { guests, roomBookings } from '#lib/server/schema.js';
 import { eq } from 'drizzle-orm';
-import { GUEST_PAIRS, parseGuestNames } from '$lib/server/seed.js';
-import { DEV_SESSION_SINGLE } from '$lib/server/cookies.js';
-import { isRsvpClosed } from '$lib/server/rsvp-deadline.js';
+import { GUEST_PAIRS, parseGuestNames } from '#lib/server/seed.js';
+import { DEV_SESSION_SINGLE } from '#lib/server/cookies.js';
+import { isRsvpClosed } from '#lib/server/rsvp-deadline.js';
 import type { LayoutServerLoad } from './$types.js';
 
 function getMockData(single = false) {

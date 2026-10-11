@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { faBed, faCheck } from '@fortawesome/free-solid-svg-icons';
 	import Icon from './Icon.svelte';
-	import { createSubmitHandler } from '$lib/submit-helper.js';
+	import { createSubmitHandler } from '#lib/submit-helper.js';
 
 	interface Booking {
 		requested: boolean;

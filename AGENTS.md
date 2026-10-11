@@ -16,8 +16,9 @@
 
 - `src/routes/` — SvelteKit routes: `(app)` guest area, `admin/`, `login/`, `logout/`, and `api/` endpoints (`rsvp`, `booking`).
 - `src/lib/components/` — Svelte UI components (Hero, Nav, Rsvp, RoomBooking, Program, Gallery, etc.).
-- `src/lib/server/` — server-only modules: `auth`, `cookies`, `db`, `schema`, `migrate`, `seed`, `validate-session`.
+- `src/lib/server/` — server-only modules: `auth`, `cookies`, `db`, `env`, `schema`, `migrate`, `seed`, `validate-session`.
 - `src/lib/` — shared helpers (`gallery-data`, `submit-helper`).
+- `src/env.ts` — the environment variables the server reads, declared for SvelteKit; a variable missing from it is not available to the app.
 - `src/hooks.server.ts` — request hooks (auth/session).
 - `drizzle/` — generated SQL migrations and metadata; `drizzle.config.ts` at root.
 - `tests/unit/` (Vitest) and `tests/e2e/` (Playwright).

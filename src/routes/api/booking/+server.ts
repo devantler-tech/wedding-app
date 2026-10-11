@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
-import { roomBookings } from '$lib/server/schema.js';
-import { validateApiSession } from '$lib/server/validate-session.js';
+import { db } from '#lib/server/db.js';
+import { roomBookings } from '#lib/server/schema.js';
+import { validateApiSession } from '#lib/server/validate-session.js';
 import type { RequestHandler } from './$types.js';
 
 const MAX_NOTES_LENGTH = 500;

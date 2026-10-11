@@ -50,8 +50,8 @@ describe('isRsvpClosed', () => {
 	});
 });
 
-// Delegate $env/dynamic/private to process.env so RSVP_DEADLINE can be toggled per test.
-vi.mock('$env/dynamic/private', () => ({
+// Delegate #lib/server/env.js to process.env so RSVP_DEADLINE can be toggled per test.
+vi.mock('#lib/server/env.js', () => ({
 	env: new Proxy({} as Record<string, string | undefined>, {
 		get(_target, prop: string) {
 			return process.env[prop];

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { faCalendarCheck, faCheck, faLock } from '@fortawesome/free-solid-svg-icons';
 	import Icon from './Icon.svelte';
-	import { createSubmitHandler } from '$lib/submit-helper.js';
+	import { createSubmitHandler } from '#lib/submit-helper.js';
 
 	interface Guest {
 		id: number;
