@@ -1,115 +1,84 @@
-# Bryllup — Aimée & Nikolai Emil
+# Wedding App
 
-Wedding website for Aimée & Nikolai Emil, 16. maj 2027 at Gl. Brydegaard, Helnæsvej 4, 5683 Brydegård.
+An invitation-only wedding website where guests use an invitation code to RSVP, request a
+room booking and read the program and practical information. This repository contains the
+SvelteKit application, not an invitation service for unrelated events. Guest records, invitation
+codes, dietary notes and operational details must not be copied into public issues or examples.
 
-Guests log in with a unique invitation code to access the site, confirm attendance, request a room booking, and view practical information.
+Invited guests should use their existing invitation and site link. Contributors can run the
+database-free local preview below without a real invitation, database or platform access.
 
-## Features
+## Run a local mock preview
 
-- **Invitation code login** — 14 guest pairs, each with a unique 6-character code
-- **RSVP** — per-person attendance confirmation with dietary notes
-- **Room booking** — request overnight accommodation through the couple
-- **Program** — full day schedule with timeline
-- **Photo gallery** — chronological journey gallery with captions
-- **Wishlist** — link to Ønskeskyen
-- **Practical info** — dress code, child-free evening, accommodation & venue address
-- **Countdown timer** — live countdown to the wedding date
+Use Git, Bash, Node.js 26 (declared in `.node-version`) and npm 11 (`package.json` declares the
+package-manager version). From the directory where you want your checkout:
 
-## Tech stack
-
-- [SvelteKit](https://kit.svelte.dev) + TypeScript
-- [TailwindCSS v4](https://tailwindcss.com)
-- [Drizzle ORM](https://orm.drizzle.team) + PostgreSQL
-- [Playwright](https://playwright.dev) for E2E tests
-- Deployed to Kubernetes via [CloudNativePG](https://cloudnative-pg.io) + [Longhorn](https://longhorn.io)
-
-## Running locally
-
-### Prerequisites
-
-- Node.js 26 (declared in `.node-version`)
-- npm
-
-### Install dependencies
-
-```bash
-npm install
+```sh
+git clone https://github.com/devantler-tech/wedding-app.git
+cd wedding-app
+npm ci
+env -u DATABASE_URL -u ADMIN_CODE DEV_SKIP_AUTH=true npm run dev -- --host 127.0.0.1
 ```
 
-### Development (no database required)
+Open the local address printed by Vite, normally `http://127.0.0.1:5173/`. The login page accepts
+these **local mock codes**, not production invitations:
 
-Set `DEV_SKIP_AUTH=true` to bypass authentication and run without a PostgreSQL instance. RSVP and booking form submissions return mock success responses and do not persist changes.
-
-```bash
-DEV_SKIP_AUTH=true npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173) and log in with:
-
-| Code | View |
-|------|------|
-| `MOCK1` | Guest view (mock data for Charlotte og Orla) |
-| `ADMIN` | Admin overview |
-
-### Development (with database)
-
-1. Start a PostgreSQL instance and set the connection string:
-
-   ```bash
-   export DATABASE_URL="postgresql://user:password@localhost:5432/wedding"
-   ```
-
-2. Run migrations and seed guest data:
-
-   ```bash
-   npm run db:migrate
-   npm run db:seed
-   ```
-
-   The seed script prints each guest pair's generated code, e.g.:
-
-   ```
-   ✅ Charlotte og Orla → AB3K7Q
-   ```
-
-3. Start the dev server:
-
-   ```bash
-   npm run dev
-   ```
-
-## Other commands
-
-| Command | Description |
+| Code | Local view |
 |---|---|
-| `npm run build` | Production build |
-| `npm run preview` | Preview the production build locally |
-| `npm run check` | Type-check with `svelte-check` |
-| `npm run test` | Run Vitest unit tests |
-| `npm run test:e2e` | Run Playwright E2E tests |
-| `npm run lint` | Lint with ESLint |
-| `npm run db:generate` | Generate Drizzle migration files |
-| `npm run db:migrate` | Apply migrations |
-| `npm run db:seed` | Seed guest pairs and codes |
+| `MOCK1` | Bundled guest-pair view |
+| `MOCK2` | Bundled single-guest view |
+| `ADMIN` | Mock administration overview |
 
-## Kubernetes deployment
+Use a fresh checkout without a local `.env` file; the command clears inherited database/admin
+variables for this process. Try a guest view and a form submission. In this mode endpoints return mock
+success without persisting changes. The bundled views are not a blank or fully fictional guest
+database; keep their content local. Stop the dev server with Ctrl+C.
 
-Manifests are in `deploy/`. The app consumes two secrets, both delivered in-cluster — neither is committed to this repo (there is no SOPS in this repo):
+`DEV_SKIP_AUTH=true` bypasses authentication. Use it only for local development and tests,
+never on a live deployment. A successful mock preview does not verify real invitation login,
+database persistence or production availability.
 
-- **`wedding-db-app`** — the PostgreSQL connection string (`uri` key), created automatically by the CloudNativePG operator from `deploy/cluster.yaml`.
-- **`wedding-app-admin-code`** — the admin login code (`ADMIN_CODE`), materialised by External Secrets from OpenBao through the namespaced `openbao` `SecretStore` (`deploy/secretstore.yaml` + `deploy/admin-code-externalsecret.yaml`).
+## Contribute
 
-In the cluster, Flux applies `deploy/` as an OCI Kustomize app and External Secrets fetches the admin code from OpenBao automatically. For manual deployment against a cluster that already has the CloudNativePG operator and the External Secrets Operator (with the OpenBao backend) installed:
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for a first change, prerequisites, the complete
+local check sequence and submission requirements. The app uses SvelteKit/Svelte, TypeScript,
+TailwindCSS and Drizzle/PostgreSQL, with Vitest and Playwright tests.
 
-```bash
-kubectl apply -k deploy/
-```
+Source ownership is relative to the repository root:
 
-### Database backup & restore
+- `src/routes/` contains login, guest, administration and API routes.
+- `src/lib/components/` contains the shared interface; `src/lib/server/` holds server-only
+  authentication, database and validation logic.
+- `tests/unit/` and `tests/e2e/` contain unit and browser tests.
+- `drizzle/` contains generated migrations; generate from the schema, not by hand-editing metadata.
+- `deploy/` is the platform's deployment configuration, not a local first-run prerequisite.
 
-`wedding-db` is backed up to Cloudflare R2 (daily base backup at 03:00 UTC plus
-continuous WAL archiving, 30-day point-in-time recovery) via the CloudNativePG
-Barman Cloud Plugin. The restore path — bootstrapping an isolated recovery cluster
-from those backups and verifying the RSVP/booking data is intact — is documented
-in [`deploy/RESTORE-RUNBOOK.md`](deploy/RESTORE-RUNBOOK.md).
+[AGENTS.md](AGENTS.md) is the canonical repository contract. The contribution guide distinguishes
+the required production-build, bundle-budget and adapter-node boot checks from the optional
+Lighthouse lane; a Vite preview alone does not prove the production server starts.
+
+## Database and live operations are separate
+
+Ordinary content, UI and test contributions need no database or publishing credentials.
+Database work needs a separately authorized, owned disposable instance and fictional records.
+Setting `DATABASE_URL` also starts background migration and seeding during server startup, even
+when using the mock authentication flag; it is not a read-only connection test. The existing
+`db:seed` script inserts the configured event roster; **do not run it against a
+production database or use it as a generic fictional fixture**. It does not print invitation codes.
+
+Changes to the schema are generated with `npm run db:generate` and reviewed with their migration
+output. Applying migrations and seeding change data and are not part of the mock setup above.
+Keep connection strings and codes out of commits, logs and public discussion.
+
+Live publication is owned by the repository's release/CD workflows and platform reconciliation.
+Do not manually apply deployment manifests to try the README. Authorized recovery operators
+follow [the restore runbook](deploy/RESTORE-RUNBOOK.md); it is not contributor onboarding.
+
+## Security and reuse
+
+Follow the inherited [security policy](https://github.com/devantler-tech/.github/blob/main/.github/SECURITY.md)
+for sensitive reports and [Code of Conduct](https://github.com/devantler-tech/.github/blob/main/.github/CODE_OF_CONDUCT.md)
+for collaboration. Request a private reporting route without posting sensitive details if private
+reporting is unavailable. This repository has no application-source license grant; public source
+and dependency licenses do not grant unrestricted reuse of the code, event content or photographs.
 
