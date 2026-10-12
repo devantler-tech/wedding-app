@@ -13,6 +13,7 @@ AGENTS.md
 .gitignore
 Dockerfile
 README.md
+CONTRIBUTING.md
 LICENSE
 deploy/
 .templatesyncignore
