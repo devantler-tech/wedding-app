@@ -40,5 +40,6 @@ scripts/tenant-ci-contract.test.sh
 scripts/tenant-rbac-contract.test.sh
 scripts/tenant-rbac.test.sh
 
-# The template lists scripts/publish-pin-approved.test.sh as scaffolding too, but
-# this tenant's CI runs it beside the check it tests, so it stays synced with it.
+# scripts/publish-pin-approved.test.sh is deliberately not listed: the template
+# does not ignore it either, and this tenant's CI runs it beside the check it
+# tests, so it stays synced with it.
