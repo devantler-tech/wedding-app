@@ -124,15 +124,26 @@ fixture
 echo "$next" >"$scratch/root/.node-version"
 must_refuse "version file moved alone"
 
+# The stages pin the image by digest as well as tag (#423); the mutations keep the digest, so they
+# prove the check reads the tag through it.
+digest='\(@sha256:[0-9a-f]\{64\}\)\{0,1\}'
+
 fixture
-sed "s/^FROM node:$major-alpine\$/FROM node:$next-alpine/" "$root/Dockerfile" >"$scratch/root/Dockerfile"
+sed "s/^FROM node:$major-alpine$digest\$/FROM node:$next-alpine\1/" "$root/Dockerfile" >"$scratch/root/Dockerfile"
 cmp -s "$root/Dockerfile" "$scratch/root/Dockerfile" && fail "the runtime-stage mutation changed nothing"
 must_refuse "runtime image moved alone"
 
 fixture
-sed "s|^FROM node:$major-alpine AS build\$|FROM --platform=linux/amd64 docker.io/library/node:$next-alpine AS build|" "$root/Dockerfile" >"$scratch/root/Dockerfile"
+sed "s|^FROM node:$major-alpine$digest AS build\$|FROM --platform=linux/amd64 docker.io/library/node:$next-alpine\1 AS build|" "$root/Dockerfile" >"$scratch/root/Dockerfile"
 cmp -s "$root/Dockerfile" "$scratch/root/Dockerfile" && fail "the build-stage mutation changed nothing"
 must_refuse "flagged, registry-qualified build image moved alone"
+
+fixture
+sed "s/^FROM node:$major-alpine$digest\$/FROM node:$major.10.0-alpine@sha256:0000000000000000000000000000000000000000000000000000000000000000/" \
+	"$root/Dockerfile" >"$scratch/root/Dockerfile"
+cmp -s "$root/Dockerfile" "$scratch/root/Dockerfile" && fail "the exact-version mutation changed nothing"
+[ -z "$(NODE_TOOLCHAIN_LIVE=0 check_root "$scratch/root")" ] ||
+	fail "an exact, digest-pinned node:$major image on the declared line was refused"
 
 fixture
 jq '.engines.node = ">=22"' "$root/package.json" >"$scratch/root/package.json"
