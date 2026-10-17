@@ -31,6 +31,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # `.releaserc` cuts a patch release for `build(deps)` commits, which is how runtime packages
+    # and the base image reach the live site. Workflow updates change nothing the site serves, so
+    # they use the `ci` prefix and release nothing.
+    commit-message:
+      prefix: "ci"
+      include: "scope"
     cooldown:
       default-days: 7
       # devantler-tech actions/workflows are our own code — bump now, no cooldown.
