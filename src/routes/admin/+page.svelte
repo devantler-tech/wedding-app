@@ -42,7 +42,7 @@
 
 <BackToLogin />
 
-<main class="min-h-screen bg-cream py-12 px-4 sm:px-6">
+<main class="min-h-screen bg-cream pt-20 pb-12 px-4 sm:px-6">
 	<div class="max-w-5xl mx-auto">
 		<header class="mb-8">
 			<p class="wedding-admin-heading text-dark-brown mb-2">

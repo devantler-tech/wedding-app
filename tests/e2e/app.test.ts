@@ -117,6 +117,30 @@ test.describe('Admin view (dev mode)', () => {
 		await expect(page.getByText(/MOCK13/)).toBeVisible();
 	});
 
+	test('"Gå tilbage" does not cover the admin heading', async ({ page }) => {
+		for (const viewport of [
+			{ width: 375, height: 812 },
+			{ width: 800, height: 600 }
+		]) {
+			await page.setViewportSize(viewport);
+			await page.goto('/login');
+			await page.getByLabel(/invitationskode/i).fill('ADMIN');
+			await page.getByRole('button', { name: /Se invitation/i }).click();
+			await page.waitForURL('**/admin');
+
+			const back = await page.getByRole('button', { name: 'Gå tilbage til login' }).boundingBox();
+			const heading = await page.getByText('Administrator', { exact: true }).boundingBox();
+			if (!back || !heading) {
+				throw new Error('the back button and the admin heading must both be rendered');
+			}
+			// The fixed button sits above the page; the heading must start below it.
+			expect(heading.y, `${viewport.width}px`).toBeGreaterThanOrEqual(back.y + back.height);
+
+			await page.getByRole('button', { name: 'Gå tilbage til login' }).click();
+			await page.waitForURL('**/login');
+		}
+	});
+
 	test('full admin code is accepted', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel(/invitationskode/i).fill('harndrupbryllupadmins1234');
