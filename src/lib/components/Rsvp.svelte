@@ -56,6 +56,7 @@
 								name={`attending_${i}`}
 								value="true"
 								checked={guest.attending === true}
+								required
 								class="w-4 h-4 accent-soft-gold"
 							/>
 							<span class="text-dark-brown">Ja, jeg deltager</span>
@@ -66,6 +67,7 @@
 								name={`attending_${i}`}
 								value="false"
 								checked={guest.attending === false}
+								required
 								class="w-4 h-4 accent-soft-gold"
 							/>
 							<span class="text-dark-brown">Nej, desværre</span>

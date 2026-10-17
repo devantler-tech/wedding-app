@@ -227,6 +227,43 @@ test.describe('Main page (dev mode)', () => {
 		await expect(page.getByText('Ja, jeg deltager').first()).toBeVisible();
 	});
 
+	test('RSVP is not sent while a guest has no answer', async ({ page }) => {
+		const rsvpRequests: string[] = [];
+		page.on('request', (request) => {
+			if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/rsvp') {
+				rsvpRequests.push(request.url());
+			}
+		});
+		const rsvp = page.locator('#rsvp');
+		const firstGuestYes = rsvp.getByRole('radio', { name: 'Ja, jeg deltager' }).first();
+		await firstGuestYes.check();
+
+		await rsvp.getByRole('button', { name: 'Gem svar' }).click();
+
+		// The second guest is still unanswered, so the browser blocks the submit.
+		const secondGuestYes = rsvp.getByRole('radio', { name: 'Ja, jeg deltager' }).nth(1);
+		expect(await secondGuestYes.evaluate((el: HTMLInputElement) => el.validity.valueMissing)).toBe(
+			true
+		);
+		await expect(rsvp.getByText('Dit svar er gemt')).toHaveCount(0);
+		expect(rsvpRequests).toEqual([]);
+	});
+
+	test('RSVP saves once every guest has answered', async ({ page }) => {
+		const rsvp = page.locator('#rsvp');
+		const radios = rsvp.getByRole('radio', { name: 'Ja, jeg deltager' });
+		await radios.first().check();
+		await rsvp.getByRole('radio', { name: 'Nej, desværre' }).nth(1).check();
+
+		const response = page.waitForResponse(
+			(res) => res.request().method() === 'POST' && new URL(res.url()).pathname === '/api/rsvp'
+		);
+		await rsvp.getByRole('button', { name: 'Gem svar' }).click();
+
+		expect((await response).ok()).toBe(true);
+		await expect(rsvp.getByText('Dit svar er gemt')).toBeVisible();
+	});
+
 	test('shows room booking section', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.locator('#booking').getByRole('heading', { name: 'Overnatning' })).toBeVisible();
