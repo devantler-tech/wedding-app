@@ -1,6 +1,8 @@
 # The Node major here is declared in .node-version; scripts/node-toolchain-contract.test.sh fails CI
 # when the two disagree, so bump both together (#343).
-FROM node:26-alpine AS build
+# Both stages pin the image by digest as well as tag, so every build of a commit uses the same image
+# and Dependabot proposes each rebuilt node:26-alpine as a reviewed update that cuts a release (#423).
+FROM node:26-alpine@sha256:6f08a523443ddedf52941874c203475b0ad503e859ad70cb26ab8be9a517dbd5 AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
@@ -8,7 +10,7 @@ COPY . .
 RUN npm run build
 RUN npm prune --production
 
-FROM node:26-alpine
+FROM node:26-alpine@sha256:6f08a523443ddedf52941874c203475b0ad503e859ad70cb26ab8be9a517dbd5
 WORKDIR /app
 COPY --from=build /app/build ./build
 COPY --from=build /app/node_modules ./node_modules
