@@ -304,10 +304,26 @@ jobs:
           NODE_TOOLCHAIN_LIVE: "1"
         run: sh scripts/node-toolchain-contract.test.sh
 
+  # A release, and so a deploy, is cut only for the commits .releaserc names. This keeps every
+  # devDependency classified as bundled into the server build (its updates release) or tooling (they
+  # do not), so a bundled package cannot have its updates stop short of guests. No npm install: the
+  # script is `sh` + `yq` + `jq`, all present on the runner.
+  release-classification:
+    name: Release Classification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 🏷️ Validate which dependency updates release
+        run: sh scripts/release-classification.test.sh
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain, release-classification]
     permissions: {}
     if: ${{ always() }}
     steps:
@@ -326,3 +342,4 @@ jobs:
             ${{ needs.publish-pin-approved.result }}
             ${{ needs.validate-retired-links.result }}
             ${{ needs.node-toolchain.result }}
+            ${{ needs.release-classification.result }}

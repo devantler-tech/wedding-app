@@ -18,6 +18,12 @@
             "type": "build",
             "scope": "deps",
             "release": "patch"
+          },
+          {
+            "type": "build",
+            "scope": "deps-dev",
+            "subject": "*(*/)* the site-bundle?(-security) group?( *)",
+            "release": "patch"
           }
         ]
       }
