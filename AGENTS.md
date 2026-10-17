@@ -23,7 +23,7 @@
 - `drizzle/` — generated SQL migrations and metadata; `drizzle.config.ts` at root.
 - `tests/unit/` (Vitest) and `tests/e2e/` (Playwright).
 - `deploy/` — Kustomize manifests for the platform cluster (Deployment, Service, HTTPRoute, CNPG Cluster, ExternalSecret). App secrets come from OpenBao via External Secrets through the platform-provisioned namespaced `SecretStore` (`openbao`) — no SOPS.
-- CI/CD: `.github/workflows/` — `ci.yaml` (PR gate, also run on every push to `main`), `release.yaml` (semantic-release on `main`), `cd.yaml` (publish OCI artifact on tags). A release, and so a deploy, is cut for `feat`, `fix`, `perf`, breaking and `build(deps)` commits (`.releaserc`); `build(deps)` is Dependabot's prefix for runtime packages and the Docker base image. Workflow updates use `ci(deps)` and development-tool updates `build(deps-dev)`, and neither releases on its own.
+- CI/CD: `.github/workflows/` — `ci.yaml` (PR gate, also run on every push to `main`), `release.yaml` (semantic-release on `main`), `cd.yaml` (publish OCI artifact on tags). A release, and so a deploy, is cut for `feat`, `fix`, `perf`, breaking and `build(deps)` commits, and for `build(deps-dev)` commits whose title names the `site-bundle` group (`.releaserc`). `build(deps)` is Dependabot's prefix for runtime packages and the Docker base image. The `site-bundle` group in `.github/dependabot.yml` lists the devDependencies adapter-node bundles into the server build (Svelte, SvelteKit, Vite, Tailwind, fonts, icons). Workflow updates use `ci(deps)` and other development-tool updates plain `build(deps-dev)`, and neither releases on its own. `scripts/release-classification.test.sh` fails until a newly added devDependency is classified as bundled or tooling.
 
 ## Validation
 

@@ -5,6 +5,50 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # Runtime `dependencies` update as `build(deps)` and release a patch (`.releaserc`).
+    # adapter-node bundles the devDependencies the app imports into the server build, so updates to
+    # those reach guests too, yet arrive as `build(deps-dev)`, which releases nothing on its own.
+    # `.releaserc` cuts a patch release for a `build(deps-dev)` commit only when its title names the
+    # `site-bundle` group below; tooling updates stay plain `build(deps-dev)` and do not release.
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      # The devDependencies bundled into the server build. Exact names only: a new bundled package
+      # must be added here on purpose, and `scripts/release-classification.test.sh` fails until every
+      # devDependency is classified as bundled (here) or tooling (in that test).
+      site-bundle:
+        patterns:
+          - "@fontsource/cormorant-garamond"
+          - "@fontsource/inter"
+          - "@fontsource/pinyon-script"
+          - "@fortawesome/free-solid-svg-icons"
+          - "@sveltejs/enhanced-img"
+          - "@sveltejs/kit"
+          - "@sveltejs/vite-plugin-svelte"
+          - "@tailwindcss/vite"
+          - "cookie"
+          - "svelte"
+          - "tailwindcss"
+          - "vite"
+      # A group applies to version updates or security updates, never both, so this second group
+      # carries the same packages for security updates. `.releaserc` matches both names, and the
+      # test keeps the two lists identical.
+      site-bundle-security:
+        applies-to: security-updates
+        patterns:
+          - "@fontsource/cormorant-garamond"
+          - "@fontsource/inter"
+          - "@fontsource/pinyon-script"
+          - "@fortawesome/free-solid-svg-icons"
+          - "@sveltejs/enhanced-img"
+          - "@sveltejs/kit"
+          - "@sveltejs/vite-plugin-svelte"
+          - "@tailwindcss/vite"
+          - "cookie"
+          - "svelte"
+          - "tailwindcss"
+          - "vite"
     cooldown:
       default-days: 7
     ignore:
@@ -23,6 +67,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # The base image is what the server is built with and runs on, so its updates release:
+    # `.releaserc` cuts a patch release for `build(deps)` commits.
+    commit-message:
+      prefix: "build"
+      include: "scope"
     cooldown:
       default-days: 7
 
