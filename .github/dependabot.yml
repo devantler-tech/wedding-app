@@ -91,11 +91,9 @@ updates:
       # devantler-tech actions/workflows are our own code — bump now, no cooldown.
       exclude:
         - "devantler-tech/*"
-    # The three devantler-tech/actions reusable-workflow callers (cd, release, template-sync) must
-    # pin one shared commit, which scripts/workflow-caller-pin-contract.test.sh enforces as a
-    # required check. Ungrouped, Dependabot opens one PR per caller, so each PR advances a single
-    # caller and fails that check — #307, #308 and #310 all stalled this way. Grouping them makes a
-    # version update arrive as one PR that moves the fleet together.
+    # The maintained release and template-sync callers must share one commit.
+    # Grouping avoids divergent bumps; the publisher still needs its separate
+    # reviewed Platform approval before it can advance.
     groups:
       devantler-tech-actions:
         patterns:
