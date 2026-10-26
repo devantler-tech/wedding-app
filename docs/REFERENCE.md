@@ -72,7 +72,7 @@ tenant still carrying these from an older sync can delete them for good):**
 | `scripts/tenant-rbac*.test.sh` | Proves the Platform tenant reconciliation identity can manage every rendered scaffold resource while cluster-scoped and interactive privileges stay denied |
 | `scripts/platform-tenant-envelope*.test.sh` | Binds the template's signed publisher and those workload-level models to Platform's live KRO and manual tenant registrations: private GHCR pull identity, cosign-verifying OCI source, managed Pod Security namespace, `tenant-edit` ServiceAccount binding, Flux source/impersonation/target namespace, and the exact OpenBao policy and Kubernetes-auth role that let the renamed tenant read and seed only its own app secrets |
 | `scripts/platform-network-floor*.test.sh` | Binds Platform's generated default-deny, DNS, and standard NetworkPolicy floor to the scaffold's required Gateway, namespace, CNPG, Kubernetes API, and DNS paths, reporting a check that cannot read its input separately from a policy verdict |
-| `scripts/platform-vpa-floor*.test.sh` | Keeps the scaffold's initial CPU request at or above Platform's generated Deployment VPA floor, with live-policy and mutation coverage |
+| `scripts/platform-vpa-floor*.test.sh` | Uses Kyverno to evaluate Platform's Deployment GeneratingPolicy and keeps the scaffold's initial CPU request at or above the generated VPA floor, with mutation coverage |
 
 **Yours (list these in `.templatesyncignore`):**
 
@@ -129,7 +129,7 @@ use the `ci` prefix (set in `.github/dependabot.yml`) and release nothing.
 Tenants own both files, so an existing tenant adds the `build(deps)` rule and
 the `ci` prefix itself.
 Each tag triggers `cd.yaml`, which calls the platform's
-[`publish-app.yaml`](https://github.com/devantler-tech/actions/blob/main/.github/workflows/publish-app.yaml)
+[`publish-app.yaml`](https://github.com/devantler-tech/.github/blob/main/.github/workflows/publish-app.yaml)
 reusable workflow to build the image, **pin its digest into
 `deploy/deployment.yaml`**, push the manifests as an OCI artifact, and
 **cosign-sign** both. The platform's `OCIRepository` verifies that signature, so
@@ -146,6 +146,32 @@ requires the tenant's exact `publish-app` approval in Platform's canonical
 record, with at most two distinct reviewed commits during a transition; legacy
 approvals do not authorize it. Merge and verify the corresponding Platform
 approval and image/manifest verification policy before changing a tenant caller.
+
+The live envelope check accepts the manual tenant matcher's strict writer forms:
+one to three distinct legacy commit IDs, optionally paired with one or two
+distinct maintained commit IDs. Both locations must name the same app publisher,
+all IDs must be full lowercase commit IDs, and the whole subject must be anchored.
+Its controls exercise copies of the Platform envelope and reject mutable refs,
+wildcards, wrong producers, duplicate IDs and excess approvals. This checks the
+writer's narrow shape; Platform still owns which exact revisions are approved.
+The generic KRO rule may retain the existing legacy full-commit pattern, alone
+or paired with one or two literal maintained commits. Its rule must also match
+the starter's actual pinned publisher identity; recognizing a valid rule shape
+does not establish that the producer and consumer agree. Maintained wildcards,
+mutable callers, multiple YAML documents and control characters are rejected.
+The current conditional TenantSource form is recognized without executing CEL:
+the default subject is decoded and checked against the actual caller, while the
+explicit arm must retain its exact maintained-publisher path and full-revision
+schema. Digest selection must retain the immutable digest schema, and optional
+application reconciliation must default on and preserve its deletion guard.
+Static OCI references remain supported; conditional application reconciliation
+still requires the same source schema and safeguards with that reference form.
+The starter uses the maintained publisher at its reviewed minimum version.
+Its portable guard rejects a return to the retired catalogue, movable refs,
+older versions and version comments that do not match the immutable commit.
+The Platform approval and verification policy must be deployed before a live
+tenant adopts that caller. This compatibility check does not activate publishing
+or authorize a tenant's caller pin.
 
 > **Convention:** the Deployment's container `name` MUST equal the repository
 > name — `publish-app` pins the built image digest into the container with that
@@ -177,3 +203,10 @@ sh scripts/platform-tenant-envelope-contract.test.sh  # live Platform tenant-env
 sh scripts/platform-network-floor-contract.test.sh    # generated Platform network-floor contract
 sh scripts/platform-vpa-floor-contract.test.sh        # generated Platform VPA-floor contract
 ```
+
+The live VPA-floor check additionally needs Kyverno CLI 1.19.1 or later and a
+read-only Platform checkout at `.platform` (or `PLATFORM_ROOT`). It evaluates the
+Deployment policy locally against a copy of the scaffold in a test namespace;
+it does not contact a cluster. Run `sh scripts/platform-vpa-floor.test.sh` with
+`kyverno` on `PATH`, or set `KYVERNO_CLI` to the binary's path. The workflow
+downloads and checksum-verifies its pinned CLI before this check.
