@@ -324,12 +324,14 @@ jobs:
     name: CI - Required Checks
     runs-on: ubuntu-latest
     needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain, release-classification]
-    permissions: {}
+    permissions:
+      actions: read
     if: ${{ always() }}
     steps:
       - name: 📊 Require all CI checks to pass
-        uses: devantler-tech/.github/actions/aggregate-job-checks@af042c540ce8db4d64add98c34b5c57691e0e812 # v19.0.5
+        uses: devantler-tech/.github/actions/aggregate-job-checks@da5f0839b418626a8a0b69df1f04ba931a38e371 # v19.1.0
         with:
+          check-workflow-startup: "true"
           job-results: >-
             ${{ needs.lint.result }}
             ${{ needs.check.result }}
