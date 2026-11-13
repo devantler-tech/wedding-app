@@ -43,7 +43,7 @@
     "cookie": "^2.0.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.14.0",
-    "eslint-plugin-svelte": "^3.23.1",
+    "eslint-plugin-svelte": "^3.24.0",
     "svelte": "^5.57.3",
     "svelte-check": "^4.7.8",
     "tailwindcss": "^4.3.2",
