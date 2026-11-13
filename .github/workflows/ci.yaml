@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
       - name: Check documentation
         id: links
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@ea4d0d8c1ba4bcad612ef9c9e9b18ac932e7ff0e # v20.1.11
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
         with:
           enabled: "true"
       - name: Require a complete scan
@@ -54,14 +54,14 @@ jobs:
       - name: Reject the seeded retired link
         id: negative
         continue-on-error: true
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@ea4d0d8c1ba4bcad612ef9c9e9b18ac932e7ff0e # v20.1.11
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
         with:
           enabled: "true"
           working-directory: ${{ steps.fixture.outputs.directory }}
       - name: Reject missing consumer configuration
         id: missing-config
         continue-on-error: true
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@ea4d0d8c1ba4bcad612ef9c9e9b18ac932e7ff0e # v20.1.11
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
         with:
           enabled: "true"
           config-file: .github/missing-retired-repo-links.json
@@ -329,7 +329,7 @@ jobs:
     if: ${{ always() }}
     steps:
       - name: 📊 Require all CI checks to pass
-        uses: devantler-tech/.github/actions/aggregate-job-checks@ea4d0d8c1ba4bcad612ef9c9e9b18ac932e7ff0e # v20.1.11
+        uses: devantler-tech/.github/actions/aggregate-job-checks@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
         with:
           check-workflow-startup: "true"
           job-results: >-
