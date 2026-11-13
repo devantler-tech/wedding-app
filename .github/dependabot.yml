@@ -91,9 +91,17 @@ updates:
       # devantler-tech actions/workflows are our own code — bump now, no cooldown.
       exclude:
         - "devantler-tech/*"
-    # The maintained release and template-sync callers must share one commit.
-    # Grouping avoids divergent bumps; the publisher still needs its separate
-    # reviewed Platform approval before it can advance.
+    # The application publisher stays on the exact revision Platform has reviewed and approved
+    # for this tenant, which CI's publish-app pin check enforces. Every devantler-tech/.github
+    # release moves the publisher's tag together with the callers below, so while Dependabot
+    # proposed it, every group pull request needed a hand fix putting the publisher back (#437,
+    # #459, issue #468). Move this pin by hand, in its own change, once Platform approves a newer
+    # revision.
+    ignore:
+      - dependency-name: "devantler-tech/.github/.github/workflows/publish-app.yaml"
+    # The maintained release and template-sync callers must share one commit. Grouping avoids
+    # divergent bumps; the publisher is ignored above, so the group never waits for a Platform
+    # approval.
     groups:
       devantler-tech-actions:
         patterns:
