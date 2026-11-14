@@ -1,0 +1,18 @@
+# Production-only: adds continuous backup to the shared wedding-db Cluster
+# (../base/cluster.yaml). Dev runs its own database and never writes to the
+# production archive.
+#
+# Continuous backup through the tenant's dedicated ObjectStore, supplied by
+# the platform together with its dedicated credential. The platform pins the
+# production archive identity separately. No shared backup credential belongs
+# in this tenant. Daily base backups are configured in db-scheduled-backup.yaml.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: wedding-db
+spec:
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: wedding-db-dedicated

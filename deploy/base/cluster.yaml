@@ -57,12 +57,6 @@ spec:
       # AND runs CREATE EXTENSION IF NOT EXISTS in every database automatically.
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
-  # Continuous backup through the tenant's dedicated ObjectStore, supplied by
-  # the platform together with its dedicated credential. The platform pins the
-  # production archive identity separately. No shared backup credential belongs
-  # in this tenant. Daily base backups are configured in db-scheduled-backup.yaml.
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: wedding-db-dedicated
+  # Backups are production-only: deploy/prod/cluster-backup.yaml adds the
+  # Barman Cloud plugin, and deploy/prod/db-scheduled-backup.yaml the daily
+  # base backup.
