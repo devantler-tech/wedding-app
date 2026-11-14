@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Production: the shared app and database (../base) plus everything that
+# carries the production identity — the public route, the disruption budget,
+# the admin code in OpenBao, and the database backups. The platform reconciles
+# this through ../kustomization.yaml. RESTORE-RUNBOOK.md documents the backups.
+resources:
+  - ../base
+  # Namespaced SecretStore backing the admin-code secret below.
+  - secretstore.yaml
+  - admin-code-externalsecret.yaml
+  - admin-code-generator.yaml
+  - db-scheduled-backup.yaml
+  - httproute.yaml
+  - pod-disruption-budget.yaml
+patches:
+  # Continuous WAL archiving + base backups to the dedicated ObjectStore.
+  - path: cluster-backup.yaml
+  # CNPG → Cloudflare R2 (S3) for barman-cloud WAL archiving + base backups
+  # (the wedding-db CloudNativePG cluster). Pinned by FQDN instead of
+  # world:443 so a compromised pod cannot exfiltrate to arbitrary external
+  # services; the R2 pattern matches any account host without committing the
+  # account id.
+  - target:
+      kind: CiliumNetworkPolicy
+      name: app
+    patch: |-
+      - op: add
+        path: /spec/egress/1
+        value:
+          toFQDNs:
+            - matchPattern: "*.r2.cloudflarestorage.com"
+          toPorts:
+            - ports:
+                - port: "443"
+                  protocol: TCP

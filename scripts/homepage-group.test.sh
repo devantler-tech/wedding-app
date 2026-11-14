@@ -3,7 +3,7 @@
 set -eu
 
 repo_root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
-route="${repo_root}/deploy/httproute.yaml"
+route="${repo_root}/deploy/prod/httproute.yaml"
 enabled=$(yq -r '.metadata.annotations."gethomepage.dev/enabled"' "${route}")
 group=$(yq -r '.metadata.annotations."gethomepage.dev/group"' "${route}")
 if [ "${enabled}" != true ] || [ "${group}" != Personal ]; then

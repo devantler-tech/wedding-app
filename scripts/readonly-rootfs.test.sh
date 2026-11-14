@@ -7,12 +7,12 @@
 # path (/tmp) mounted, so a future dependency that needs scratch space fails here rather than by
 # crash-looping in production.
 #
-# Usage: readonly-rootfs.test.sh [deployment.yaml]   (default: deploy/deployment.yaml)
+# Usage: readonly-rootfs.test.sh [deployment.yaml]   (default: deploy/base/deployment.yaml)
 set -eu
 
 script_dir=$(CDPATH='' cd -P -- "$(dirname -- "$0")" && pwd)
 repo_root=$(dirname -- "$script_dir")
-deployment=${1:-$repo_root/deploy/deployment.yaml}
+deployment=${1:-$repo_root/deploy/base/deployment.yaml}
 
 fail() {
 	echo "FAIL: $*" >&2

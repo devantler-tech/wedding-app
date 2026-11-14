@@ -72,7 +72,7 @@ Keep connection strings and codes out of commits, logs and public discussion.
 
 Live publication is owned by the repository's release/CD workflows and platform reconciliation.
 Do not manually apply deployment manifests to try the README. Authorized recovery operators
-follow [the restore runbook](deploy/RESTORE-RUNBOOK.md); it is not contributor onboarding.
+follow [the restore runbook](deploy/prod/RESTORE-RUNBOOK.md); it is not contributor onboarding.
 
 ## Security and reuse
 

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# The app and its database that production (../prod) and dev (../dev) both
+# run. Put a manifest here only when both environments run it; production-only
+# objects and settings go in ../prod, and dev changes these with patches in
+# ../dev.
+resources:
+  - cluster.yaml
+  - deployment.yaml
+  - service.yaml
+  # Tenant-owned CiliumNetworkPolicy allow-list (layered on the platform's
+  # default-deny floor): Gateway ingress (3000), app⇄DB, CNPG + DNS egress.
+  # Production adds the R2 backup egress.
+  - networkpolicy.yaml

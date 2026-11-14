@@ -1,0 +1,68 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Dev: the shared app and database (../base), changed only by the settings and
+# patches below. The platform reconciles it at `path: ./dev` into its own
+# namespace and owns its ingress behind sign-on, so dev carries none of
+# production's identity: no route, disruption budget, backup, or OpenBao path.
+# Its database is a separate, empty CloudNativePG cluster in the dev namespace.
+# Change base objects with patches here; never copy a manifest.
+#
+# Left to the dev deployment work (#467): the dev source of the
+# `wedding-app-admin-code` Secret the Deployment reads (dev secrets stay
+# separate from production's), seeded data, the mail sink and the dev bucket.
+#
+# The base hard-codes the production namespace on some objects; pin dev's own
+# (the platform's Flux targetNamespace sets the same) so dev never renders
+# into production's namespace.
+namespace: wedding-app-dev
+resources:
+  - ../base
+# One app replica; production runs two.
+replicas:
+  - name: wedding-app
+    count: 1
+patches:
+  # One database instance. A single instance cannot keep CNPG's own
+  # PodDisruptionBudget without deadlocking node drains, so turn it off.
+  - target:
+      group: postgresql.cnpg.io
+      kind: Cluster
+      name: wedding-db
+    patch: |-
+      - op: replace
+        path: /spec/instances
+        value: 1
+      - op: add
+        path: /spec/enablePDB
+        value: false
+  # The base policy selects its own pods through the production namespace name,
+  # and names the cnpg-system, observability and kube-dns namespaces. A new
+  # tenant policy may name no namespace (the platform's
+  # restrict-tenant-network-policies), so dev selects its app and database
+  # pods by label instead and relies on the allow-cnpg-operator and allow-dns
+  # policies the platform generates in every tenant namespace. Dev's database
+  # is not scraped by Coroot.
+  - target:
+      kind: CiliumNetworkPolicy
+      name: app
+    patch: |-
+      - op: remove
+        path: /spec/ingress/3
+      - op: remove
+        path: /spec/ingress/2
+      - op: replace
+        path: /spec/ingress/1/fromEndpoints
+        value:
+          - matchLabels:
+              k8s:app.kubernetes.io/name: wedding-app
+          - matchLabels:
+              k8s:cnpg.io/cluster: wedding-db
+      - op: remove
+        path: /spec/egress/2
+      - op: replace
+        path: /spec/egress/0/toEndpoints
+        value:
+          - matchLabels:
+              k8s:app.kubernetes.io/name: wedding-app
+          - matchLabels:
+              k8s:cnpg.io/cluster: wedding-db

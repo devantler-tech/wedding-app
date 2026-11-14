@@ -1,9 +1,12 @@
 # Wedding database backup and restore
 
 The database archives WAL and daily base backups through the Barman Cloud
-Plugin to the dedicated backup destination. The tenant Cluster references
-`wedding-db-dedicated`; the platform supplies that ObjectStore and its dedicated
-credential. The platform also preserves the production archive identity.
+Plugin to the dedicated backup destination. The production Cluster references
+`wedding-db-dedicated` through [`cluster-backup.yaml`](cluster-backup.yaml), a
+patch on the shared [`../base/cluster.yaml`](../base/cluster.yaml) that only
+production applies; the dev database has no backup. The platform supplies that
+ObjectStore and its dedicated credential, and preserves the production archive
+identity.
 The shared platform backup credential must not be projected into this tenant.
 
 ## Verify a restore
