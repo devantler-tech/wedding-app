@@ -37,6 +37,10 @@ dev_field() {
 [ "$(dev_field Cluster .spec.enablePDB)" = false ] || fail "deploy/dev's single database instance must not get a CNPG PodDisruptionBudget"
 [ "$(dev_field Cluster '.spec | has("plugins")')" = false ] || fail "deploy/dev's database must not archive to the production backup store"
 
+# Everything dev renders lives in the wedding-app-dev namespace, and nowhere else.
+[ "$(yq eval-all '[.] | map(select(.metadata.namespace != "wedding-app-dev")) | length' "$work/dev.yaml")" -eq 0 ] ||
+	fail "every deploy/dev resource must be in the wedding-app-dev namespace"
+
 # Production identity stays in deploy/prod: the route, the disruption budget,
 # the backups and the admin code in OpenBao.
 for kind in HTTPRoute Gateway Certificate Issuer PodDisruptionBudget ScheduledBackup Backup ObjectStore \
