@@ -320,10 +320,21 @@ jobs:
       - name: 🏷️ Validate which dependency updates release
         run: sh scripts/release-classification.test.sh
 
+  # The template's shared MegaLinter checks for workflows, scripts, the Dockerfile, Markdown, YAML,
+  # JSON, Kubernetes manifests and leaked secrets; ESLint and svelte-check above lint the app's own
+  # code. Configure it in .mega-linter.yml, which extends the template's base.
+  megalinter:
+    name: MegaLinter
+    # GitHub's `$/` self-repository form fails actionlint until it supports it
+    # (rhysd/actionlint#711); switch then.
+    uses: ./.github/workflows/lint.yaml # zizmor: ignore[self-repository]
+    permissions:
+      contents: read
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain, release-classification]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, publish-pin-approved, validate-retired-links, node-toolchain, release-classification, megalinter]
     permissions:
       actions: read
     if: ${{ always() }}
@@ -345,3 +356,4 @@ jobs:
             ${{ needs.validate-retired-links.result }}
             ${{ needs.node-toolchain.result }}
             ${{ needs.release-classification.result }}
+            ${{ needs.megalinter.result }}
