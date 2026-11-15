@@ -1,9 +1,10 @@
 # Files this tenant owns — template-sync (from devantler-tech/platform-tenant-template)
-# must never overwrite them. The template only ships the files below plus the
-# shared plumbing it keeps in sync (cd.yaml, release.yaml, template-sync.yaml,
-# CLAUDE.md, zizmor.yml and the portable scripts/workflow-caller-pin-contract.test.sh,
-# scripts/publish-pin-approved.sh and its test), so only the tenant-owned
-# scaffolding needs listing here.
+# must never overwrite them. Everything not listed is shared plumbing the template
+# keeps in sync: cd.yaml, release.yaml, template-sync.yaml, stale-issues.yaml,
+# codeql.yaml, lint.yaml, .github/mega-linter.base.yml, .coderabbit.yaml,
+# .markdownlint.json, .yamllint.yml, renovate.json, docs/REFERENCE.md, CLAUDE.md,
+# zizmor.yml and the portable scripts/workflow-caller-pin-contract.test.sh,
+# scripts/publish-pin-approved.sh and its test.
 AGENTS.md
 .claude/skills/maintain/SKILL.md
 .github/workflows/ci.yaml
@@ -18,11 +19,21 @@ LICENSE
 deploy/
 .templatesyncignore
 
+# This tenant's overlays on the shared MegaLinter and CodeQL configuration.
+.mega-linter.yml
+.github/codeql/codeql-config.yml
+
 # Template scaffolding — dead code in a live tenant; keep ignored so a
 # template-sync never re-introduces it (deleted here, lives only in the template).
 scripts/rename-placeholders.sh
 scripts/rename-placeholders.test.sh
 .github/workflows/validate-scaffold.yaml
+
+# The scaffold and its stacks build a new application once; they are template-only.
+stacks/
+scripts/scaffold.sh
+scripts/scaffold.test.sh
+.github/workflows/validate-stacks.yaml
 
 # Template-only validation contracts depend on scaffold and Platform fixtures
 # that do not exist in a live tenant.

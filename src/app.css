@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
+	/* Colours */
 	--color-cream: #F0DFCC;
 	--color-warm-white: #FFF8F0;
 	--color-sand: #D4B89C;
@@ -8,6 +9,7 @@
 	--color-dark-brown: #3D2E1F;
 	--color-soft-gold: #C9A96E;
 
+	/* Fonts */
 	--font-serif: 'Cormorant Garamond', serif;
 	--font-sans: 'Inter', sans-serif;
 	--font-script: 'Pinyon Script', cursive;
