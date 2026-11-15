@@ -7,8 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .
-RUN npm run build
-RUN npm prune --production
+RUN npm run build && npm prune --production
 
 FROM node:26-alpine@sha256:6f08a523443ddedf52941874c203475b0ad503e859ad70cb26ab8be9a517dbd5
 WORKDIR /app
@@ -19,7 +18,10 @@ COPY --from=build /app/drizzle ./drizzle
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
+# 127.0.0.1, not localhost: inside the image localhost resolves to ::1 first, and the server
+# listens on IPv4 only, so the old check was refused and never reported healthy.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ["sh", "-c", "wget -q -t 1 --spider http://localhost:3000/login || exit 1"]
-USER node
+  CMD ["sh", "-c", "wget -q -t 1 --spider http://127.0.0.1:3000/login || exit 1"]
+# The node image's `node` user, by number so Kubernetes can verify runAsNonRoot.
+USER 1000
 CMD ["node", "build/index.js"]
