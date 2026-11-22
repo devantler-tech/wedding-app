@@ -30,8 +30,6 @@ spec:
       labels:
         app.kubernetes.io/name: wedding-app
     spec:
-      imagePullSecrets:
-        - name: ghcr-auth
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
