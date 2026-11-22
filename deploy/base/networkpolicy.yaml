@@ -54,23 +54,13 @@ spec:
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: wedding-app
-    # CNPG → Cloudflare R2 (S3) for barman-cloud WAL archiving + base backups
-    # (the wedding-db CloudNativePG cluster). Pinned by FQDN instead of
-    # world:443 so a compromised pod cannot exfiltrate to arbitrary external
-    # services; the R2 pattern matches any account host without committing the
-    # account id.
-    - toFQDNs:
-        - matchPattern: "*.r2.cloudflarestorage.com"
-      toPorts:
-        - ports:
-            - port: "443"
-              protocol: TCP
     # Kube API (for CNPG operator managing the cluster)
     - toEntities:
         - kube-apiserver
     # DNS resolution. rules.dns engages Cilium's L7 DNS proxy so the toFQDNs
-    # allow-list above can be enforced; matchPattern "*" leaves resolution
-    # itself unrestricted (the FQDN list constrains where traffic may go).
+    # allow-list production adds for R2 (deploy/prod) can be enforced;
+    # matchPattern "*" leaves resolution itself unrestricted (the FQDN list
+    # constrains where traffic may go).
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: kube-system
