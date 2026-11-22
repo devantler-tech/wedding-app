@@ -21,6 +21,11 @@ kubectl kustomize "$repo_root/deploy/dev" > "$work/dev.yaml" || fail "deploy/dev
 cmp -s "$work/root.yaml" "$work/prod.yaml" ||
 	fail "deploy/kustomization.yaml must include only ./prod"
 
+for overlay in prod dev; do
+	storage_class=$(yq eval-all 'select(.kind == "Cluster" and .metadata.name == "wedding-db") | .spec.storage.storageClass' "$work/$overlay.yaml")
+	[ "$storage_class" = longhorn-v2 ] || fail "deploy/$overlay must provision wedding-db on Longhorn V2"
+done
+
 count_kind() {
 	KIND=$1 yq eval-all '[.] | map(select(.kind == strenv(KIND))) | length' "$work/dev.yaml"
 }
