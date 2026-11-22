@@ -14,15 +14,14 @@ jobs:
     if: github.repository_id != '1253884448'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Serialize this repository's publishers and never cancel one mid-release.
     concurrency:
-      group: publish-${{ github.repository }}
+      group: publish-verified-${{ github.repository }}
       queue: max
       cancel-in-progress: false
     permissions:
-      contents: read # checkout and the default-branch fetch
-      packages: write # push the image and the manifests OCI artifact
-      id-token: write # keyless cosign signing as this workflow (GitHub OIDC)
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - name: 🔒 Harden runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -31,16 +30,10 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false # required: publish-app refuses a persisted credential
-      # The action runs directly in this workflow, so the image and the manifests are signed as
-      # this repository's cd.yaml on the release tag (devantler-tech/monorepo ADR 0017). The
-      # platform trusts that identity, so a new action revision needs no platform approval.
+          persist-credentials: false
       - name: 📦 Publish signed application
         id: publish
         uses: devantler-tech/.github/actions/publish-app@d70d50665465117f01104313e53057374a96a1a3 # v21.7.2
         with:
-          # publish-app pins the freshly built image digest into the container with this name.
-          # Keep that container's name equal to the repository name.
           app-name: ${{ github.event.repository.name }}
-          # Relative to deploy/. The base/dev/prod split moves it to base/deployment.yaml.
-          app-manifest: deployment.yaml
+          app-manifest: ${{ hashFiles('deploy/base/deployment.yaml') != '' && 'base/deployment.yaml' || 'deployment.yaml' }}
