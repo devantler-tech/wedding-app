@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
       - name: 📦 Publish signed application
         id: publish
-        uses: devantler-tech/.github/actions/publish-app@cc156a3693019fdbe9817c46f1a91cd50a124695 # v21.7.3
+        uses: devantler-tech/.github/actions/publish-app@330e200a15cdf701b8660be5bdac17d20e1d9d94 # v21.8.0
         with:
           app-name: ${{ github.event.repository.name }}
           app-manifest: ${{ hashFiles('deploy/base/deployment.yaml') != '' && 'base/deployment.yaml' || 'deployment.yaml' }}
