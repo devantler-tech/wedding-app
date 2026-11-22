@@ -213,7 +213,7 @@ jobs:
         env:
           DEV_SKIP_AUTH: "true"
 
-  # The portable pin contract ships from platform-tenant-template and is deliberately NOT
+  # The portable pin contract ships from application-template and is deliberately NOT
   # tenant-ignored, so it lands here on every sync. It validates immutable maintained
   # callers, keeping release and template-sync aligned and the publisher pinned to a tagged commit.
   # A caller reverting to a movable tag is the ordinary outcome of a hand edit or a bad merge, and it
