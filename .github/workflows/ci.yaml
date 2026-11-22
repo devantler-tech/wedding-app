@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
       - name: Check documentation
         id: links
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@ac1f346773da6f47444c283927fb1ce31187fe21 # v21.6.3
         with:
           enabled: "true"
       - name: Require a complete scan
@@ -54,14 +54,14 @@ jobs:
       - name: Reject the seeded retired link
         id: negative
         continue-on-error: true
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@ac1f346773da6f47444c283927fb1ce31187fe21 # v21.6.3
         with:
           enabled: "true"
           working-directory: ${{ steps.fixture.outputs.directory }}
       - name: Reject missing consumer configuration
         id: missing-config
         continue-on-error: true
-        uses: devantler-tech/.github/actions/validate-retired-repo-links@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
+        uses: devantler-tech/.github/actions/validate-retired-repo-links@ac1f346773da6f47444c283927fb1ce31187fe21 # v21.6.3
         with:
           enabled: "true"
           config-file: .github/missing-retired-repo-links.json
@@ -336,16 +336,27 @@ jobs:
       - name: 🏷️ Validate which dependency updates release
         run: sh scripts/release-classification.test.sh
 
+  # The template's shared MegaLinter checks for workflows, scripts, the Dockerfile, Markdown, YAML,
+  # JSON, Kubernetes manifests and leaked secrets; ESLint and svelte-check above lint the app's own
+  # code. Configure it in .mega-linter.yml, which extends the template's base.
+  megalinter:
+    name: MegaLinter
+    # GitHub's `$/` self-repository form fails actionlint until it supports it
+    # (rhysd/actionlint#711); switch then.
+    uses: ./.github/workflows/lint.yaml # zizmor: ignore[self-repository]
+    permissions:
+      contents: read
+
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, deploy-overlays, publish-pin-approved, validate-retired-links, node-toolchain, release-classification]
+    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, deploy-overlays, publish-pin-approved, validate-retired-links, node-toolchain, release-classification, megalinter]
     permissions:
       actions: read
     if: ${{ always() }}
     steps:
       - name: 📊 Require all CI checks to pass
-        uses: devantler-tech/.github/actions/aggregate-job-checks@f33622708f9f25a32acb46cc419007e18a3223b3 # v21.3.1
+        uses: devantler-tech/.github/actions/aggregate-job-checks@ac1f346773da6f47444c283927fb1ce31187fe21 # v21.6.3
         with:
           check-workflow-startup: "true"
           job-results: >-
@@ -362,3 +373,4 @@ jobs:
             ${{ needs.validate-retired-links.result }}
             ${{ needs.node-toolchain.result }}
             ${{ needs.release-classification.result }}
+            ${{ needs.megalinter.result }}
