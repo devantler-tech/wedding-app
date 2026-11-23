@@ -54,3 +54,6 @@ scripts/tenant-rbac.test.sh
 # scripts/publish-pin-approved.test.sh is deliberately not listed: the template
 # does not ignore it either, and this tenant's CI runs it beside the check it
 # tests, so it stays synced with it.
+
+# --- Merged from the template by template sync. A "!<entry>" line keeps one entry out. ---
+scripts/validate-workflow-queues.test.sh
