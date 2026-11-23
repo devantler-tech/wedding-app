@@ -95,10 +95,8 @@ Run the local wiring fixtures as well:
 
 ```sh
 bash scripts/retired-repo-links.test.sh
-sh scripts/workflow-caller-pin-contract.test.sh
 sh scripts/homepage-group.test.sh
 sh scripts/readonly-rootfs.test.sh
-sh scripts/publish-pin-approved.test.sh
 NODE_TOOLCHAIN_LIVE=1 sh scripts/node-toolchain-contract.test.sh
 git diff --check
 ```

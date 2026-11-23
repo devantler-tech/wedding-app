@@ -2,9 +2,8 @@
 # must never overwrite them. Everything not listed is shared plumbing the template
 # keeps in sync: cd.yaml, release.yaml, template-sync.yaml, stale-issues.yaml,
 # codeql.yaml, lint.yaml, .github/mega-linter.base.yml, .coderabbit.yaml,
-# .markdownlint.json, .yamllint.yml, renovate.json, docs/REFERENCE.md, CLAUDE.md,
-# zizmor.yml and the portable scripts/workflow-caller-pin-contract.test.sh,
-# scripts/publish-pin-approved.sh and its test.
+# .markdownlint.json, .yamllint.yml, renovate.json, docs/REFERENCE.md, CLAUDE.md
+# and zizmor.yml.
 AGENTS.md
 .claude/skills/maintain/SKILL.md
 .github/workflows/ci.yaml
@@ -50,10 +49,6 @@ scripts/pod-security-admission.test.sh
 scripts/tenant-ci-contract.test.sh
 scripts/tenant-rbac-contract.test.sh
 scripts/tenant-rbac.test.sh
-
-# scripts/publish-pin-approved.test.sh is deliberately not listed: the template
-# does not ignore it either, and this tenant's CI runs it beside the check it
-# tests, so it stays synced with it.
 
 # --- Merged from the template by template sync. A "!<entry>" line keeps one entry out. ---
 scripts/validate-workflow-queues.test.sh
