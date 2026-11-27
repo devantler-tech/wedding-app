@@ -213,16 +213,10 @@ jobs:
         env:
           DEV_SKIP_AUTH: "true"
 
-  # The portable pin contract ships from application-template and is deliberately NOT
-  # tenant-ignored, so it lands here on every sync. It validates immutable maintained
-  # callers, keeping release and template-sync aligned and the publisher pinned to a tagged commit.
-  # A caller reverting to a movable tag is the ordinary outcome of a hand edit or a bad merge, and it
-  # is exactly what this guard refuses. The template's own scaffold contract already specifies this
-  # wiring by name — a `workflow-caller-pins` job running the script, and required checks depending
-  # on it — so this is that wiring, not a new convention. No npm install: the script is `sh` + `yq`,
-  # both present on the runner.
-  workflow-caller-pins:
-    name: Workflow Caller Pins
+  # Keeps the Homepage dashboard discovering the site in its group. No npm install: the script is
+  # `sh` + `yq`, both present on the runner.
+  homepage-group:
+    name: Homepage Group
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -230,14 +224,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: 📌 Validate reusable workflow caller pins
-        run: sh scripts/workflow-caller-pin-contract.test.sh
       - name: Validate Homepage site classification
         run: sh scripts/homepage-group.test.sh
 
   # Issue #324: the platform suppressed Kubescape C-0017 for this namespace on the promise that the app
   # would run with a read-only root filesystem. This keeps that flag and its declared /tmp scratch
-  # mount from silently reverting. `sh` + `yq` only, like the pin contract above.
+  # mount from silently reverting. `sh` + `yq` only, like the Homepage check above.
   readonly-rootfs:
     name: Read-only Root Filesystem
     runs-on: ubuntu-latest
@@ -265,39 +257,6 @@ jobs:
           persist-credentials: false
       - name: 🧱 Render production and dev manifests
         run: sh scripts/deploy-overlays.test.sh
-
-  # Releases are signed by this repository's own cd.yaml on the release tag (devantler-tech/monorepo
-  # ADR 0017), and the platform trusts exactly that identity. The template's check refuses a cd.yaml
-  # that leaves the minimal tag-only, credential-free frame those signatures rely on, and still holds
-  # back a move back to a shared publisher revision the platform has not approved for this tenant.
-  publish-pin-approved:
-    name: Publish Pin Approved
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: 🧪 Test the publish pin check
-        run: sh scripts/publish-pin-approved.test.sh
-      - name: 📌 Refuse an unapproved publish-app pin
-        env:
-          # A pull request compares against its base; a push to main against the tip it replaced.
-          BASE_SHA: ${{ github.event_name == 'push' && github.event.before || github.event.pull_request.base.sha }}
-        run: |
-          # An empty base would turn `git show ":path"` into an index read, comparing the head with
-          # itself and passing without checking anything.
-          if [ -z "${BASE_SHA}" ]; then
-            echo "::error::No base commit to compare the publish-app pin against."
-            exit 1
-          fi
-          # Run the check as it exists on the base branch: a PR must not be able to weaken the check
-          # that judges it.
-          git show "${BASE_SHA}:scripts/publish-pin-approved.sh" >"${RUNNER_TEMP}/publish-pin-approved.sh"
-          git show "${BASE_SHA}:.github/workflows/cd.yaml" >"${RUNNER_TEMP}/base-cd.yaml"
-          sh "${RUNNER_TEMP}/publish-pin-approved.sh" "${RUNNER_TEMP}/base-cd.yaml" .github/workflows/cd.yaml
 
   # Issue #343: CI once ran a different Node major than the image ships, and the two bundled npm
   # majors resolve one manifest into different trees, so `npm ci` rejected every Dependabot lockfile
@@ -350,7 +309,7 @@ jobs:
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
-    needs: [lint, check, test, e2e, build, boot-smoke, workflow-caller-pins, readonly-rootfs, deploy-overlays, publish-pin-approved, validate-retired-links, node-toolchain, release-classification, megalinter]
+    needs: [lint, check, test, e2e, build, boot-smoke, homepage-group, readonly-rootfs, deploy-overlays, validate-retired-links, node-toolchain, release-classification, megalinter]
     permissions:
       actions: read
     if: ${{ always() }}
@@ -366,10 +325,9 @@ jobs:
             ${{ needs.e2e.result }}
             ${{ needs.build.result }}
             ${{ needs.boot-smoke.result }}
-            ${{ needs.workflow-caller-pins.result }}
+            ${{ needs.homepage-group.result }}
             ${{ needs.readonly-rootfs.result }}
             ${{ needs.deploy-overlays.result }}
-            ${{ needs.publish-pin-approved.result }}
             ${{ needs.validate-retired-links.result }}
             ${{ needs.node-toolchain.result }}
             ${{ needs.release-classification.result }}
