@@ -11,6 +11,11 @@ kind: Cluster
 metadata:
   name: wedding-db
 spec:
+  # Keep three members available while a replica is rebuilt on Longhorn V2.
+  instances: 4
+  storage:
+    # CloudNativePG applies the V2 template only to new claims.
+    resizeInUseVolumes: false
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
