@@ -26,6 +26,11 @@ for overlay in prod dev; do
 	[ "$storage_class" = longhorn-v2 ] || fail "deploy/$overlay must provision wedding-db on Longhorn V2"
 done
 
+prod_instances=$(yq eval-all 'select(.kind == "Cluster" and .metadata.name == "wedding-db") | .spec.instances' "$work/prod.yaml")
+[ "$prod_instances" = 4 ] || fail "deploy/prod must keep a spare database instance while replacing the V1 disks"
+prod_resize=$(yq eval-all 'select(.kind == "Cluster" and .metadata.name == "wedding-db") | .spec.storage.resizeInUseVolumes' "$work/prod.yaml")
+[ "$prod_resize" = false ] || fail "deploy/prod must preserve the existing database claims during the storage migration"
+
 count_kind() {
 	KIND=$1 yq eval-all '[.] | map(select(.kind == strenv(KIND))) | length' "$work/dev.yaml"
 }
